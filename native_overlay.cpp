@@ -4,6 +4,9 @@
 #include <dwrite.h>
 #include <algorithm>
 #include <unordered_map>
+#include <QColor>
+#include <cstdio>
+#include <chrono>
 
 namespace sysinfo {
 namespace {
@@ -33,8 +36,7 @@ struct NativeOverlay::Impl {
         auto* dc = frame.context;
         const float scale = std::max(.1f, model.scale);
         dc->SetTransform(D2D1::Matrix3x2F::Scale(scale, scale));
-        const float width = frame.width / scale, height = frame.height / scale;
-        const float ink = frame.backdropLuminance > .56f ? .06f : .97f;
+        const float ink = model.dark ? .97f : .06f;
         ID2D1SolidColorBrush* text = nullptr;
         ID2D1SolidColorBrush* wave = nullptr;
         dc->CreateSolidColorBrush(D2D1::ColorF(ink, ink, ink, 1), &text);
@@ -46,34 +48,32 @@ struct NativeOverlay::Impl {
             (model.tiny ? 13.f : 14.f) * model.fontPercent / 100.f, L"", &format);
         if (!format || !text || !wave) { release(format); release(text); release(wave); dc->SetTransform(D2D1::Matrix3x2F::Identity()); return; }
         format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+        format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+        format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         auto drawText = [&](const QString& value, float x, float y, float w, float h) {
-            dc->DrawTextW(reinterpret_cast<const wchar_t*>(value.utf16()), static_cast<UINT32>(value.size()), format,
-                D2D1::RectF(x,y,x+w,y+h), text, D2D1_DRAW_TEXT_OPTIONS_CLIP);
+            IDWriteTextLayout* layout=nullptr;
+            if(SUCCEEDED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(value.utf16()),static_cast<UINT32>(value.size()),format,w,h,&layout))) {
+                DWRITE_TEXT_METRICS measured{};layout->GetMetrics(&measured);
+                const float fit=std::min({1.f,w/std::max(1.f,measured.widthIncludingTrailingWhitespace),h/std::max(1.f,measured.height)});
+                if(fit<1) layout->SetFontSize(format->GetFontSize()*fit,{0,static_cast<UINT32>(value.size())});
+                dc->DrawTextLayout(D2D1::Point2F(x,y),layout,text,D2D1_DRAW_TEXT_OPTIONS_CLIP);
+                release(layout);
+            }
         };
-        const float pad = model.tiny ? 10.f : model.padding;
+        const float pad = model.padding;
         const float cellW = model.cellWidth;
         const float cellH = model.cellHeight;
-        float tinyX = pad;
         for (const auto& metric : model.metrics) {
             if (metric.empty) continue;
+            QColor waveColor(metric.color);
+            if(!waveColor.isValid()) waveColor=QColor("#36BFFA");
+            wave->SetColor(D2D1::ColorF(waveColor.redF(),waveColor.greenF(),waveColor.blueF(),1));
             QString value = model.showValues ? metric.value : QString();
             if (model.showUnits && !metric.unit.isEmpty() && (model.showValues || model.tiny)) value += QStringLiteral(" ") + metric.unit;
-            if (model.tiny) {
-                const QString line = (model.showLabels ? metric.label + QStringLiteral(" ") : QString()) + value;
-                const float available = std::max(1.f,width-pad-tinyX);
-                drawText(line,tinyX,std::max(0.f,height*.5f-11),available,24);
-                IDWriteTextLayout* layout = nullptr;
-                if (SUCCEEDED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(line.utf16()), static_cast<UINT32>(line.size()), format, available,24,&layout))) {
-                    DWRITE_TEXT_METRICS metrics{}; layout->GetMetrics(&metrics);
-                    tinyX += metrics.widthIncludingTrailingWhitespace+15; release(layout);
-                }
-                if (tinyX >= width-pad) break;
-                continue;
-            }
             const float x=pad+metric.column*cellW,y=pad+metric.row*cellH;
-            const float chartX = model.wash ? x : x + cellW*.56f;
-            const float chartY = model.wash ? y+7 : y+cellH*.48f;
-            const float chartW = model.wash ? cellW-8 : cellW*.44f-8;
+            const float chartX = x+8;
+            const float chartY = model.wash ? y+7 : y+cellH*.72f;
+            const float chartW = cellW-16;
             const float chartH = std::max(8.f, y+cellH-7-chartY);
             if (model.sparklines && metric.history.size()>1) {
                 double ceiling=100;
@@ -88,30 +88,35 @@ struct NativeOverlay::Impl {
                 if (SUCCEEDED(d2dFactory->CreatePathGeometry(&path))) {
                     ID2D1GeometrySink* sink=nullptr;
                     if (SUCCEEDED(path->Open(&sink))) {
-                        sink->BeginFigure(D2D1::Point2F(chartX,chartY+chartH),D2D1_FIGURE_BEGIN_FILLED);
+                        const bool wash=model.wash;
+                        wave->SetOpacity(1);
+                        if(wash) sink->BeginFigure(D2D1::Point2F(chartX,chartY+chartH),D2D1_FIGURE_BEGIN_FILLED);
                         for (size_t i=0;i<metric.history.size();++i) {
                             const float px=chartX+chartW*static_cast<float>(i)/static_cast<float>(metric.history.size()-1);
                             const float py=chartY+chartH*(1-static_cast<float>(std::clamp(metric.history[i]/ceiling,0.,1.)));
-                            sink->AddLine(D2D1::Point2F(px,py));
+                            if(!wash && i==0) sink->BeginFigure(D2D1::Point2F(px,py),D2D1_FIGURE_BEGIN_HOLLOW);
+                            else sink->AddLine(D2D1::Point2F(px,py));
+                            if(model.waveMode==QStringLiteral("dotted")) dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,py),1.2f,1.2f),wave);
+                            if(model.waveMode==QStringLiteral("bars")) dc->DrawLine(D2D1::Point2F(px,chartY+chartH),D2D1::Point2F(px,std::min(py,chartY+chartH-1)),wave,std::max(1.f,chartW/metric.history.size()*.6f));
                         }
-                        sink->AddLine(D2D1::Point2F(chartX+chartW,chartY+chartH));
-                        sink->EndFigure(D2D1_FIGURE_END_CLOSED); sink->Close(); release(sink);
-                        wave->SetOpacity(.32f); dc->FillGeometry(path,wave);
-                        wave->SetOpacity(1); dc->DrawGeometry(path,wave,1.2f);
+                        if(wash) sink->AddLine(D2D1::Point2F(chartX+chartW,chartY+chartH));
+                        sink->EndFigure(wash?D2D1_FIGURE_END_CLOSED:D2D1_FIGURE_END_OPEN); sink->Close(); release(sink);
+                        if(wash) {wave->SetOpacity(.20f); dc->FillGeometry(path,wave);}
+                        else if(model.waveMode==QStringLiteral("inline")) dc->DrawGeometry(path,wave,1.5f);
                     }
                     release(path);
                 }
                 release(d2dFactory);
             }
             const float lineHeight=(model.tiny?13.f:14.f)*model.fontPercent/100.f*1.35f;
-            const bool stacked=cellH>=lineHeight*2+4;
-            if (model.showLabels) drawText(metric.label,x,y,cellW-8,lineHeight);
-            if (model.showValues) {
-                const float valueX=model.showLabels&&!stacked?x+cellW*.5f:x;
-                const float valueY=model.showLabels&&stacked?y+lineHeight+3:y;
-                const float valueW=model.showLabels&&!stacked?cellW*.5f-8:cellW-8;
-                drawText(value,valueX,valueY,valueW,lineHeight);
-            }
+            const float textHeight=model.sparklines&&!model.wash?cellH*.68f:cellH;
+            const bool stacked=!model.tiny && textHeight>=lineHeight*2;
+            QString line=(model.showLabels?metric.label:QString());
+            if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;
+            if(stacked && model.showLabels && model.showValues) {
+                drawText(metric.label,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight);
+                drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
+            } else drawText(line,x+4,y,cellW-8,textHeight);
         }
         release(format); release(text); release(wave);
         dc->SetTransform(D2D1::Matrix3x2F::Identity());
@@ -119,6 +124,10 @@ struct NativeOverlay::Impl {
 };
 
 NativeOverlay::NativeOverlay():m(std::make_unique<Impl>()) {
+    if(qEnvironmentVariableIntValue("SYSINFO_MEASURE_FRAMES")) m->window.frameMeasured=[last=std::chrono::steady_clock::now()](double frame,double capture,double gpu) mutable {
+        const auto now=std::chrono::steady_clock::now();
+        std::fprintf(stderr,"FRAME %.3f %.3f %.3f %.3f\n",frame,capture,gpu,std::chrono::duration<double,std::milli>(now-last).count());last=now;
+    };
     m->window.moved=[this](liquid_glass::Point p){if(moved)moved(QPoint(p.x,p.y));};
     m->window.edgeCollapsedChanged=[this](bool v){if(edgeCollapsedChanged)edgeCollapsedChanged(v);};
     m->window.paintContent=[this](const liquid_glass::ContentFrame& f){m->paint(f);};
@@ -140,6 +149,7 @@ void NativeOverlay::setModel(NativeOverlayModel model){
     liquid_glass::Material material;
     material.dark=v.dark; material.edgeHide=v.edgeHide; material.debugPattern=v.debugPattern;
     material.animations=v.animations;
+    material.style=v.glassStyle; material.tileSize=static_cast<float>(v.tileSize);
     material.radius=v.radius; material.blur=v.blur; material.glass=v.glass; material.refraction=v.refraction;
     material.dispersion=v.dispersion; material.rimLight=v.rimLight; material.surfaceMotion=v.surfaceMotion; material.scale=v.scale;
     m->window.setMaterial(material);

@@ -85,6 +85,9 @@ QVector<QStringList> Settings::slotRows() const
 QJsonObject Settings::toJson() const
 {
     return QJsonObject{{QStringLiteral("enabled"), enabled},
+                       {QStringLiteral("waveColors"), waveColors},
+                       {QStringLiteral("glassStyle"), glassStyle},
+                       {QStringLiteral("tileSize"), tileSize},
                        {QStringLiteral("sparklines"), sparklines},
                        {QStringLiteral("theme"), theme},
                         {QStringLiteral("scale"), scale},
@@ -119,10 +122,13 @@ QJsonObject Settings::toJson() const
 Settings Settings::fromJson(const QJsonObject& v)
 {
     Settings s;
+    s.glassStyle=choice(v.value(QStringLiteral("glassStyle")),{QStringLiteral("liquid"),QStringLiteral("frosted"),QStringLiteral("square")},s.glassStyle);
+    s.tileSize=clampInt(v.value(QStringLiteral("tileSize")),s.tileSize,8,80);
     if (v.contains(QStringLiteral("enabled")))
         s.enabled = v.value(QStringLiteral("enabled")).toBool(s.enabled);
     s.sparklines = choice(v.value(QStringLiteral("sparklines")),
-                          {QStringLiteral("off"), QStringLiteral("inline"), QStringLiteral("wash")}, s.sparklines);
+                          {QStringLiteral("off"), QStringLiteral("inline"), QStringLiteral("wash"), QStringLiteral("dotted"), QStringLiteral("bars")}, s.sparklines);
+    if(v.value(QStringLiteral("waveColors")).isString()) s.waveColors=v.value(QStringLiteral("waveColors")).toString();
     s.theme = choice(v.value(QStringLiteral("theme")),
                      {QStringLiteral("system"), QStringLiteral("light"), QStringLiteral("dark")}, s.theme);
     if (v.contains(QStringLiteral("scale")))
@@ -189,8 +195,8 @@ Settings Settings::fromJson(const QJsonObject& v)
 QStringList settingKeys()
 {
     static const QStringList keys = {
-        QStringLiteral("enabled"),    QStringLiteral("sparklines"), QStringLiteral("theme"),
-        QStringLiteral("scale"),      QStringLiteral("glass"),      QStringLiteral("blur"), QStringLiteral("refraction"),
+        QStringLiteral("enabled"),    QStringLiteral("sparklines"), QStringLiteral("waveColors"), QStringLiteral("theme"),
+        QStringLiteral("scale"),      QStringLiteral("glass"), QStringLiteral("glassStyle"), QStringLiteral("tileSize"), QStringLiteral("blur"), QStringLiteral("refraction"),
         QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("surfaceMotion"),
         QStringLiteral("shadow"),     QStringLiteral("radius"),     QStringLiteral("metrics"),
         QStringLiteral("columns"), QStringLiteral("cellWidth"), QStringLiteral("cellHeight"),

@@ -101,12 +101,8 @@ void SysInfoUiBridge::applyGeometry()
     for (const QStringList& row : rows) m_gridColumns = std::max(m_gridColumns, static_cast<int>(row.size()));
     m_margin = (20 + m_settings.shadow * .12) * scale;
     if (m_settings.tiny) {
-        int visible = 0;
-        for (const QStringList& row : rows)
-            for (const QString& id : row)
-                visible += !id.isEmpty();
-        m_panelWidth = std::clamp(visible * 112.0 * scale, 240.0, 920.0);
-        m_panelHeight = 34.0 * scale;
+        m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
+        m_panelHeight = m_gridRows * std::max(42.0, 34.0*m_settings.fontSize/100.0) * scale;
     } else {
         m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
         m_panelHeight = m_gridRows * m_settings.cellHeight * scale;
@@ -163,6 +159,7 @@ void SysInfoUiBridge::applyAppearance(const QString& locale, const QString& them
 void SysInfoUiBridge::applySettings(const Settings& settings)
 {
     const Settings previous = m_settings; m_settings = settings; m_dark = resolveTheme() == QStringLiteral("dark");
+    if(m_sampler) m_sampler->setInterval(settings.intervalMs);
     const bool layoutChanged = previous.scale != settings.scale || previous.columns != settings.columns ||
                                previous.cellWidth != settings.cellWidth || previous.cellHeight != settings.cellHeight ||
                                previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position;
@@ -216,8 +213,12 @@ void SysInfoUiBridge::refreshSnapshot()
     const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.wash=m_settings.sparklines==QStringLiteral("wash"); model.edgeHide=m_settings.edgeHide;
     model.sparklines=m_settings.sparklines!=QStringLiteral("off"); model.animations=m_settings.animations;
+    model.waveMode=m_settings.sparklines;
+    model.glassStyle=m_settings.glassStyle==QStringLiteral("square")?2:m_settings.glassStyle==QStringLiteral("frosted")?1:0;
+    model.tileSize=m_settings.tileSize;
+    const auto waveColors=m_settings.waveColors.split(',');
     model.columns=m_gridColumns; model.rows=m_gridRows; model.radius=qRound(m_settings.radius*m_settings.scale/100.0);
-    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.cellHeight;
+    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.tiny?std::max(42.f,34.f*m_settings.fontSize/100.f):m_settings.cellHeight;
     model.blur=m_settings.blur; model.glass=m_settings.glass; model.refraction=m_settings.refraction;
     model.dispersion=m_settings.dispersion; model.rimLight=m_settings.rimLight; model.surfaceMotion=m_settings.surfaceMotion;
     model.fontPercent=m_settings.fontSize; model.fontFamily=m_settings.fontFamily;
@@ -235,6 +236,7 @@ void SysInfoUiBridge::refreshSnapshot()
             if(reading.status==Status::Fresh){const MetricText text=metric.rate?formatRate(reading.value):formatPercent(reading.value);metric.value=QString::fromStdString(text.number);metric.unit=QString::fromStdString(text.unit);}
             else metric.value=reading.status==Status::Sampling?(zh?QStringLiteral("采样中"):QStringLiteral("Sampling")):QStringLiteral("—");
             metric.history=sample.history[static_cast<size_t>(key)];
+            metric.color=waveColors.value(waveColors.size()==1?0:static_cast<int>(key)).trimmed();
         } model.metrics.push_back(std::move(metric));
     } ++row; }
     m_overlay->setModel(std::move(model));

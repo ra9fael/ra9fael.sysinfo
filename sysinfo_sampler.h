@@ -63,6 +63,7 @@ public:
 
     void start();
     void stop();
+    void setInterval(int milliseconds) { m_intervalMs=milliseconds; }
     // 暂停后只更新时间戳，不碰任何计数器（监视窗关掉时用）。
     void setPaused(bool paused) { m_paused = paused; }
     bool paused() const { return m_paused; }
@@ -77,6 +78,7 @@ private:
 
     std::thread m_worker;
     std::atomic_bool m_running{false};
+    std::atomic_int m_intervalMs{1000};
     std::atomic_bool m_paused{false};
     mutable std::mutex m_mutex;
     Sample m_value;

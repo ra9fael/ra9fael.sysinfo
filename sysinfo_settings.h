@@ -14,6 +14,9 @@
 namespace sysinfo {
 
 struct Settings {
+    QString glassStyle = QStringLiteral("liquid");
+    int tileSize = 24;
+    QString waveColors = QStringLiteral("#36BFFA,#A78BFA,#34D399,#FBBF24,#FB7185,#60A5FA");
     bool enabled = false;
     QString sparklines = QStringLiteral("inline"); // off | inline | wash
     QString theme = QStringLiteral("system");      // system | light | dark

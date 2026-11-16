@@ -55,9 +55,16 @@
       "key": "sparklines",
       "type": "choice",
       "title": {"zh": "微型波形", "en": "Sparklines"},
-      "hint": {"zh": "off 不画；inline 在数值下面加一条 60 秒小图；wash 把波形垫在格子背景里", "en": "off hides them; inline draws a 60 s chart under the value; wash lays the chart behind the cell"},
-      "options": ["off", "inline", "wash"],
+      "hint": {"zh": "inline 底部折线；wash 背景填充；dotted 点阵；bars 细柱。保留 60 次采样", "en": "inline: bottom line; wash: background area; dotted: points; bars: columns. Retains 60 samples"},
+      "options": ["off", "inline", "wash", "dotted", "bars"],
       "default": "inline"
+    },
+    {
+      "key": "waveColors",
+      "type": "text",
+      "title": {"zh": "波形颜色", "en": "Wave colors"},
+      "hint": {"zh": "一个 #RRGGBB 统一颜色，或逗号分隔 CPU、内存、GPU、磁盘、上传、下载六色", "en": "One #RRGGBB for all, or six comma-separated colors: CPU, memory, GPU, disk, upload, download"},
+      "default": "#36BFFA,#A78BFA,#34D399,#FBBF24,#FB7185,#60A5FA"
     },
     {
       "key": "theme",
@@ -80,6 +87,20 @@
       "title": {"zh": "玻璃强度（%）", "en": "Glass strength (%)"},
       "hint": {"zh": "0 – 100，默认 60；数值越大越透", "en": "0 – 100, default 60; higher is more transparent"},
       "default": 60
+    },
+    {
+      "key": "glassStyle",
+      "type": "choice",
+      "title": {"zh": "玻璃材质", "en": "Glass material"},
+      "options": ["liquid", "frosted", "square"],
+      "default": "liquid"
+    },
+    {
+      "key": "tileSize",
+      "type": "number",
+      "title": {"zh": "方格玻璃尺寸", "en": "Square glass tile size"},
+      "hint": {"zh": "8–80 像素；折射设置控制方格强度", "en": "8–80 pixels; refraction controls tile strength"},
+      "default": 24
     },
     {
       "key": "blur",
@@ -255,7 +276,7 @@
       "key": "intervalMs",
       "type": "number",
       "title": {"zh": "采样间隔（毫秒）", "en": "Sampling interval (ms)"},
-      "hint": {"zh": "500 – 5000 毫秒", "en": "500 – 5000 milliseconds"},
+      "hint": {"zh": "500 – 5000 毫秒；控制系统指标和波形历史的更新，不影响玻璃背景和动画", "en": "500–5000 ms between metric and history samples; independent of glass capture and animation"},
       "default": 1000
     }
   ]

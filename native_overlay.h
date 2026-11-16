@@ -16,6 +16,7 @@ using HWND = HWND__*;
 namespace sysinfo {
 
 struct NativeMetric {
+    QString color;
     QString label;
     QString value;
     QString unit;
@@ -27,6 +28,9 @@ struct NativeMetric {
 };
 
 struct NativeOverlayModel {
+    int glassStyle=0;
+    int tileSize=24;
+    QString waveMode;
     std::vector<NativeMetric> metrics;
     bool dark = true;
     bool tiny = false;

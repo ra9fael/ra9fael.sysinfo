@@ -453,9 +453,8 @@ void Sampler::run()
             m_value = std::move(s);
         }
 
-        const auto elapsed = Clock::now() - begin;
-        if (elapsed < std::chrono::seconds(1))
-            std::this_thread::sleep_for(std::chrono::seconds(1) - elapsed);
+        while(m_running && Clock::now()-begin<std::chrono::milliseconds(m_intervalMs.load()))
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 

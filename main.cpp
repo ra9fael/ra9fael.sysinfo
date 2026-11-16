@@ -462,6 +462,30 @@ int runProbe(QGuiApplication& app)
 
 int main(int argc, char* argv[])
 {
+    if(argc>1 && std::strcmp(argv[1],"--verify-sampling")==0) {
+        Sampler sampler;
+        sampler.setInterval(500); sampler.start();
+        for(int interval:{500,1000,5000,500}) {
+            sampler.setInterval(interval);
+            auto previous=sampler.get().at;
+            int observed=0;
+            const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(25);
+            while(observed<3 && std::chrono::steady_clock::now()<deadline) {
+                const auto current=sampler.get().at;
+                if(current!=previous) {
+                    if(observed>0) {
+                        const auto delta=current-previous;
+                        std::printf("sampling target=%d actual=%llu ms\n",interval,static_cast<unsigned long long>(delta));
+                        if(delta<static_cast<unsigned>(interval-60) || delta>static_cast<unsigned>(interval+300)) return 2;
+                    }
+                    previous=current; ++observed;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            if(observed<3) return 3;
+        }
+        sampler.stop(); return 0;
+    }
     // 探针模式：sysinfo.exe --probe 不接宿主，直接开监视窗 + 假数据，
     // 用来验证玻璃渲染和截屏排除；正常启动仍然走插件协议。
     const bool probe = argc > 1 && std::strcmp(argv[1], "--probe") == 0;

@@ -45,7 +45,8 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 30);
+    assert(keys.size() == 33);
+    assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
             && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
             && keys.contains("rimLight") && keys.contains("surfaceMotion") && keys.contains("captureVisible"));
