@@ -99,10 +99,10 @@ void SysInfoUiBridge::applyGeometry()
     m_gridRows = std::max(1, static_cast<int>(rows.size()));
     m_gridColumns = 1;
     for (const QStringList& row : rows) m_gridColumns = std::max(m_gridColumns, static_cast<int>(row.size()));
-    m_margin = (20 + m_settings.shadow * .12) * scale;
+    m_margin = (m_settings.tiny ? 4 : 20 + m_settings.shadow * .12) * scale;
     if (m_settings.tiny) {
         m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
-        m_panelHeight = m_gridRows * std::max(42.0, 34.0*m_settings.fontSize/100.0) * scale;
+        m_panelHeight = m_gridRows * 28 * scale;
     } else {
         m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
         m_panelHeight = m_gridRows * m_settings.cellHeight * scale;
@@ -217,8 +217,8 @@ void SysInfoUiBridge::refreshSnapshot()
     model.glassStyle=m_settings.glassStyle==QStringLiteral("square")?2:m_settings.glassStyle==QStringLiteral("frosted")?1:0;
     model.tileSize=m_settings.tileSize;
     const auto waveColors=m_settings.waveColors.split(',');
-    model.columns=m_gridColumns; model.rows=m_gridRows; model.radius=qRound(m_settings.radius*m_settings.scale/100.0);
-    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.tiny?std::max(42.f,34.f*m_settings.fontSize/100.f):m_settings.cellHeight;
+    model.columns=m_gridColumns; model.rows=m_gridRows; model.radius=qRound((m_settings.tiny?std::min(10,m_settings.radius):m_settings.radius)*m_settings.scale/100.0);
+    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.tiny?28:m_settings.cellHeight;
     model.blur=m_settings.blur; model.glass=m_settings.glass; model.refraction=m_settings.refraction;
     model.dispersion=m_settings.dispersion; model.rimLight=m_settings.rimLight; model.surfaceMotion=m_settings.surfaceMotion;
     model.fontPercent=m_settings.fontSize; model.fontFamily=m_settings.fontFamily;

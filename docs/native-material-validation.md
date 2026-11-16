@@ -31,6 +31,17 @@ history representations, per-series colors and automatic range scaling.
 
 ## Performance
 
+### Compact layout
+
+At 100% scale with two rows and three 100px columns, normal mode measures
+340×140px and tiny mode measures 308×64px. Tiny uses 28px rows and 4px outer
+padding. Visual inspection covers inline, wash, dotted, bars at 180% with
+Consolas, values without labels/units, and charts off. All tiny variants retain
+64px total height with fitted text. Separate charts occupy a 6px bottom strip;
+wash is drawn behind text. Workspace evidence: `build/tiny-validation/comparison.png`.
+
+### Frame measurements
+
 Eight-second observations after two seconds of warm-up, on the interactive
 desktop with the probe content. CPU is a percentage of one logical CPU.
 Frame duration includes Present; interval measures successive draw completions.

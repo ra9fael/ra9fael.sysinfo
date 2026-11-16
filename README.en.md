@@ -13,12 +13,15 @@ Both normal and compact modes support centered text and history charts.
 - Cell order: `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns.
   Semicolons or newlines separate rows; commas separate columns; `cpu,,memory`
   preserves a blank cell.
-- Charts: `off`, bottom-line `inline`, background-area `wash`, sample-point
-  `dotted`, or narrow-column `bars`.
+- Charts: `off` hides charts. `inline` lines, `dotted` points and `bars` columns
+  sit below the text in a separate area. `wash` fills the background behind text.
 - Wave colors: one `#RRGGBB` for all metrics, or six comma-separated colors in
   CPU, memory, GPU, disk, upload, download order, independent of cell order.
-- Fonts: configurable family and 70–180% size. Measured long text shrinks to fit;
-  compact row height follows font size.
+- Fonts: configurable family and 70–180% size. Measured long text shrinks to fit.
+- `tiny`: single-line text, 28px rows, 4px outer padding and 6px bottom charts.
+  `wash` needs no extra height. Cell width, blank cells and label/value/unit switches
+  are preserved. Large text shrinks to the fixed row height. Corner radius is capped
+  at 10px; all dimensions follow the overall scale.
 - Theme: `system` follows Windows; `light` and `dark` set glass tint and text color.
 - Glass: `liquid`, `frosted`, or square-embossed `square`. Tile size is 8–80 pixels;
   refraction controls its strength.

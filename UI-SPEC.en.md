@@ -27,6 +27,12 @@ Detail charts remain planned. Desktop charts use 60 in-memory samples without pe
 
 ## Overlay
 
+`tiny` uses single-line text, fixed 28px rows, 4px outer padding and a 10px radius
+cap, all following overall scale. Text shrinks to its available area. Cell width,
+blank cells and label/value/unit switches are preserved. `inline/dotted/bars`
+occupy a separate 6px bottom strip in tiny mode; `wash` sits behind text without
+reserving extra height.
+
 ```text
 ┌ CPU 12%    RAM 8.1/32 GiB  ┐
 │ LAN ↑ 1.2 MiB/s ↓ 4 MiB/s  │

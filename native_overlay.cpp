@@ -71,10 +71,11 @@ struct NativeOverlay::Impl {
             QString value = model.showValues ? metric.value : QString();
             if (model.showUnits && !metric.unit.isEmpty() && (model.showValues || model.tiny)) value += QStringLiteral(" ") + metric.unit;
             const float x=pad+metric.column*cellW,y=pad+metric.row*cellH;
-            const float chartX = x+8;
-            const float chartY = model.wash ? y+7 : y+cellH*.72f;
-            const float chartW = cellW-16;
-            const float chartH = std::max(8.f, y+cellH-7-chartY);
+            const float chartInset = model.tiny ? 4.f : 8.f;
+            const float chartX = x+chartInset;
+            const float chartY = model.wash ? y+2 : model.tiny ? y+cellH-8 : y+cellH*.72f;
+            const float chartW = cellW-2*chartInset;
+            const float chartH = model.wash ? cellH-4 : model.tiny ? 6.f : std::max(8.f,y+cellH-7-chartY);
             if (model.sparklines && metric.history.size()>1) {
                 double ceiling=100;
                 if (metric.rate) {
@@ -109,7 +110,7 @@ struct NativeOverlay::Impl {
                 release(d2dFactory);
             }
             const float lineHeight=(model.tiny?13.f:14.f)*model.fontPercent/100.f*1.35f;
-            const float textHeight=model.sparklines&&!model.wash?cellH*.68f:cellH;
+            const float textHeight=model.sparklines&&!model.wash?(model.tiny?cellH-9:cellH*.68f):cellH;
             const bool stacked=!model.tiny && textHeight>=lineHeight*2;
             QString line=(model.showLabels?metric.label:QString());
             if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;

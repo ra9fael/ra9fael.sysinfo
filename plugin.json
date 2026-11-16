@@ -54,8 +54,8 @@
     {
       "key": "sparklines",
       "type": "choice",
-      "title": {"zh": "微型波形", "en": "Sparklines"},
-      "hint": {"zh": "inline 底部折线；wash 背景填充；dotted 点阵；bars 细柱。保留 60 次采样", "en": "inline: bottom line; wash: background area; dotted: points; bars: columns. Retains 60 samples"},
+      "title": {"zh": "波形显示", "en": "Waveform display"},
+      "hint": {"zh": "inline 折线、dotted 点阵、bars 细柱与文字分离，放在下方；wash 填充在文字背后。off 关闭，保留 60 次采样", "en": "inline lines, dotted points and bars sit below the text; wash fills the background behind it. off hides charts. Retains 60 samples"},
       "options": ["off", "inline", "wash", "dotted", "bars"],
       "default": "inline"
     },
@@ -197,7 +197,7 @@
       "key": "tiny",
       "type": "bool",
       "title": {"zh": "Tiny 模式", "en": "Tiny mode"},
-      "hint": {"zh": "更紧凑的网格", "en": "A more compact grid"},
+      "hint": {"zh": "单行文字，28px 行高、4px 外留白；底部波形高 6px。字号缩小适配，保留标签/数值/单位开关与列宽，尺寸随缩放变化", "en": "Single-line text, 28px rows, 4px outer padding and 6px bottom charts. Text shrinks to fit; label/value/unit switches and cell width are preserved. Dimensions follow scale"},
       "default": false
     },
     {
