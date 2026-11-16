@@ -200,6 +200,14 @@ void SysInfoUiBridge::handleMoved(const QPoint& position)
     QRect rect=m_overlay->geometry(); rect.moveTopLeft(position);
     const MonitorWork work = monitorWork(rect);
     rect = clampToWork(rect, work.area.isValid() ? work.area : availableArea());
+    if(m_settings.edgeSnap) {
+        const QRect area=work.area.isValid()?work.area:availableArea();
+        const int threshold=qRound(12*m_settings.scale/100.0);
+        if(std::abs(rect.left()-area.left())<=threshold) rect.moveLeft(area.left());
+        else if(std::abs(rect.right()-area.right())<=threshold) rect.moveRight(area.right());
+        if(std::abs(rect.top()-area.top())<=threshold) rect.moveTop(area.top());
+        else if(std::abs(rect.bottom()-area.bottom())<=threshold) rect.moveBottom(area.bottom());
+    }
     m_overlay->setGeometry(rect); m_windowPos=rect; updateSavedScreen(); saveWindowState();
     if (m_settings.position != QStringLiteral("free")) {
         const QJsonObject changed=m_store->patch({{QStringLiteral("position"),QStringLiteral("free")}});

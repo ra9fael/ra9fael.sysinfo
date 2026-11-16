@@ -47,6 +47,7 @@ struct Settings {
     QString fontFamily = QStringLiteral("Segoe UI Variable Text");
     bool tiny = false;
     bool edgeHide = false;
+    bool edgeSnap = true;
     bool animations = true;
     bool showLabels = true;
     bool showValues = true;

@@ -45,7 +45,7 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 41);
+    assert(keys.size() == 42);
     assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
             && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
@@ -72,6 +72,9 @@ static void testSettings()
     assert(defaults.showLabels && defaults.showValues && defaults.showUnits && defaults.captureVisible);
     assert(defaults.columns == 3 && defaults.cellWidth == 120 && defaults.cellHeight == 40);
     assert(defaults.padding == 4 && defaults.dividers && defaults.dividerOpacity == 12);
+    assert(defaults.edgeSnap && !defaults.edgeHide);
+    const Settings independentEdges=Settings::fromJson({{"edgeSnap", false}, {"edgeHide", true}});
+    assert(!independentEdges.edgeSnap && independentEdges.edgeHide);
     assert(defaults.radius == 20);
     const QStringList slotList = defaults.slotList();
     assert(slotList.size() == 6);

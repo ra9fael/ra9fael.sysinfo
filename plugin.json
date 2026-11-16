@@ -281,6 +281,13 @@
       "default": false
     },
     {
+      "key": "edgeSnap",
+      "type": "bool",
+      "title": {"zh": "贴边吸附", "en": "Snap to display edges"},
+      "hint": {"zh": "拖动结束时距边缘 12px 内吸附；独立于自动隐藏", "en": "Snap within 12px on drag release; independent of auto-hide"},
+      "default": true
+    },
+    {
       "key": "animations",
       "type": "bool",
       "title": {"zh": "交互动画", "en": "Interaction animations"},

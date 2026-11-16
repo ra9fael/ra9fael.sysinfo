@@ -116,7 +116,8 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("fontSize"), fontSize},
                         {QStringLiteral("fontFamily"), fontFamily},
                         {QStringLiteral("tiny"), tiny},
-                        {QStringLiteral("edgeHide"), edgeHide},
+                         {QStringLiteral("edgeHide"), edgeHide},
+                         {QStringLiteral("edgeSnap"), edgeSnap},
                         {QStringLiteral("animations"), animations},
                         {QStringLiteral("showLabels"), showLabels},
                         {QStringLiteral("showValues"), showValues},
@@ -192,6 +193,7 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.tiny = v.value(QStringLiteral("tiny")).toBool(s.tiny);
     if (v.contains(QStringLiteral("edgeHide")))
         s.edgeHide = v.value(QStringLiteral("edgeHide")).toBool(s.edgeHide);
+    s.edgeSnap = v.value(QStringLiteral("edgeSnap")).toBool(s.edgeSnap);
     if (v.contains(QStringLiteral("animations")))
         s.animations = v.value(QStringLiteral("animations")).toBool(s.animations);
     if (v.contains(QStringLiteral("showLabels")))
@@ -223,7 +225,7 @@ QStringList settingKeys()
         QStringLiteral("columns"), QStringLiteral("cellWidth"), QStringLiteral("cellHeight"),
         QStringLiteral("padding"), QStringLiteral("dividers"), QStringLiteral("dividerOpacity"),
         QStringLiteral("fontSize"), QStringLiteral("fontFamily"), QStringLiteral("tiny"),
-        QStringLiteral("position"), QStringLiteral("displayTarget"), QStringLiteral("edgeHide"),
+        QStringLiteral("position"), QStringLiteral("displayTarget"), QStringLiteral("edgeHide"), QStringLiteral("edgeSnap"),
         QStringLiteral("animations"), QStringLiteral("showLabels"), QStringLiteral("showValues"),
         QStringLiteral("showUnits"), QStringLiteral("captureVisible"),
         QStringLiteral("clickThrough"), QStringLiteral("locked"),  QStringLiteral("intervalMs")};
