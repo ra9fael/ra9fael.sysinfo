@@ -207,7 +207,27 @@
       "type": "number",
       "title": {"zh": "单元格高度", "en": "Cell height"},
       "hint": {"zh": "28 – 160", "en": "28 – 160"},
-      "default": 50
+      "default": 40
+    },
+    {
+      "key": "padding",
+      "type": "number",
+      "title": {"zh": "面板内边距（px）", "en": "Panel padding (px)"},
+      "hint": {"zh": "0–40；独立于阴影，随整体缩放", "en": "0–40; independent of shadow, follows scale"},
+      "default": 4
+    },
+    {
+      "key": "dividers",
+      "type": "bool",
+      "title": {"zh": "显示列分隔线", "en": "Show column dividers"},
+      "default": true
+    },
+    {
+      "key": "dividerOpacity",
+      "type": "number",
+      "title": {"zh": "分隔线不透明度（%）", "en": "Divider opacity (%)"},
+      "hint": {"zh": "0–100", "en": "0–100"},
+      "default": 12
     },
     {
       "key": "fontSize",

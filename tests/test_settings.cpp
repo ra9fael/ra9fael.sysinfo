@@ -45,7 +45,7 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 37);
+    assert(keys.size() == 40);
     assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
             && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
@@ -70,7 +70,8 @@ static void testSettings()
     assert(defaults.blur == 55 && defaults.refraction == 58 && defaults.dispersion == 12
            && defaults.rimLight == 54 && defaults.surfaceMotion == 35 && defaults.shadow == 0);
     assert(defaults.showLabels && defaults.showValues && defaults.showUnits && defaults.captureVisible);
-    assert(defaults.columns == 3 && defaults.cellWidth == 120 && defaults.cellHeight == 50);
+    assert(defaults.columns == 3 && defaults.cellWidth == 120 && defaults.cellHeight == 40);
+    assert(defaults.padding == 4 && defaults.dividers && defaults.dividerOpacity == 12);
     assert(defaults.radius == 20);
     const QStringList slotList = defaults.slotList();
     assert(slotList.size() == 6);

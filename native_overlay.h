@@ -50,6 +50,8 @@ struct NativeOverlayModel {
     int columns = 3;
     int rows = 2;
     float padding = 20;
+    bool dividers = true;
+    int dividerOpacity = 12;
     float cellWidth = 120;
     float cellHeight = 50;
     int radius = 22;

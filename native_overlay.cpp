@@ -130,6 +130,12 @@ struct NativeOverlay::Impl {
                 drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
             } else drawText(line,x+4,y+(below?2.f:0.f),cellW-8,textHeight);
         }
+        if(model.dividers) {
+            text->SetOpacity(model.dividerOpacity/100.f);
+            for(int column=1;column<model.columns;++column)
+                dc->DrawLine(D2D1::Point2F(pad+column*cellW,pad+2),
+                    D2D1::Point2F(pad+column*cellW,pad+model.rows*cellH-2),text,1.f);
+        }
         release(format); release(text); release(wave);
         dc->SetTransform(D2D1::Matrix3x2F::Identity());
     }

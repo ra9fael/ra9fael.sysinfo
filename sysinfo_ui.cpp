@@ -99,7 +99,7 @@ void SysInfoUiBridge::applyGeometry()
     m_gridRows = std::max(1, static_cast<int>(rows.size()));
     m_gridColumns = 1;
     for (const QStringList& row : rows) m_gridColumns = std::max(m_gridColumns, static_cast<int>(row.size()));
-    m_margin = (m_settings.tiny ? 4 : 20 + m_settings.shadow * .12) * scale;
+    m_margin = m_settings.padding * scale;
     if (m_settings.tiny) {
         m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
         m_panelHeight = m_gridRows * 28 * scale;
@@ -162,7 +162,7 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
     if(m_sampler) m_sampler->setInterval(settings.intervalMs);
     const bool layoutChanged = previous.scale != settings.scale || previous.columns != settings.columns ||
                                previous.cellWidth != settings.cellWidth || previous.cellHeight != settings.cellHeight ||
-                               previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position;
+                               previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position || previous.padding != settings.padding;
     applyGeometry(); if (m_overlay && layoutChanged) placeWindow(settings.position != QStringLiteral("free"));
     applyClickThrough(); if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible); if (!settings.edgeHide) setEdgeCollapsed(false);
     if (settings.enabled) showOverlay(); else hideOverlayOnly();
@@ -228,6 +228,7 @@ void SysInfoUiBridge::refreshSnapshot()
     model.fontPercent=m_settings.fontSize; model.fontFamily=m_settings.fontFamily;
     model.scale=m_settings.scale/100.0f;
     model.padding=static_cast<float>(m_margin/model.scale);
+    model.dividers=m_settings.dividers; model.dividerOpacity=m_settings.dividerOpacity;
     model.showLabels=m_settings.showLabels; model.showValues=m_settings.showValues; model.showUnits=m_settings.showUnits;
     model.debugPattern=qEnvironmentVariableIntValue("SYSINFO_DEBUG_PATTERN") != 0;
     int row=0;

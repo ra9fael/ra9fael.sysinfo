@@ -37,7 +37,10 @@ struct Settings {
     QString position = QStringLiteral("topRight"); // topLeft | topRight | bottomLeft | bottomRight | center | free
     QString displayTarget = QStringLiteral("mouse"); // primary | mouse | saved
     int cellWidth = 120;                           // 80 – 320
-    int cellHeight = 50;                           // 28 – 160
+    int cellHeight = 40;                           // 28 – 160
+    int padding = 4;
+    bool dividers = true;
+    int dividerOpacity = 12;
     int columns = 3;                               // 1 – 6
     int fontSize = 100;                            // 70 – 180
     QString fontFamily = QStringLiteral("Segoe UI Variable Text");

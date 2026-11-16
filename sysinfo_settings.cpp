@@ -108,6 +108,9 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("displayTarget"), displayTarget},
                         {QStringLiteral("cellWidth"), cellWidth},
                         {QStringLiteral("cellHeight"), cellHeight},
+                        {QStringLiteral("padding"), padding},
+                        {QStringLiteral("dividers"), dividers},
+                        {QStringLiteral("dividerOpacity"), dividerOpacity},
                         {QStringLiteral("columns"), columns},
                         {QStringLiteral("fontSize"), fontSize},
                         {QStringLiteral("fontFamily"), fontFamily},
@@ -174,6 +177,9 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.cellHeight = clampInt(v.value(QStringLiteral("cellHeight")), s.cellHeight, 28, 160);
     if (v.contains(QStringLiteral("columns")))
         s.columns = clampInt(v.value(QStringLiteral("columns")), s.columns, 1, 6);
+    s.padding = clampInt(v.value(QStringLiteral("padding")), s.padding, 0, 40);
+    s.dividers = v.value(QStringLiteral("dividers")).toBool(s.dividers);
+    s.dividerOpacity = clampInt(v.value(QStringLiteral("dividerOpacity")), s.dividerOpacity, 0, 100);
     if (v.contains(QStringLiteral("fontSize")))
         s.fontSize = clampInt(v.value(QStringLiteral("fontSize")), s.fontSize, 70, 180);
     if (v.contains(QStringLiteral("fontFamily")) && v.value(QStringLiteral("fontFamily")).isString())
@@ -213,6 +219,7 @@ QStringList settingKeys()
         QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("surfaceMotion"),
         QStringLiteral("shadow"),     QStringLiteral("radius"),     QStringLiteral("metrics"),
         QStringLiteral("columns"), QStringLiteral("cellWidth"), QStringLiteral("cellHeight"),
+        QStringLiteral("padding"), QStringLiteral("dividers"), QStringLiteral("dividerOpacity"),
         QStringLiteral("fontSize"), QStringLiteral("fontFamily"), QStringLiteral("tiny"),
         QStringLiteral("position"), QStringLiteral("displayTarget"), QStringLiteral("edgeHide"),
         QStringLiteral("animations"), QStringLiteral("showLabels"), QStringLiteral("showValues"),
