@@ -92,6 +92,7 @@ QJsonObject Settings::toJson() const
                        {QStringLiteral("wavePlacement"), wavePlacement},
                        {QStringLiteral("waveHeight"), waveHeight},
                        {QStringLiteral("waveOpacity"), waveOpacity},
+                       {QStringLiteral("waveBelowOpacity"), waveBelowOpacity},
                        {QStringLiteral("waveDots"), waveDots},
                        {QStringLiteral("theme"), theme},
                         {QStringLiteral("scale"), scale},
@@ -141,6 +142,7 @@ Settings Settings::fromJson(const QJsonObject& v)
     s.waveHeight = clampInt(v.value(QStringLiteral("waveHeight")), s.waveHeight, 0, 136);
     if (s.waveHeight > 0) s.waveHeight = std::max(4, s.waveHeight);
     s.waveOpacity = clampInt(v.value(QStringLiteral("waveOpacity")), s.waveOpacity, 0, 100);
+    s.waveBelowOpacity = clampInt(v.value(QStringLiteral("waveBelowOpacity")), s.waveBelowOpacity, 0, 100);
     s.waveDots = choice(v.value(QStringLiteral("waveDots")),
         {QStringLiteral("filled"), QStringLiteral("trace")}, s.waveDots);
     s.theme = choice(v.value(QStringLiteral("theme")),
@@ -213,7 +215,7 @@ QStringList settingKeys()
 {
     static const QStringList keys = {
         QStringLiteral("enabled"),    QStringLiteral("sparklines"),
-        QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"), QStringLiteral("waveOpacity"), QStringLiteral("waveDots"),
+        QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"), QStringLiteral("waveOpacity"), QStringLiteral("waveBelowOpacity"), QStringLiteral("waveDots"),
         QStringLiteral("waveColors"), QStringLiteral("theme"),
         QStringLiteral("scale"),      QStringLiteral("glass"), QStringLiteral("glassStyle"), QStringLiteral("tileSize"), QStringLiteral("blur"), QStringLiteral("refraction"),
         QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("surfaceMotion"),

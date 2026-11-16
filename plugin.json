@@ -77,9 +77,16 @@
     {
       "key": "waveOpacity",
       "type": "number",
-      "title": {"zh": "波形不透明度（%）", "en": "Waveform opacity (%)"},
+      "title": {"zh": "背景波形不透明度（%）", "en": "Background chart opacity (%)"},
       "hint": {"zh": "0–100；背景波形可调低以突出文字", "en": "0–100; lower background opacity to emphasize text"},
-      "default": 45
+      "default": 55
+    },
+    {
+      "key": "waveBelowOpacity",
+      "type": "number",
+      "title": {"zh": "下方波形不透明度（%）", "en": "Below-text chart opacity (%)"},
+      "hint": {"zh": "0–100；默认 95，保证小尺寸图形清晰", "en": "0–100; defaults to 95 for legible small charts"},
+      "default": 95
     },
     {
       "key": "waveDots",

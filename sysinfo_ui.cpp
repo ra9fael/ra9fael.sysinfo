@@ -214,7 +214,8 @@ void SysInfoUiBridge::refreshSnapshot()
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide;
     model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||
         (m_settings.wavePlacement==QStringLiteral("auto") && m_settings.sparklines==QStringLiteral("wash"));
-    model.waveHeight=m_settings.waveHeight; model.waveOpacity=m_settings.waveOpacity;
+    model.waveHeight=m_settings.waveHeight;
+    model.waveOpacity=model.waveBackground?m_settings.waveOpacity:m_settings.waveBelowOpacity;
     model.filledDots=m_settings.waveDots==QStringLiteral("filled");
     model.sparklines=m_settings.sparklines!=QStringLiteral("off"); model.animations=m_settings.animations;
     model.waveMode=m_settings.sparklines;

@@ -45,7 +45,7 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 40);
+    assert(keys.size() == 41);
     assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
             && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
@@ -64,7 +64,7 @@ static void testSettings()
     assert(!defaults.enabled);
     assert(defaults.sparklines == "inline");
     assert(defaults.wavePlacement == "auto" && defaults.waveHeight == 0);
-    assert(defaults.waveOpacity == 45 && defaults.waveDots == "filled");
+    assert(defaults.waveOpacity == 55 && defaults.waveBelowOpacity == 95 && defaults.waveDots == "filled");
     assert(defaults.scale == 100);
     assert(defaults.glass == 60);
     assert(defaults.blur == 55 && defaults.refraction == 58 && defaults.dispersion == 12

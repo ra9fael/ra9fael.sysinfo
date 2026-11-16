@@ -21,7 +21,8 @@ struct Settings {
     QString sparklines = QStringLiteral("inline"); // off | inline | wash | dotted | bars
     QString wavePlacement = QStringLiteral("auto"); // auto | below | background
     int waveHeight = 0; // 0: automatic; otherwise logical pixels
-    int waveOpacity = 45;
+    int waveOpacity = 55;
+    int waveBelowOpacity = 95;
     QString waveDots = QStringLiteral("filled"); // filled | trace
     QString theme = QStringLiteral("system");      // system | light | dark
     int scale = 100;                               // 80 – 200

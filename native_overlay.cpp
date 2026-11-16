@@ -71,7 +71,7 @@ struct NativeOverlay::Impl {
             QString value = model.showValues ? metric.value : QString();
             if (model.showUnits && !metric.unit.isEmpty() && (model.showValues || model.tiny)) value += QStringLiteral(" ") + metric.unit;
             const float x=pad+metric.column*cellW,y=pad+metric.row*cellH;
-            const float chartInset = model.tiny ? 4.f : 8.f;
+            const float chartInset = 4.f;
             const float chartX = x+chartInset;
             const float labelHeight = cellH<=28 ? 16.f : 18.f;
             const float maxChartHeight = cellH-labelHeight-6;
@@ -96,18 +96,34 @@ struct NativeOverlay::Impl {
                         wave->SetOpacity(model.waveOpacity/100.f);
                         dc->PushAxisAlignedClip(D2D1::RectF(chartX,chartY,chartX+chartW,chartY+chartH),D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
                         if(wash) sink->BeginFigure(D2D1::Point2F(chartX,chartY+chartH),D2D1_FIGURE_BEGIN_FILLED);
-                        for (size_t i=0;i<metric.history.size();++i) {
-                            const float px=chartX+chartW*static_cast<float>(i)/static_cast<float>(metric.history.size()-1);
-                            const float py=chartY+chartH*(1-static_cast<float>(std::clamp(metric.history[i]/ceiling,0.,1.)));
+                        const bool discrete=model.waveMode==QStringLiteral("dotted")||model.waveMode==QStringLiteral("bars");
+                        const size_t count=discrete?std::min(metric.history.size(),static_cast<size_t>(std::max(2.f,chartW/4.8f))):metric.history.size();
+                        for (size_t i=0;i<count;++i) {
+                            const size_t first=i*metric.history.size()/count;
+                            const size_t last=(i+1)*metric.history.size()/count;
+                            const double sample=*std::max_element(metric.history.begin()+first,metric.history.begin()+last);
+                            const float px=chartX+1+(chartW-2)*static_cast<float>(i)/static_cast<float>(count-1);
+                            const float py=chartY+chartH*(1-static_cast<float>(std::clamp(sample/ceiling,0.,1.)));
                             if(!wash && i==0) sink->BeginFigure(D2D1::Point2F(px,py),D2D1_FIGURE_BEGIN_HOLLOW);
                             else sink->AddLine(D2D1::Point2F(px,py));
                             if(model.waveMode==QStringLiteral("dotted")) {
-                                if(model.filledDots) {
-                                    for(float dotY=chartY+chartH-1.2f;dotY>=py;dotY-=3.f)
-                                        dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,dotY),1.f,1.f),wave);
-                                } else dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,py),1.f,1.f),wave);
+                                if(!model.filledDots) dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,py),.9f,.9f),wave);
                             }
-                            if(model.waveMode==QStringLiteral("bars")) dc->DrawLine(D2D1::Point2F(px,chartY+chartH),D2D1::Point2F(px,py),wave,std::max(1.f,chartW/metric.history.size()*.6f));
+                            if(model.waveMode==QStringLiteral("bars")) {
+                                const float step=chartW/static_cast<float>(count);
+                                dc->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(chartX+i*step+.7f,py,
+                                    chartX+(i+1)*step-.7f,chartY+chartH),.4f,.4f),wave);
+                            }
+                        }
+                        if(model.waveMode==QStringLiteral("dotted") && model.filledDots) {
+                            for(float dx=1.5f;dx<chartW;dx+=3.f) {
+                                const size_t first=std::min(metric.history.size()-1,static_cast<size_t>(dx/chartW*metric.history.size()));
+                                const size_t last=std::min(metric.history.size(),std::max(first+1,static_cast<size_t>((dx+3)/chartW*metric.history.size())));
+                                const double sample=*std::max_element(metric.history.begin()+first,metric.history.begin()+last);
+                                const float top=chartY+chartH*(1-static_cast<float>(std::clamp(sample/ceiling,0.,1.)));
+                                for(float dotY=chartY+chartH-1;dotY>=top;dotY-=3.f)
+                                    dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(chartX+dx,dotY),.8f,.8f),wave);
+                            }
                         }
                         if(wash) sink->AddLine(D2D1::Point2F(chartX+chartW,chartY+chartH));
                         sink->EndFigure(wash?D2D1_FIGURE_END_CLOSED:D2D1_FIGURE_END_OPEN); sink->Close(); release(sink);
