@@ -211,7 +211,11 @@ void SysInfoUiBridge::refreshSnapshot()
 {
     if (!m_overlay || !m_sampler) return;
     const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
-    NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.wash=m_settings.sparklines==QStringLiteral("wash"); model.edgeHide=m_settings.edgeHide;
+    NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide;
+    model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||
+        (m_settings.wavePlacement==QStringLiteral("auto") && m_settings.sparklines==QStringLiteral("wash"));
+    model.waveHeight=m_settings.waveHeight; model.waveOpacity=m_settings.waveOpacity;
+    model.filledDots=m_settings.waveDots==QStringLiteral("filled");
     model.sparklines=m_settings.sparklines!=QStringLiteral("off"); model.animations=m_settings.animations;
     model.waveMode=m_settings.sparklines;
     model.glassStyle=m_settings.glassStyle==QStringLiteral("square")?2:m_settings.glassStyle==QStringLiteral("frosted")?1:0;

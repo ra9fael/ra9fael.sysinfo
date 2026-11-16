@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>波形与文字 · Sysinfo 布局试验</title>
+<style>
+:root{color-scheme:dark;font-family:"Segoe UI","Microsoft YaHei",sans-serif;color:#e5edf8;background:#172334;--accent:#85c8ff}
+*{box-sizing:border-box}body{margin:0}main{max-width:1160px;margin:auto;padding:40px 28px}h1{font-size:30px;font-weight:600;margin:0 0 12px}p{color:#aebed2;line-height:1.7;margin:8px 0;max-width:76ch}header{margin-bottom:28px}.controls{display:flex;flex-wrap:wrap;gap:20px 28px;padding:20px 0;border-block:1px solid #3b4a5f;margin-bottom:28px}label{display:grid;gap:8px;font-size:14px}select,input,button{font:inherit}select,button{background:#27374e;color:#edf5ff;border:1px solid #62758e;border-radius:6px;padding:8px 12px}input{accent-color:var(--accent);width:160px}input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid #b2dcff;outline-offset:4px}.slider-title{display:flex;justify-content:space-between}output{font-variant-numeric:tabular-nums;color:#d8eaff}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 18px;font-size:13px;color:#bdcce0}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:7px}.comparison{display:grid;grid-template-columns:150px 1fr 1fr;gap:0 24px}.column-head{padding:0 0 16px;font-weight:600}.column-head small{display:block;color:#9dafc6;font-weight:400;margin-top:5px}.row-label{align-self:center}.row-label strong{display:block;font-size:17px;font-weight:600}.row-label span{display:block;color:#9dafc6;font-size:12px;margin-top:5px}.stage{padding:28px 12px;border-top:1px solid #3b4a5f;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 20% 130%,#435d78,transparent 75%),#1d2e43}.panel{display:flex;padding:4px;border-radius:10px;background:#294768a8;border:1px solid #b4d8ff35;box-shadow:0 5px 14px #08132342;backdrop-filter:blur(12px);width:100%;max-width:398px}.metric{position:relative;flex:1;min-width:0;height:var(--height);overflow:hidden}.metric+.metric{border-left:1px solid #bbdcff12}.metric svg{position:absolute;left:4px;bottom:2px;width:calc(100% - 8px);height:calc(100% - 4px);overflow:hidden}.metric.below svg{height:6px}.reading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap;color:#f7faff;text-shadow:0 1px 3px #10253d}.below .reading{bottom:9px}.reading b{font-weight:600;font-variant-numeric:tabular-nums}.note{margin-top:24px;padding:16px 20px;border-left:3px solid #85c8ff;background:#233449}.note p{font-size:14px;margin:0}.footer{font-size:12px;margin-top:20px;color:#8fa3bf}.axis{font-size:12px;color:#8fa3bf;margin-top:18px}
+@supports not (accent-color:#85c8ff){input[type=range]{appearance:none;background:transparent}input[type=range]::-webkit-slider-runnable-track{height:6px;background:#718ba9}input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#b2dcff;border-radius:50%;margin-top:-5px}input[type=range]::-moz-range-track{height:6px;background:#718ba9}input[type=range]::-moz-range-thumb{width:16px;height:16px;background:#b2dcff;border-radius:50%}}
+@media(max-width:780px){main{padding:24px 16px}.comparison{grid-template-columns:1fr;gap:0}.column-head{display:none}.row-label{padding:24px 0 12px}.stage{padding:18px 8px;display:block}.stage:before{content:attr(data-label);display:block;font-size:12px;color:#adbed5;margin-bottom:10px}.panel{max-width:440px}.controls{gap:18px}}
+.metric.below svg{height:var(--chart-height)}.below .reading{top:2px;bottom:auto;height:var(--text-height);line-height:16px}
+</style>
+<main>
+<header><h1>波形，放在文字哪里？</h1><p>同一组数值、同一段历史，比较四种形状。左侧把波形放到文字背后，右侧保留独立的底部区域。</p></header>
+<section class="controls" aria-label="演示设置">
+<label>负载场景<select id="scenario"><option value="mixed">实时 · 周期负载与突发尖峰</option><option value="periodic">实时 · 周期性上升</option><option value="burst">实时 · 突然上升与回落</option><option value="steady">实时 · 平稳波动</option><option value="static">静态对照</option></select></label>
+<label>播放速度<select id="speed"><option value="1">1× · 每秒采样</option><option value="2" selected>2×</option><option value="4">4×</option></select></label>
+<button id="pause" type="button">暂停</button><button id="burst" type="button">立即触发负载</button><button id="reset" type="button">重置历史</button>
+<label>行高<select id="height"><option value="28">28px · tiny</option><option value="36">36px</option><option value="40" selected>40px</option><option value="56">56px</option></select></label>
+<label>下方图高<select id="chartSizing"><option value="auto">自动 · 使用剩余高度</option><option value="manual">自定义</option></select></label>
+<label><span class="slider-title">下方图高 <output id="chartHeightValue" for="chartHeight">16px</output></span><input id="chartHeight" type="range" min="4" max="16" step="1" value="16"></label>
+<label>数据<select id="data"><option value="flat">固定占比 · 15 / 24 / 31%</option><option value="history">变化历史 · 结束于 15 / 24 / 31%</option><option value="wide">大幅差距 · 15 / 50 / 85%</option></select></label>
+<label><span class="slider-title">背景不透明度 <output id="opacityValue" for="opacity">55%</output></span><input id="opacity" type="range" min="15" max="100" value="55"></label>
+<label>点阵画法<select id="dots"><option value="fill">从底部填充</option><option value="trace">仅沿曲线采样点</option></select></label>
+<label>文字<select id="text"><option value="show">显示</option><option value="hide">隐藏，观察图形</option></select></label>
+</section>
+<div class="legend"><span style="--c:#69c9ff">CPU</span><span style="--c:#b6a0ff">内存</span><span style="--c:#5ce0bc">GPU</span></div>
+<section class="comparison" id="comparison" aria-label="波形布局对照"><div></div><div class="column-head">文字背景<small>图形使用完整内容高度</small></div><div class="column-head">文字下方<small id="belowCaption">独立 16px 波形区域</small></div></section>
+<div class="axis" id="dimensions"></div>
+<p id="playback" class="axis"></p>
+<aside class="note"><p id="explanation"></p></aside>
+<p class="footer">纵轴固定 0–100%，各指标不单独放大。演示使用模拟数据；玻璃为 HTML 视觉近似，图形按实际 CSS 像素高度显示。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const shapes=[['line','折线','连续轨迹'],['area','面积','原 wash 的填充形状'],['dotted','点阵','离散点的占比与轮廓'],['bars','柱状','留出间隔的历史柱']];
+const colors=['#69c9ff','#b6a0ff','#5ce0bc'],names=['CPU','内存','GPU'];
+const ns='http://www.w3.org/2000/svg';
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+let paused=reducedMotion.matches,clock=0,manualUntil=-1,lastTick=performance.now(),charts=[];
+let histories=[[15],[24],[31]].map(a=>Array(24).fill(a[0]));
+function live(){return $('scenario').value!=='static';}
+function loadAt(t,i){
+ const mode=$('scenario').value,phase=(t+i*2)%18;
+ const periodic=(mode==='mixed'||mode==='periodic')?Math.max(0,Math.sin(phase/18*Math.PI*2))*[48,12,60][i]:0;
+ const burstPhase=(t+i*3)%29;
+ const burst=(mode==='mixed'||mode==='burst')&&burstPhase>=10&&burstPhase<15?[65,20,54][i]*Math.exp(-(burstPhase-10)/2.8):0;
+ const manual=t<manualUntil?[65,22,58][i]:0;
+ const noise=(Math.sin(t*1.73+i*2)+Math.sin(t*.47+i))*(i===1?1.2:3.5);
+ return Math.max(0,Math.min(100,[15,24,31][i]+periodic+burst+manual+noise));
+}
+function advance(){clock++;histories.forEach((a,i)=>{a.push(loadAt(clock,i));a.shift();});paintCharts();}
+function paintCharts(){
+ for(const [svg,shape,value,background,i] of charts){
+  const current=live()?histories[i].at(-1):value;
+  svg.parentElement.querySelector('b').textContent=Math.round(current)+'%';
+  svg.parentElement.setAttribute('aria-label',`${names[i]} ${Math.round(current)}%`);
+  draw(svg,shape,value,background,i);
+ }
+ $('pause').textContent=paused?'播放':'暂停';$('pause').disabled=!live();$('burst').disabled=!live();$('speed').disabled=!live();$('data').disabled=live();
+ $('playback').textContent=live()?`${paused?'已暂停':'正在模拟'} · 模拟时间 ${clock}s · 最近 24 次采样 · 新数据从右侧进入${clock<manualUntil?' · 手动负载持续中':''}`:'静态对照 · 数据保持不变';
+}
+function svgNode(tag,attrs){const node=document.createElementNS(ns,tag);for(const [key,value] of Object.entries(attrs))node.setAttribute(key,value);return node;}
+function samples(value){return Array.from({length:24},(_,i)=>$('data').value==='history'?Math.max(0,Math.min(100,value+16*Math.sin(i*.48)*(1-i/23)+10*Math.sin(i*.91)*(1-i/23))):value);}
+function draw(svg,shape,value,background,index){
+ const w=svg.clientWidth,h=svg.clientHeight;if(!w||!h)return;svg.replaceChildren();svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+ const a=live()?histories[index]:samples(value),x=i=>1+i*(w-2)/23,y=v=>h*(1-v/100),color=svg.dataset.color;
+ const g=svgNode('g',{fill:color,stroke:color,opacity:background?Number($('opacity').value)/100:.95});svg.append(g);
+ if(shape==='line'||shape==='area'){
+  let d=a.map((v,i)=>`${i?'L':'M'}${x(i)},${y(v)}`).join(' ');
+  if(shape==='area')d+=` L${w-1},${h} L1,${h} Z`;
+  g.append(svgNode('path',{d,fill:shape==='area'?color:'none','stroke-width':shape==='area'?0:1.3,'stroke-linejoin':'round'}));
+ }else if(shape==='bars'){
+  const step=w/24; a.forEach((v,i)=>g.append(svgNode('rect',{x:i*step+.7,y:y(v),width:Math.max(1,step-1.4),height:h*v/100,stroke:'none',rx:.4})));
+ }else if($('dots').value==='trace'){
+  a.forEach((v,i)=>g.append(svgNode('circle',{cx:x(i),cy:y(v),r:.9,stroke:'none'})));
+ }else{
+  const step=3;for(let px=1.5;px<w;px+=step){const v=a[Math.min(23,Math.floor(px/w*24))];for(let py=h-1;py>=h*(1-v/100);py-=step)g.append(svgNode('circle',{cx:px,cy:py,r:.8,stroke:'none'}));}
+ }
+}
+function render(){
+ charts=[];
+ const root=$('comparison');while(root.children.length>3)root.lastChild.remove();
+  const height=Number($('height').value),values=$('data').value==='wide'?[15,50,85]:[15,24,31];
+ const textHeight=height===28?16:18,maxChartHeight=height-textHeight-6;
+ $('chartHeight').max=maxChartHeight;
+ if($('chartSizing').value==='auto')$('chartHeight').value=maxChartHeight;
+ const chartHeight=Number($('chartHeight').value);
+ root.style.setProperty('--chart-height',chartHeight+'px');
+ root.style.setProperty('--text-height',textHeight+'px');
+ $('chartHeightValue').value=chartHeight+'px';
+ $('chartHeight').setAttribute('aria-valuetext',chartHeight+' 像素');
+ $('belowCaption').textContent=`独立 ${chartHeight}px 波形区域 · 占行高 ${Math.round(chartHeight/height*100)}%`;
+ $('opacityValue').value=$('opacity').value+'%';
+ for(const [shape,title,detail] of shapes){
+  const label=document.createElement('div');label.className='row-label';const strong=document.createElement('strong');strong.textContent=title;const span=document.createElement('span');span.textContent=detail;label.append(strong,span);root.append(label);
+  for(const background of [true,false]){
+   const stage=document.createElement('div');stage.className='stage';stage.dataset.label=background?'文字背景':'文字下方';
+   const panel=document.createElement('div');panel.className='panel';panel.style.setProperty('--height',height+'px');stage.append(panel);root.append(stage);
+   values.forEach((value,i)=>{
+    const cell=document.createElement('div');cell.className='metric'+(background?'':' below');cell.setAttribute('aria-label',`${names[i]} ${value}%，${title}，${stage.dataset.label}`);
+    const svg=svgNode('svg',{'aria-hidden':'true'});svg.dataset.color=colors[i];cell.append(svg);
+    const text=document.createElement('div');text.className='reading';text.hidden=$('text').value==='hide';if(text.hidden)text.style.display='none';const name=document.createElement('span');name.textContent=names[i];const val=document.createElement('b');val.textContent=value+'%';text.append(name,val);cell.append(text);panel.append(cell);charts.push([svg,shape,value,background,i]);
+   });
+  }
+ }
+ paintCharts();
+ $('dimensions').textContent=`当前行高 ${height}px，背景图高 ${height-4}px，下方图高 ${chartHeight}px，文字区域 ${textHeight}px。每个预览面板含 4px 外留白。`;
+ $('explanation').textContent=`以 15%、24%、31% 为例：当前背景中的波形分别高 ${((height-4)*.15).toFixed(1)}、${((height-4)*.24).toFixed(1)}、${((height-4)*.31).toFixed(1)}px；下方区域分别高 ${(chartHeight*.15).toFixed(1)}、${(chartHeight*.24).toFixed(1)}、${(chartHeight*.31).toFixed(1)}px。拖动图高滑杆可比较空间分配，选择自动可恢复满高。点阵填充受点间距影响而呈阶梯变化。`;
+}
+document.querySelectorAll('select,input').forEach(el=>el.addEventListener('input',()=>{if(el.id==='chartHeight')$('chartSizing').value='manual';render();}));
+$('pause').addEventListener('click',()=>{paused=!paused;lastTick=performance.now();paintCharts();});
+$('burst').addEventListener('click',()=>{manualUntil=clock+6;advance();lastTick=performance.now();});
+function resetHistory(){clock=0;manualUntil=-1;histories=[15,24,31].map(v=>Array(24).fill(v));lastTick=performance.now();paintCharts();}
+$('reset').addEventListener('click',resetHistory);
+$('scenario').addEventListener('change',resetHistory);
+reducedMotion.addEventListener('change',event=>{if(event.matches){paused=true;paintCharts();}});
+document.addEventListener('visibilitychange',()=>{lastTick=performance.now();});
+setInterval(()=>{const now=performance.now();if(document.hidden||paused||!live()){lastTick=now;return;}if(now-lastTick>=1000/Number($('speed').value)){lastTick=now;advance();}},50);
+let width=0;new ResizeObserver(entries=>{const next=entries[0].contentRect.width;if(next!==width){width=next;render();}}).observe($('comparison'));render();
+</script>
+</html>

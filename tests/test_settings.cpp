@@ -45,7 +45,7 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 33);
+    assert(keys.size() == 37);
     assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
             && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
@@ -63,6 +63,8 @@ static void testSettings()
     const Settings defaults = store.get();
     assert(!defaults.enabled);
     assert(defaults.sparklines == "inline");
+    assert(defaults.wavePlacement == "auto" && defaults.waveHeight == 0);
+    assert(defaults.waveOpacity == 45 && defaults.waveDots == "filled");
     assert(defaults.scale == 100);
     assert(defaults.glass == 60);
     assert(defaults.blur == 55 && defaults.refraction == 58 && defaults.dispersion == 12
@@ -90,6 +92,21 @@ static void testSettings()
     assert(store.get().sparklines == "wash");
 
     // 相同值不发
+    for (const QString& shape : {QStringLiteral("inline"), QStringLiteral("wash"), QStringLiteral("dotted"), QStringLiteral("bars")}) {
+        for (const QString& placement : {QStringLiteral("below"), QStringLiteral("background")}) {
+            SettingsStore waves;
+            waves.patch({{"sparklines", shape}, {"wavePlacement", placement}, {"waveHeight", 16},
+                         {"waveOpacity", 65}, {"waveDots", "trace"}});
+            const Settings roundTrip = Settings::fromJson(waves.get().toJson());
+            assert(roundTrip.sparklines == shape && roundTrip.wavePlacement == placement);
+            assert(roundTrip.waveHeight == 16 && roundTrip.waveOpacity == 65 && roundTrip.waveDots == "trace");
+            waves.patch({{"waveHeight", 0}});
+            assert(waves.get().waveHeight == 0);
+        }
+    }
+    const Settings bounds = Settings::fromJson({{"waveHeight", 999}, {"waveOpacity", -1}});
+    assert(bounds.waveHeight == 136 && bounds.waveOpacity == 0);
+    assert(Settings::fromJson({{"waveHeight", 1}}).waveHeight == 4);
     assert(store.patch({{"scale", 200}}).isEmpty());
 
     // 未知键、类型不对被忽略

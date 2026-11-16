@@ -54,10 +54,40 @@
     {
       "key": "sparklines",
       "type": "choice",
-      "title": {"zh": "波形显示", "en": "Waveform display"},
-      "hint": {"zh": "inline 折线、dotted 点阵、bars 细柱与文字分离，放在下方；wash 填充在文字背后。off 关闭，保留 60 次采样", "en": "inline lines, dotted points and bars sit below the text; wash fills the background behind it. off hides charts. Retains 60 samples"},
+      "title": {"zh": "波形形状", "en": "Waveform shape"},
+      "hint": {"zh": "inline 折线、wash 面积、dotted 点阵、bars 细柱、off 关闭；位置独立设置，保留 60 次采样", "en": "inline: line; wash: area; dotted: dots; bars: columns; off: hidden. Placement is independent. Retains 60 samples"},
       "options": ["off", "inline", "wash", "dotted", "bars"],
       "default": "inline"
+    },
+    {
+      "key": "wavePlacement",
+      "type": "choice",
+      "title": {"zh": "波形位置", "en": "Waveform placement"},
+      "hint": {"zh": "below 文字下方；background 文字背景；auto 沿用形状默认位置（wash 背景，其余下方）", "en": "below: under text; background: behind text; auto: shape default (wash behind text, others below)"},
+      "options": ["auto", "below", "background"],
+      "default": "auto"
+    },
+    {
+      "key": "waveHeight",
+      "type": "number",
+      "title": {"zh": "下方波形高度（px）", "en": "Below-text chart height (px)"},
+      "hint": {"zh": "0 自动；4–136 自定义并限制在可用高度内。28/36/40/56px 行高自动分配 6/12/16/32px；随整体缩放", "en": "0: automatic; 4–136: custom, capped to available space. 28/36/40/56px rows allocate 6/12/16/32px automatically; follows scale"},
+      "default": 0
+    },
+    {
+      "key": "waveOpacity",
+      "type": "number",
+      "title": {"zh": "波形不透明度（%）", "en": "Waveform opacity (%)"},
+      "hint": {"zh": "0–100；背景波形可调低以突出文字", "en": "0–100; lower background opacity to emphasize text"},
+      "default": 45
+    },
+    {
+      "key": "waveDots",
+      "type": "choice",
+      "title": {"zh": "点阵样式", "en": "Dot style"},
+      "hint": {"zh": "filled 填充到基线；trace 只显示轮廓采样点", "en": "filled: fill to baseline; trace: outline sample points"},
+      "options": ["filled", "trace"],
+      "default": "filled"
     },
     {
       "key": "waveColors",

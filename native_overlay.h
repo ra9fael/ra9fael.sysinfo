@@ -34,7 +34,10 @@ struct NativeOverlayModel {
     std::vector<NativeMetric> metrics;
     bool dark = true;
     bool tiny = false;
-    bool wash = false;
+    bool waveBackground = false;
+    bool filledDots = true;
+    int waveHeight = 0;
+    int waveOpacity = 45;
     bool sparklines = true;
     bool animations = true;
     bool edgeHide = false;

@@ -29,9 +29,9 @@ Detail charts remain planned. Desktop charts use 60 in-memory samples without pe
 
 `tiny` uses single-line text, fixed 28px rows, 4px outer padding and a 10px radius
 cap, all following overall scale. Text shrinks to its available area. Cell width,
-blank cells and label/value/unit switches are preserved. `inline/dotted/bars`
-occupy a separate 6px bottom strip in tiny mode; `wash` sits behind text without
-reserving extra height.
+blank cells and label/value/unit switches are preserved. Every shape supports
+below-text or background placement. Tiny automatically allocates a 6px bottom
+chart; background charts reserve no extra height.
 
 ```text
 ┌ CPU 12%    RAM 8.1/32 GiB  ┐
@@ -41,7 +41,21 @@ reserving extra height.
 
 Normal and compact native grids honor explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. Measured long text shrinks to fit. Labels, values and units have separate switches.
 
-Default `inline` draws a line below the text; `wash` fills a translucent background area; `dotted` draws sample points; `bars` draws narrow columns; `off` hides charts. `waveColors` accepts one shared color or six colors in CPU, memory, GPU, disk, upload, download order. History retains 60 samples at the configured 500–5000 ms metric interval.
+Shapes are `inline` lines, `wash` areas, `dotted` dots, `bars` columns and `off`.
+`wavePlacement` selects `below`, `background` or `auto` (wash behind text, others
+below). With charts enabled, text is a centered single line. Below-text layouts
+place text at the top in a 16px box for 28px rows, or 18px otherwise. Top and
+bottom insets are 2px, with a 2px automatic text/chart gap: 28/36/40/56px rows
+allocate 6/12/16/32px charts. `waveHeight=0` is automatic; custom 4–136px heights
+are capped to available space. Smaller custom charts leave more space between
+text and charts; setting 0 restores automatic height. Background charts use row
+height minus 4px.
+
+`waveDots` selects `filled` baseline fill or `trace` outline dots. `waveOpacity`
+is 0–100%, default 45%. `waveColors` accepts one shared color or six colors in
+CPU, memory, GPU, disk, upload, download order. Percentages use a fixed 0–100%
+axis; network rates scale to history peaks. History retains 60 samples at the
+configured 500–5000 ms metric interval.
 
 `system/light/dark` controls text and glass tint. `liquid/frosted/square` selects liquid, frosted or square-embossed glass with 8–80 pixel tiles. The animation setting controls local hover refraction, eased pressing, drag flow and edge morphing.
 

@@ -29,6 +29,23 @@ References: [Rainmeter Line](https://docs.rainmeter.net/manual/meters/line/) and
 [Histogram](https://docs.rainmeter.net/manual/meters/histogram/) document distinct
 history representations, per-series colors and automatic range scaling.
 
+## Independent waveform placement
+
+Shape and placement are independent: inline, wash, dotted and bars support both
+background and below-text rendering. Chart-enabled cells use a single centered
+text line. Automatic bottom heights are 6/12/16/32px for 28/36/40/56px rows.
+Custom height is capped to available space. Opacity is configurable, and dotted
+charts support baseline fill or trace points. Percent metrics retain a fixed
+0–100% axis.
+
+The native build and both CTest cases pass. Settings tests cover all eight
+shape/placement combinations, serialization, automatic height and bounds.
+Fourteen native captures cover those combinations, 28/36/56px rows, a custom
+10px chart, tiny at 180% font with a 32px requested chart, and trace dots.
+Window dimensions match the configured rows; the tiny request fits the 6px
+available chart area. Workspace evidence:
+`build/wave-layout-validation/comparison.png`.
+
 ## Performance
 
 ### Compact layout

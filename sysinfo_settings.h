@@ -18,7 +18,11 @@ struct Settings {
     int tileSize = 24;
     QString waveColors = QStringLiteral("#36BFFA,#A78BFA,#34D399,#FBBF24,#FB7185,#60A5FA");
     bool enabled = false;
-    QString sparklines = QStringLiteral("inline"); // off | inline | wash
+    QString sparklines = QStringLiteral("inline"); // off | inline | wash | dotted | bars
+    QString wavePlacement = QStringLiteral("auto"); // auto | below | background
+    int waveHeight = 0; // 0: automatic; otherwise logical pixels
+    int waveOpacity = 45;
+    QString waveDots = QStringLiteral("filled"); // filled | trace
     QString theme = QStringLiteral("system");      // system | light | dark
     int scale = 100;                               // 80 – 200
     int glass = 60;                                // 0 – 100

@@ -73,9 +73,12 @@ struct NativeOverlay::Impl {
             const float x=pad+metric.column*cellW,y=pad+metric.row*cellH;
             const float chartInset = model.tiny ? 4.f : 8.f;
             const float chartX = x+chartInset;
-            const float chartY = model.wash ? y+2 : model.tiny ? y+cellH-8 : y+cellH*.72f;
+            const float labelHeight = cellH<=28 ? 16.f : 18.f;
+            const float maxChartHeight = cellH-labelHeight-6;
+            const float chartH = model.waveBackground ? cellH-4 :
+                (model.waveHeight==0 ? maxChartHeight : std::min(maxChartHeight,static_cast<float>(model.waveHeight)));
+            const float chartY = model.waveBackground ? y+2 : y+cellH-2-chartH;
             const float chartW = cellW-2*chartInset;
-            const float chartH = model.wash ? cellH-4 : model.tiny ? 6.f : std::max(8.f,y+cellH-7-chartY);
             if (model.sparklines && metric.history.size()>1) {
                 double ceiling=100;
                 if (metric.rate) {
@@ -89,35 +92,43 @@ struct NativeOverlay::Impl {
                 if (SUCCEEDED(d2dFactory->CreatePathGeometry(&path))) {
                     ID2D1GeometrySink* sink=nullptr;
                     if (SUCCEEDED(path->Open(&sink))) {
-                        const bool wash=model.wash;
-                        wave->SetOpacity(1);
+                        const bool wash=model.waveMode==QStringLiteral("wash");
+                        wave->SetOpacity(model.waveOpacity/100.f);
+                        dc->PushAxisAlignedClip(D2D1::RectF(chartX,chartY,chartX+chartW,chartY+chartH),D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
                         if(wash) sink->BeginFigure(D2D1::Point2F(chartX,chartY+chartH),D2D1_FIGURE_BEGIN_FILLED);
                         for (size_t i=0;i<metric.history.size();++i) {
                             const float px=chartX+chartW*static_cast<float>(i)/static_cast<float>(metric.history.size()-1);
                             const float py=chartY+chartH*(1-static_cast<float>(std::clamp(metric.history[i]/ceiling,0.,1.)));
                             if(!wash && i==0) sink->BeginFigure(D2D1::Point2F(px,py),D2D1_FIGURE_BEGIN_HOLLOW);
                             else sink->AddLine(D2D1::Point2F(px,py));
-                            if(model.waveMode==QStringLiteral("dotted")) dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,py),1.2f,1.2f),wave);
-                            if(model.waveMode==QStringLiteral("bars")) dc->DrawLine(D2D1::Point2F(px,chartY+chartH),D2D1::Point2F(px,std::min(py,chartY+chartH-1)),wave,std::max(1.f,chartW/metric.history.size()*.6f));
+                            if(model.waveMode==QStringLiteral("dotted")) {
+                                if(model.filledDots) {
+                                    for(float dotY=chartY+chartH-1.2f;dotY>=py;dotY-=3.f)
+                                        dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,dotY),1.f,1.f),wave);
+                                } else dc->FillEllipse(D2D1::Ellipse(D2D1::Point2F(px,py),1.f,1.f),wave);
+                            }
+                            if(model.waveMode==QStringLiteral("bars")) dc->DrawLine(D2D1::Point2F(px,chartY+chartH),D2D1::Point2F(px,py),wave,std::max(1.f,chartW/metric.history.size()*.6f));
                         }
                         if(wash) sink->AddLine(D2D1::Point2F(chartX+chartW,chartY+chartH));
                         sink->EndFigure(wash?D2D1_FIGURE_END_CLOSED:D2D1_FIGURE_END_OPEN); sink->Close(); release(sink);
-                        if(wash) {wave->SetOpacity(.20f); dc->FillGeometry(path,wave);}
+                        if(wash) dc->FillGeometry(path,wave);
                         else if(model.waveMode==QStringLiteral("inline")) dc->DrawGeometry(path,wave,1.5f);
+                        dc->PopAxisAlignedClip();
                     }
                     release(path);
                 }
                 release(d2dFactory);
             }
             const float lineHeight=(model.tiny?13.f:14.f)*model.fontPercent/100.f*1.35f;
-            const float textHeight=model.sparklines&&!model.wash?(model.tiny?cellH-9:cellH*.68f):cellH;
-            const bool stacked=!model.tiny && textHeight>=lineHeight*2;
+            const bool below=model.sparklines&&!model.waveBackground;
+            const float textHeight=below?labelHeight:cellH;
+            const bool stacked=!model.sparklines && !model.tiny && textHeight>=lineHeight*2;
             QString line=(model.showLabels?metric.label:QString());
             if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;
             if(stacked && model.showLabels && model.showValues) {
                 drawText(metric.label,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight);
                 drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
-            } else drawText(line,x+4,y,cellW-8,textHeight);
+            } else drawText(line,x+4,y+(below?2.f:0.f),cellW-8,textHeight);
         }
         release(format); release(text); release(wave);
         dc->SetTransform(D2D1::Matrix3x2F::Identity());

@@ -13,13 +13,19 @@ Both normal and compact modes support centered text and history charts.
 - Cell order: `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns.
   Semicolons or newlines separate rows; commas separate columns; `cpu,,memory`
   preserves a blank cell.
-- Charts: `off` hides charts. `inline` lines, `dotted` points and `bars` columns
-  sit below the text in a separate area. `wash` fills the background behind text.
+- Chart shape: `off`, `inline` lines, `wash` areas, `dotted` dots or `bars` columns.
+  `wavePlacement` independently selects `below` or `background`; `auto` uses the
+  shape default (wash behind text, others below).
+- Below-text height: `waveHeight=0` uses available space automatically. Rows of
+  28/36/40/56px allocate 6/12/16/32px. Custom heights of 4–136px are capped to
+  available space, with text at the top and charts at the bottom. `waveOpacity`
+  is 0–100% (default 45%); `waveDots` selects `filled` or `trace` dots.
+  A 40px row with automatic chart height is recommended.
 - Wave colors: one `#RRGGBB` for all metrics, or six comma-separated colors in
   CPU, memory, GPU, disk, upload, download order, independent of cell order.
 - Fonts: configurable family and 70–180% size. Measured long text shrinks to fit.
-- `tiny`: single-line text, 28px rows, 4px outer padding and 6px bottom charts.
-  `wash` needs no extra height. Cell width, blank cells and label/value/unit switches
+- `tiny`: single-line text, 28px rows, 4px outer padding and automatic 6px bottom charts.
+  Background charts need no extra height. Cell width, blank cells and label/value/unit switches
   are preserved. Large text shrinks to the fixed row height. Corner radius is capped
   at 10px; all dimensions follow the overall scale.
 - Theme: `system` follows Windows; `light` and `dark` set glass tint and text color.
