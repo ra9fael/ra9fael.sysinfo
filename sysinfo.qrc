@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/sysinfo">
+        <file>OverlayWindow.qml</file>
+    </qresource>
+</RCC>

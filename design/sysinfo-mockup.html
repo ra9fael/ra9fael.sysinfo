@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sysinfo · 液态监控交互稿</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink:#eef4fb; --muted:#99a7ba; --line:rgba(214,231,255,.14);
+      --panel:#141b27; --panel-hi:#1d2737; --page:#0a0f17;
+      --blue:#8ac7ff; --mint:#66e0c3; --amber:#ffc879; --rose:#ff9fb7;
+      --radius:26px; --blur:18px; --refract:16px; --glass:.38;
+    }
+    * { box-sizing:border-box }
+    body { margin:0; min-width:960px; min-height:100vh; color:var(--ink); background:var(--page); font-family:"Segoe UI Variable Text","Microsoft YaHei UI",sans-serif; }
+    button,input { font:inherit; }
+    button { color:inherit; cursor:pointer; }
+    .shell { min-height:100vh; display:grid; grid-template-columns:minmax(590px,1fr) 380px; }
+    .stage-wrap { position:relative; min-height:100vh; padding:30px; overflow:hidden; background:radial-gradient(circle at 74% 18%,#1b6b82 0 1%,transparent 23%),linear-gradient(145deg,#101a29 0%,#090d15 54%,#182331 100%); }
+    .stage-wrap::before,.stage-wrap::after { content:""; position:absolute; border-radius:50%; filter:blur(32px); opacity:.78; pointer-events:none; }
+    .stage-wrap::before { width:440px;height:440px;left:7%;bottom:-180px;background:#553c89; }
+    .stage-wrap::after { width:360px;height:360px;right:-60px;top:25%;background:#166d62; }
+    .scene-bar { position:relative; z-index:1; display:flex; align-items:center; gap:10px; color:#c7d5e8; font-size:13px; }
+    .scene-bar .dot { width:9px;height:9px;border-radius:50%;background:#8df0bd;box-shadow:0 0 18px #8df0bd; }
+    .scene-bar .grow { flex:1 }
+    .scene-note { padding:8px 11px;border:1px solid var(--line);background:rgba(8,13,21,.4);border-radius:999px;color:var(--muted); }
+    .desktop { position:relative; z-index:1; height:calc(100vh - 78px); min-height:670px; margin-top:18px; overflow:hidden; border:1px solid rgba(198,226,255,.18); border-radius:22px; background:
+      linear-gradient(120deg,transparent 12%,rgba(255,255,255,.08) 12.2%,transparent 30%),
+      radial-gradient(circle at 23% 78%,rgba(91,128,255,.22),transparent 25%),
+      linear-gradient(136deg,#263047 0%,#15263b 42%,#1b3d48 100%); box-shadow:inset 0 1px rgba(255,255,255,.08),0 28px 90px rgba(0,0,0,.25); }
+    .fake-window { position:absolute; left:10%; top:16%; width:55%; height:42%; padding:20px; border:1px solid rgba(229,241,255,.12); border-radius:14px; background:rgba(10,17,29,.43); box-shadow:0 22px 48px rgba(0,0,0,.28); }
+    .fake-top { display:flex;gap:7px;align-items:center;color:#dbe7f9;font-size:13px; }.fake-top i{width:8px;height:8px;border-radius:50%;background:#fb728d}.fake-top i+ i{background:#f7c65d}.fake-top i+ i+i{background:#62d99a}.fake-lines{display:grid;gap:13px;margin-top:35px}.fake-lines b{display:block;height:10px;border-radius:999px;background:rgba(220,239,255,.12)}.fake-lines b:nth-child(2){width:78%}.fake-lines b:nth-child(3){width:63%}.fake-lines b:nth-child(4){width:87%}.fake-lines b:nth-child(5){width:46%}
+    .desktop-taskbar { position:absolute; left:0;right:0;bottom:0;height:43px;display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(8,12,20,.5);backdrop-filter:blur(18px) }.desktop-taskbar span{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.11)}
+    .overlay { position:absolute; width:460px; padding:14px; border-radius:var(--radius); isolation:isolate; overflow:visible; user-select:none; touch-action:none; box-shadow:0 22px 52px rgba(0,0,0,.27),0 1px 0 rgba(255,255,255,.3) inset; transition:transform .22s cubic-bezier(.2,.9,.22,1),opacity .16s ease; }
+    .overlay::before { content:""; position:absolute; inset:0; z-index:-2; border-radius:inherit; background:rgba(10,21,34,var(--glass)); backdrop-filter:blur(var(--blur)) saturate(145%); -webkit-backdrop-filter:blur(var(--blur)) saturate(145%); border:1px solid rgba(226,247,255,.3); }
+    .overlay::after { content:""; position:absolute; z-index:-1; inset:1px; border-radius:calc(var(--radius) - 1px); pointer-events:none; background:
+      radial-gradient(90% 42% at 18% -12%,rgba(255,255,255,.48),transparent 50%),
+      linear-gradient(116deg,rgba(255,255,255,.15),transparent 20% 74%,rgba(142,222,255,.16));
+      mix-blend-mode:screen; opacity:.78; }
+    .liquid-lens { position:absolute; inset:3px; z-index:-1; border-radius:calc(var(--radius) - 3px); pointer-events:none; overflow:hidden; opacity:calc(var(--refract) / 30); }
+    .liquid-lens::before { content:""; position:absolute; inset:-28px; background:repeating-radial-gradient(ellipse at 12% 22%,rgba(174,234,255,.28) 0 2px,transparent 3px 12px),linear-gradient(105deg,transparent 35%,rgba(125,224,255,.3) 48%,transparent 61%); filter:blur(6px); transform:skewX(-8deg) translateX(-4%); animation:lens-drift 7s ease-in-out infinite alternate; }
+    .overlay.dragging { cursor:grabbing; transform:scale(1.015); }
+    .overlay.tiny { width:auto; max-width:calc(100% - 18px); padding:8px 12px; border-radius:18px; }
+    .overlay.tiny .overlay-head,.overlay.tiny .metric-wash,.overlay.tiny .grid { display:none }
+    .flat-row { display:none; align-items:baseline; gap:10px; white-space:nowrap; }
+    .tiny .flat-row { display:flex; }
+    .flat-row .metric { display:flex; align-items:baseline; gap:4px; }.flat-row .metric:not(:last-child)::after{content:"";width:1px;height:13px;margin-left:7px;background:rgba(255,255,255,.22)}
+    .overlay-head { display:flex; align-items:center; justify-content:space-between; min-height:27px; padding:0 3px 8px; font-size:12px; color:#deebf8; }.overlay-head span{color:rgba(231,244,255,.66);font-size:11px}.overlay-head b{letter-spacing:.02em}
+    .grid { position:relative; display:grid; grid-template-columns:repeat(3,1fr); overflow:hidden; border-radius:calc(var(--radius) - 8px); border:1px solid rgba(255,255,255,.12); background:rgba(3,9,16,.12); }
+    .metric { position:relative; min-height:70px; padding:10px 11px; overflow:hidden; border-right:1px solid rgba(255,255,255,.11); border-bottom:1px solid rgba(255,255,255,.11); }.metric:nth-child(3n){border-right:0}.metric:nth-child(n+4){border-bottom:0}.metric.blank{opacity:.16}.metric-wash{position:absolute;inset:auto 0 0;height:66%;width:100%;z-index:-1;opacity:.8}.metric-wash path{fill:rgba(86,224,195,.24);stroke:#77e6d0;stroke-width:1.5;vector-effect:non-scaling-stroke}.metric.net-down .metric-wash path{fill:rgba(124,188,255,.23);stroke:#98caff}.metric-name{display:block;min-height:16px;color:rgba(238,246,255,.74);font-size:11px;letter-spacing:.02em}.metric-value{display:block;margin-top:8px;max-width:100%;font-weight:650;font-variant-numeric:tabular-nums;line-height:1;font-size:19px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.metric-unit{display:inline;margin-left:3px;font-size:11px;color:rgba(239,247,255,.64);font-weight:500}.overlay.hide-label .metric-name,.overlay.hide-label .flat-label{display:none}.overlay.hide-value .metric-value,.overlay.hide-value .flat-value{display:none}.overlay.hide-unit .metric-unit,.overlay.hide-unit .flat-unit{display:none}
+    .context-menu { position:fixed; z-index:20; display:none; min-width:188px; padding:6px; border:1px solid rgba(222,240,255,.24); border-radius:13px; background:rgba(13,23,37,.9); box-shadow:0 18px 40px rgba(0,0,0,.35); backdrop-filter:blur(20px); }.context-menu.open{display:block}.context-menu button{width:100%;border:0;background:transparent;border-radius:8px;padding:9px 10px;text-align:left;font-size:12px}.context-menu button:hover{background:rgba(140,202,255,.16)}.context-menu hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:5px 2px}
+    .edge-strip { position:absolute; display:none; z-index:10; width:8px;height:54px;right:0;top:50%;translate:0 -50%;border-radius:8px 0 0 8px;background:linear-gradient(180deg,#d2f4ff,#5b9ee9);box-shadow:0 0 22px rgba(118,200,255,.7); }.desktop.edge .overlay{opacity:1;pointer-events:none;transform:translateX(calc(100% - 8px))}.desktop.edge .edge-strip{display:block;animation:strip-pulse 1.8s ease-in-out infinite}.desktop.edge .edge-strip:hover{width:11px}.desktop.edge.revealed .overlay{pointer-events:auto;transform:translateX(0)}
+    .panel { border-left:1px solid var(--line); background:linear-gradient(180deg,#171f2c,#101620); padding:24px 22px; overflow:auto; }.panel h1{font-size:22px;line-height:1.12;margin:0}.panel>p{margin:8px 0 24px;color:var(--muted);font-size:13px;line-height:1.55}.section{padding:17px 0;border-top:1px solid var(--line)}.section:first-of-type{border-top:0;padding-top:0}.section h2{margin:0 0 12px;font-size:13px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;font-size:12px;color:#d8e3ef}.row small{color:var(--muted)}.switch{appearance:none;width:39px;height:23px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:#344052;position:relative;transition:.18s}.switch::after{content:"";position:absolute;width:17px;height:17px;border-radius:50%;left:2px;top:2px;background:#e4edf8;transition:.18s}.switch:checked{background:#438ce0;border-color:#71b6ff}.switch:checked::after{translate:15px}.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.seg button{border:1px solid var(--line);border-radius:8px;padding:8px 4px;background:rgba(255,255,255,.025);font-size:11px;color:var(--muted)}.seg button.active{border-color:#69b4ff;background:rgba(71,143,224,.2);color:#ddf0ff}.range{display:grid;grid-template-columns:1fr 44px;gap:10px;align-items:center}.range output{text-align:right;color:#b9d4ef;font-family:ui-monospace,Consolas,monospace;font-size:11px}.range input{accent-color:#86c5ff}.action{width:100%;border:1px solid rgba(140,204,255,.35);border-radius:10px;padding:10px;background:linear-gradient(180deg,rgba(77,148,224,.3),rgba(50,103,172,.18));font-size:12px}.action:hover{background:rgba(74,150,229,.35)}.capture{display:flex;gap:8px;padding:10px;border-radius:10px;background:rgba(102,224,195,.09);color:#b7f4e5;font-size:11px;line-height:1.45}.capture i{display:block;flex:0 0 8px;height:8px;margin-top:4px;border-radius:50%;background:#69e0c1}.preview-note{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}
+    @keyframes lens-drift {from{transform:skewX(-8deg) translate(-5%,-2%)}to{transform:skewX(8deg) translate(5%,3%)}}@keyframes strip-pulse{50%{box-shadow:0 0 30px rgba(138,208,255,1);opacity:.78}}
+    @media (prefers-reduced-motion: reduce){.liquid-lens::before,.desktop.edge .edge-strip{animation:none}.overlay{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main class="stage-wrap">
+      <div class="scene-bar"><span class="dot"></span><strong>Sysinfo 液态监控</strong><span class="scene-note" id="modeNote">标准网格 · 右键菜单可自动关闭</span><span class="grow"></span><span class="scene-note">交互稿</span></div>
+      <section class="desktop" id="desktop" aria-label="桌面 Overlay 预览">
+        <div class="fake-window"><div class="fake-top"><i></i><i></i><i></i><span>正在编辑的窗口</span></div><div class="fake-lines"><b></b><b></b><b></b><b></b><b></b></div></div>
+        <div class="overlay" id="overlay" style="left:38%;top:35%" aria-label="系统监控 Overlay">
+          <div class="liquid-lens"></div>
+          <div class="overlay-head"><b>系统监控</b><span>每秒更新</span></div>
+          <div class="flat-row" id="flatRow"></div>
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="edge-strip" id="edgeStrip" title="悬停展开"></div>
+        <div class="desktop-taskbar"><span></span><span></span><span></span><span></span></div>
+      </section>
+    </main>
+    <aside class="panel">
+      <h1>液态监控交互稿</h1>
+      <p>在右侧更改选项，直接观察完整玻璃、扁平 tiny、波形和贴边交互的差异。右键点击预览窗打开菜单，离开菜单即可关闭。</p>
+      <section class="section"><h2>内容</h2>
+        <label class="row"><span>显示文字<br><small>CPU、上行、下行</small></span><input class="switch" id="showLabel" type="checkbox" checked></label>
+        <label class="row"><span>显示数值<br><small>24、1.28</small></span><input class="switch" id="showValue" type="checkbox" checked></label>
+        <label class="row"><span>显示单位<br><small>%、MiB/s</small></span><input class="switch" id="showUnit" type="checkbox" checked></label>
+      </section>
+      <section class="section"><h2>布局</h2>
+        <div class="seg" id="layout"><button class="active" data-layout="grid">标准网格</button><button data-layout="tiny">扁平 tiny</button><button data-layout="edge">贴边预览</button></div>
+        <p class="preview-note">tiny 使用无分隔线的信息带，不是缩小的网格。</p>
+      </section>
+      <section class="section"><h2>波形</h2>
+        <div class="seg" id="sensitivity"><button data-sense="calm">平稳</button><button class="active" data-sense="normal">默认</button><button data-sense="vivid">灵敏</button></div>
+        <p class="preview-note">网络低速数据采用非线性放大；新峰值立即抬高范围，范围再缓慢回落。</p>
+      </section>
+      <section class="section"><h2>液态材质</h2>
+        <label class="row"><span>背景模糊</span><span class="range"><input id="blur" type="range" min="0" max="32" value="18"><output id="blurOut">18px</output></span></label>
+        <label class="row"><span>折射扭曲</span><span class="range"><input id="refract" type="range" min="0" max="30" value="16"><output id="refractOut">16</output></span></label>
+        <label class="row"><span>玻璃透明</span><span class="range"><input id="glass" type="range" min="16" max="78" value="38"><output id="glassOut">38%</output></span></label>
+        <label class="row"><span>圆角</span><span class="range"><input id="radius" type="range" min="12" max="38" value="26"><output id="radiusOut">26px</output></span></label>
+      </section>
+      <section class="section"><h2>捕获与交互</h2>
+        <label class="row"><span>允许截图/录屏捕获<br><small>关闭时启用隐私排除</small></span><input class="switch" id="capture" type="checkbox" checked></label>
+        <label class="row"><span>液态动效</span><input class="switch" id="motion" type="checkbox" checked></label>
+        <div class="capture" id="captureHint"><i></i><span>当前允许截图与录屏软件捕获 Overlay。</span></div>
+      </section>
+      <section class="section"><button class="action" id="reset">恢复建议设置</button></section>
+    </aside>
+  </div>
+  <div class="context-menu" id="menu" popover="manual" aria-label="监控窗菜单">
+    <button type="button" data-menu="toggleTiny">切换扁平 tiny 模式</button><button type="button" data-menu="toggleEdge">演示贴边隐藏</button><hr><button type="button" data-menu="close">关闭菜单</button>
+  </div>
+  <script>
+    const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+    const overlay=$('#overlay'), desktop=$('#desktop'), grid=$('#grid'), flat=$('#flatRow'), menu=$('#menu');
+    const metrics=[
+      {name:'CPU',value:'24',unit:'%',tone:'mint',shape:[42,47,35,53,44,62,52,58,45,69,49]},
+      {blank:true},
+      {name:'下行',value:'1.28',unit:'MiB/s',down:true,shape:[18,35,21,58,31,46,27,68,39,78,48]},
+      {name:'内存',value:'62',unit:'%',shape:[61,64,63,67,66,69,68,72,70,71,73]},
+      {name:'GPU',value:'47',unit:'%',shape:[23,35,29,52,40,44,36,58,42,48,39]},
+      {name:'上行',value:'180',unit:'KiB/s',shape:[12,23,16,35,21,41,20,49,29,62,33]}
+    ];
+    let sense='normal', timer, closing;
+    function path(values){ const boost=sense==='calm'?0.72:sense==='vivid'?1.35:1; return values.map((v,i)=>`${i?'L':'M'} ${(i/(values.length-1)*100).toFixed(1)} ${(100-Math.min(94,Math.max(5,v*boost))).toFixed(1)}`).join(' ')+' L 100 100 L 0 100 Z'; }
+    function render(){
+      grid.innerHTML=''; flat.innerHTML='';
+      metrics.forEach(m=>{
+        const card=document.createElement('article');card.className='metric '+(m.blank?'blank':'')+(m.down?' net-down':'');
+        if(m.blank){grid.append(card);return}
+        card.innerHTML=`<svg class="metric-wash" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${path(m.shape)}"></path></svg><span class="metric-name">${m.name}</span><strong class="metric-value">${m.value}<em class="metric-unit">${m.unit}</em></strong>`;grid.append(card);
+        const item=document.createElement('span');item.className='metric';item.innerHTML=`<b class="flat-label">${m.name}</b><strong class="flat-value">${m.value}</strong><em class="flat-unit">${m.unit}</em>`;flat.append(item);
+      });
+      overlay.classList.toggle('hide-label',!$('#showLabel').checked);overlay.classList.toggle('hide-value',!$('#showValue').checked);overlay.classList.toggle('hide-unit',!$('#showUnit').checked);
+    }
+    function css(name,value){document.documentElement.style.setProperty(name,value)}
+    function setLayout(mode){$$('#layout button').forEach(b=>b.classList.toggle('active',b.dataset.layout===mode));desktop.classList.toggle('edge',mode==='edge');overlay.classList.toggle('tiny',mode==='tiny');$('#modeNote').textContent=mode==='tiny'?'扁平 tiny · 信息带布局':mode==='edge'?'贴边隐藏 · 触发条可展开':'标准网格 · 右键菜单可自动关闭';if(mode!=='edge')desktop.classList.remove('edge')}
+    $('#layout').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setLayout(b.dataset.layout)});
+    $('#sensitivity').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sense=b.dataset.sense;$$('#sensitivity button').forEach(x=>x.classList.toggle('active',x===b));render()});
+    [['blur','--blur','px'],['refract','--refract','px'],['glass','--glass','%'],['radius','--radius','px']].forEach(([id,prop,suffix])=>{$('#'+id).addEventListener('input',e=>{let v=e.target.value;if(id==='glass')v=Number(v)/100;css(prop,v+(id==='glass'?'':'px'));$('#'+id+'Out').textContent=e.target.value+suffix})});
+    ['showLabel','showValue','showUnit'].forEach(id=>$('#'+id).addEventListener('change',render));
+    $('#capture').addEventListener('change',e=>{$('#captureHint').innerHTML=`<i></i><span>${e.target.checked?'当前允许截图与录屏软件捕获 Overlay。':'当前启用隐私排除：截图与录屏软件不会捕获 Overlay。'}</span>`});
+    $('#motion').addEventListener('change',e=>{overlay.style.transition=e.target.checked?'transform .22s cubic-bezier(.2,.9,.22,1),opacity .16s ease':'none';$('.liquid-lens').style.animationPlayState=e.target.checked?'running':'paused'});
+    $('#reset').addEventListener('click',()=>{['showLabel','showValue','showUnit','capture','motion'].forEach(id=>$('#'+id).checked=true);[['blur',18],['refract',16],['glass',38],['radius',26]].forEach(([id,v])=>{$('#'+id).value=v;$('#'+id).dispatchEvent(new Event('input'))});sense='normal';$('#sensitivity [data-sense="normal"]').click();setLayout('grid');render()});
+    function openMenu(x,y){clearTimeout(closing);menu.style.left=Math.min(x,innerWidth-202)+'px';menu.style.top=Math.min(y,innerHeight-152)+'px';menu.classList.add('open');}
+    function closeMenu(){menu.classList.remove('open')}
+    function scheduleClose(){clearTimeout(closing);closing=setTimeout(()=>{if(!menu.matches(':hover')&&!overlay.matches(':hover'))closeMenu()},280)}
+    overlay.addEventListener('contextmenu',e=>{e.preventDefault();openMenu(e.clientX,e.clientY)});overlay.addEventListener('pointerleave',scheduleClose);menu.addEventListener('pointerleave',scheduleClose);menu.addEventListener('pointerenter',()=>clearTimeout(closing));menu.addEventListener('click',e=>{const action=e.target.dataset.menu;if(!action)return;if(action==='toggleTiny')setLayout(overlay.classList.contains('tiny')?'grid':'tiny');if(action==='toggleEdge')setLayout('edge');closeMenu()});document.addEventListener('pointerdown',e=>{if(!menu.contains(e.target)&&!overlay.contains(e.target))closeMenu()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+    let edgeClose;function hideAtEdge(){desktop.classList.add('edge');desktop.classList.remove('revealed')}function revealFromEdge(){clearTimeout(edgeClose);desktop.classList.add('revealed')}function scheduleEdgeHide(){clearTimeout(edgeClose);edgeClose=setTimeout(hideAtEdge,650)}$('#edgeStrip').addEventListener('pointerenter',revealFromEdge);$('#edgeStrip').addEventListener('pointerleave',scheduleEdgeHide);overlay.addEventListener('pointerenter',revealFromEdge);overlay.addEventListener('pointerleave',()=>{if(desktop.classList.contains('edge'))scheduleEdgeHide()});
+    let drag=false,dx=0,dy=0;overlay.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag=true;const r=overlay.getBoundingClientRect();dx=e.clientX-r.left;dy=e.clientY-r.top;overlay.setPointerCapture(e.pointerId);overlay.classList.add('dragging')});overlay.addEventListener('pointermove',e=>{if(!drag)return;const r=desktop.getBoundingClientRect();overlay.style.left=Math.max(0,Math.min(r.width-overlay.offsetWidth,e.clientX-r.left-dx))+'px';overlay.style.top=Math.max(0,Math.min(r.height-overlay.offsetHeight,e.clientY-r.top-dy))+'px'});overlay.addEventListener('pointerup',()=>{drag=false;overlay.classList.remove('dragging')});
+    setInterval(()=>{metrics.forEach(m=>{if(!m.shape)return;const last=m.shape.at(-1);m.shape.shift();m.shape.push(Math.max(9,Math.min(82,last+(Math.random()-.48)*(m.name.includes('行')?32:13))))});render()},900);render();
+  </script>
+</body>
+</html>

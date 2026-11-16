@@ -1,0 +1,262 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LingCore/WinShun-plugins/main/schema/plugin.schema.json",
+  "manifest": 1,
+  "id": "ra9fael.sysinfo",
+  "name": {"zh": "系统信息", "en": "System Information"},
+  "version": "1.4.0-dev",
+  "minWinShun": "0.30.0",
+  "description": {
+    "zh": "可调网格、字体、液态玻璃与动态波形的桌面资源监视窗",
+    "en": "A configurable desktop resource monitor with an adaptive grid, typography, liquid glass and dynamic sparklines"
+  },
+  "author": "ra9fael",
+  "license": "MIT",
+  "runtime": {
+    "mode": "resident",
+    "program": "sysinfo.exe",
+    "sandbox": "normal",
+    "start": "eager",
+    "timeoutMs": 3000,
+    "memoryMB": 512,
+    "idleExitSec": 0,
+    "encoding": "utf-8",
+    "qt": "host",
+    "qtVersion": "6.12"
+  },
+  "permissions": ["ui", "clipboard:write"],
+  "commands": [
+    {
+      "id": "sys",
+      "keyword": ["sys", "系统信息", "监视窗"],
+      "title": {"zh": "资源监视窗", "en": "Resource monitor"},
+      "description": {
+        "zh": "查看 CPU、内存、GPU、磁盘和网络的实时数值；显示或隐藏监视窗",
+        "en": "Live CPU, memory, GPU, disk and network readings; show or hide the monitor"
+      },
+      "icon": "glyph:U+E950",
+      "hint": {
+        "zh": "监视窗 / 数值；Enter 显示或隐藏监视窗",
+        "en": "monitor / values; Enter shows or hides the monitor"
+      },
+      "actions": [
+        {"id": "toggleEnabled", "title": {"zh": "显示 / 隐藏监视窗", "en": "Show / hide the monitor"}, "key": "Enter"}
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "enabled",
+      "type": "bool",
+      "title": {"zh": "显示桌面监视窗", "en": "Show the desktop monitor"},
+      "hint": {"zh": "悬浮在所有窗口之上，不抢焦点；隐藏时不再采样", "en": "Floats above every window without taking focus; sampling stops while hidden"},
+      "default": false
+    },
+    {
+      "key": "sparklines",
+      "type": "choice",
+      "title": {"zh": "微型波形", "en": "Sparklines"},
+      "hint": {"zh": "off 不画；inline 在数值下面加一条 60 秒小图；wash 把波形垫在格子背景里", "en": "off hides them; inline draws a 60 s chart under the value; wash lays the chart behind the cell"},
+      "options": ["off", "inline", "wash"],
+      "default": "inline"
+    },
+    {
+      "key": "theme",
+      "type": "choice",
+      "title": {"zh": "配色", "en": "Colour"},
+      "hint": {"zh": "system 跟随系统深浅色；light / dark 固定", "en": "system follows Windows; light / dark fix it"},
+      "options": ["system", "light", "dark"],
+      "default": "system"
+    },
+    {
+      "key": "scale",
+      "type": "number",
+      "title": {"zh": "缩放（%）", "en": "Scale (%)"},
+      "hint": {"zh": "80 – 200；只改字号和内边距，窗口按内容撑开", "en": "80 – 200; only font size and padding change, the window fits the content"},
+      "default": 100
+    },
+    {
+      "key": "glass",
+      "type": "number",
+      "title": {"zh": "玻璃强度（%）", "en": "Glass strength (%)"},
+      "hint": {"zh": "0 – 100，默认 60；数值越大越透", "en": "0 – 100, default 60; higher is more transparent"},
+      "default": 60
+    },
+    {
+      "key": "blur",
+      "type": "number",
+      "title": {"zh": "背景模糊（%）", "en": "Background blur (%)"},
+      "hint": {"zh": "0 为清透玻璃，100 为最强模糊", "en": "0 is clear glass; 100 is maximum blur"},
+      "default": 55
+    },
+    {
+      "key": "refraction",
+      "type": "number",
+      "title": {"zh": "边缘折射（%）", "en": "Edge refraction (%)"},
+      "hint": {"zh": "控制玻璃边缘对背景的光学偏移", "en": "Controls optical background displacement at the glass edge"},
+      "default": 58
+    },
+    {
+      "key": "dispersion",
+      "type": "number",
+      "title": {"zh": "边缘色散（%）", "en": "Edge dispersion (%)"},
+      "hint": {"zh": "控制玻璃边缘的细微 RGB 光谱分离", "en": "Controls subtle RGB spectral separation at the glass edge"},
+      "default": 12
+    },
+    {
+      "key": "rimLight",
+      "type": "number",
+      "title": {"zh": "边缘高光（%）", "en": "Rim light (%)"},
+      "hint": {"zh": "控制方向性 Fresnel 边缘高光", "en": "Controls directional Fresnel rim highlights"},
+      "default": 54
+    },
+    {
+      "key": "surfaceMotion",
+      "type": "number",
+      "title": {"zh": "表面流动（%）", "en": "Surface motion (%)"},
+      "hint": {"zh": "控制拖动和贴边展开时的材质响应", "en": "Controls material response during dragging and edge expansion"},
+      "default": 35
+    },
+    {
+      "key": "shadow",
+      "type": "number",
+      "title": {"zh": "外阴影（%）", "en": "Outer shadow (%)"},
+      "hint": {"zh": "0 关闭阴影", "en": "0 disables the shadow"},
+      "default": 0
+    },
+    {
+      "key": "radius",
+      "type": "number",
+      "title": {"zh": "圆角（px）", "en": "Corner radius (px)"},
+      "hint": {"zh": "8 – 28，默认 20", "en": "8 – 28, default 20"},
+      "default": 20
+    },
+    {
+      "key": "metrics",
+      "type": "text",
+      "title": {"zh": "格子顺序", "en": "Cell order"},
+      "hint": {"zh": "逗号分列，分号或换行分行；cpu,,memory 可保留空格", "en": "Commas make columns; semicolons or new lines make rows; cpu,,memory preserves a blank cell"},
+      "default": "cpu,disk,netUp,memory,gpu,netDown"
+    },
+    {
+      "key": "columns",
+      "type": "number",
+      "title": {"zh": "每行格数", "en": "Cells per row"},
+      "hint": {"zh": "1 – 6，按指标数量自动换行", "en": "1 – 6; wraps automatically for the selected metrics"},
+      "default": 3
+    },
+    {
+      "key": "cellWidth",
+      "type": "number",
+      "title": {"zh": "单元格宽度", "en": "Cell width"},
+      "hint": {"zh": "80 – 320", "en": "80 – 320"},
+      "default": 120
+    },
+    {
+      "key": "cellHeight",
+      "type": "number",
+      "title": {"zh": "单元格高度", "en": "Cell height"},
+      "hint": {"zh": "28 – 160", "en": "28 – 160"},
+      "default": 50
+    },
+    {
+      "key": "fontSize",
+      "type": "number",
+      "title": {"zh": "字体大小（%）", "en": "Font size (%)"},
+      "hint": {"zh": "70 – 180", "en": "70 – 180"},
+      "default": 100
+    },
+    {
+      "key": "fontFamily",
+      "type": "text",
+      "title": {"zh": "字体", "en": "Font family"},
+      "hint": {"zh": "例如 Segoe UI Variable Text", "en": "For example: Segoe UI Variable Text"},
+      "default": "Segoe UI Variable Text"
+    },
+    {
+      "key": "tiny",
+      "type": "bool",
+      "title": {"zh": "Tiny 模式", "en": "Tiny mode"},
+      "hint": {"zh": "更紧凑的网格", "en": "A more compact grid"},
+      "default": false
+    },
+    {
+      "key": "position",
+      "type": "choice",
+      "title": {"zh": "位置", "en": "Position"},
+      "hint": {"zh": "四个角、居中或 free（拖到哪儿算哪儿）", "en": "Four corners, centre, or free (wherever you drag it)"},
+      "options": ["topLeft", "topRight", "bottomLeft", "bottomRight", "center", "free"],
+      "default": "topRight"
+    },
+    {
+      "key": "displayTarget",
+      "type": "choice",
+      "title": {"zh": "显示器目标", "en": "Display target"},
+      "hint": {"zh": "主屏、显示时鼠标所在屏幕，或记住上次屏幕", "en": "Primary display, mouse display when shown, or the last display"},
+      "options": ["primary", "mouse", "saved"],
+      "default": "mouse"
+    },
+    {
+      "key": "edgeHide",
+      "type": "bool",
+      "title": {"zh": "贴边自动隐藏", "en": "Auto-hide at edge"},
+      "hint": {"zh": "贴到显示器边缘后收起，移入触发条展开", "en": "Collapse at a display edge and expand from its trigger strip"},
+      "default": false
+    },
+    {
+      "key": "animations",
+      "type": "bool",
+      "title": {"zh": "交互动画", "en": "Interaction animations"},
+      "hint": {"zh": "显示、隐藏及布局过渡", "en": "Show, hide and layout transitions"},
+      "default": true
+    },
+    {
+      "key": "showLabels",
+      "type": "bool",
+      "title": {"zh": "显示指标文字", "en": "Show metric labels"},
+      "hint": {"zh": "显示 CPU、内存、上行和下行等文字", "en": "Shows CPU, Memory, Upload and Download labels"},
+      "default": true
+    },
+    {
+      "key": "showValues",
+      "type": "bool",
+      "title": {"zh": "显示数值", "en": "Show values"},
+      "hint": {"zh": "显示指标的实时数值", "en": "Shows live metric values"},
+      "default": true
+    },
+    {
+      "key": "showUnits",
+      "type": "bool",
+      "title": {"zh": "显示单位", "en": "Show units"},
+      "hint": {"zh": "显示 %、KiB/s、MiB/s 等单位", "en": "Shows %, KiB/s, MiB/s and other units"},
+      "default": true
+    },
+    {
+      "key": "captureVisible",
+      "type": "bool",
+      "title": {"zh": "允许截图和录屏捕获", "en": "Allow screen capture"},
+      "hint": {"zh": "关闭后 Overlay 不会出现在截图、录屏或共享画面中", "en": "When off, the Overlay is excluded from screenshots, recording and screen sharing"},
+      "default": true
+    },
+    {
+      "key": "clickThrough",
+      "type": "bool",
+      "title": {"zh": "鼠标穿透", "en": "Click-through"},
+      "hint": {"zh": "点击穿过监视窗；从 sys 或设置窗恢复", "en": "Clicks pass through; recover from sys or the settings window"},
+      "default": false
+    },
+    {
+      "key": "locked",
+      "type": "bool",
+      "title": {"zh": "锁定位置", "en": "Lock position"},
+      "hint": {"zh": "锁住后拖不动", "en": "Locked, it cannot be dragged"},
+      "default": false
+    },
+    {
+      "key": "intervalMs",
+      "type": "number",
+      "title": {"zh": "采样间隔（毫秒）", "en": "Sampling interval (ms)"},
+      "hint": {"zh": "500 – 5000 毫秒", "en": "500 – 5000 milliseconds"},
+      "default": 1000
+    }
+  ]
+}
