@@ -27,6 +27,14 @@ Detail charts remain planned. Desktop charts use 60 in-memory samples without pe
 
 ## Overlay
 
+Normal rows default to 40px. Both modes use independent `padding` (default 4px).
+Column `dividers` default to enabled at 12% `dividerOpacity`. Filled dots use a
+3px grid; bars aggregate history to available width while retaining peaks.
+Settings are ordered as General, Layout, Text, Charts, Glass, Interaction and
+Capture. `edgeSnap` snaps within 12px on drag release; `edgeHide` independently
+controls collapse and hover expansion. Glass transparency controls backdrop/tint
+mixing without changing content opacity.
+
 `tiny` uses single-line text, fixed 28px rows, 4px outer padding and a 10px radius
 cap, all following overall scale. Text shrinks to its available area. Cell width,
 blank cells and label/value/unit switches are preserved. Every shape supports
@@ -52,7 +60,8 @@ text and charts; setting 0 restores automatic height. Background charts use row
 height minus 4px.
 
 `waveDots` selects `filled` baseline fill or `trace` outline dots. `waveOpacity`
-is 0–100%, default 45%. `waveColors` accepts one shared color or six colors in
+controls background opacity, default 55%; `waveBelowOpacity` defaults to 95%.
+Both accept 0–100%. `waveColors` accepts one shared color or six colors in
 CPU, memory, GPU, disk, upload, download order. Percentages use a fixed 0–100%
 axis; network rates scale to history peaks. History retains 60 samples at the
 configured 500–5000 ms metric interval.

@@ -3,7 +3,7 @@
   "manifest": 1,
   "id": "ra9fael.sysinfo",
   "name": {"zh": "系统信息", "en": "System Information"},
-  "version": "1.4.0-dev",
+  "version": "1.5.0-dev",
   "minWinShun": "0.30.0",
   "description": {
     "zh": "可调网格、字体、液态玻璃与动态波形的桌面资源监视窗",

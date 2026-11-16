@@ -79,6 +79,14 @@ small at the median. The measured cadence is approximately 30–33 ms, not 60 fp
 
 ## Limitations
 
+Version 1.5.0-dev builds and passes the settings test. Seventeen native captures
+cover shape/placement, row heights, tiny text fitting and glass transparency at
+0/50/100. The current desktop run did not pass interaction acceptance: renderer
+CTest reached its 60-second timeout, direct execution failed click-through hover
+expansion, and the desktop drag probe observed a position different from its
+requested target. The cause remains unconfirmed. Independent edge-snap/auto-hide
+desktop acceptance remains pending.
+
 These short observations are not a hardware-independent benchmark. Windows
 process CPU accounting can round very small consumption to zero. GPU timestamp
 p95 ranged up to 11.570 ms and includes scheduling gaps, not just active shader

@@ -3,7 +3,7 @@
 [中文](README.md)
 
 Windows system queries and a native liquid-glass desktop monitor. Version
-`1.4.0-dev` is in development and installed in WinShun, confirmed enabled and running.
+`1.5.0-dev` is in development.
 
 ## Desktop monitor
 
@@ -19,8 +19,15 @@ Both normal and compact modes support centered text and history charts.
 - Below-text height: `waveHeight=0` uses available space automatically. Rows of
   28/36/40/56px allocate 6/12/16/32px. Custom heights of 4–136px are capped to
   available space, with text at the top and charts at the bottom. `waveOpacity`
-  is 0–100% (default 45%); `waveDots` selects `filled` or `trace` dots.
-  A 40px row with automatic chart height is recommended.
+  controls background opacity (default 55%); `waveBelowOpacity` controls below-text
+  opacity (default 95%). `waveDots` selects `filled` or `trace` dots.
+  Normal rows default to 40px with automatic chart height.
+- Layout: `padding` independently sets panel padding (default 4px). `dividers`
+  enables column separators, with `dividerOpacity` defaulting to 12%. Bars aggregate
+  the 60-sample history to available width while retaining peaks; filled dots use a 3px grid.
+- Edges: `edgeSnap` snaps within 12px on drag release; `edgeHide` independently
+  controls automatic collapse. Glass transparency reveals more backdrop at higher
+  values without changing text or chart opacity.
 - Wave colors: one `#RRGGBB` for all metrics, or six comma-separated colors in
   CPU, memory, GPU, disk, upload, download order, independent of cell order.
 - Fonts: configurable family and 70–180% size. Measured long text shrinks to fit.
