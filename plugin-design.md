@@ -2,7 +2,7 @@
 
 [English](plugin-design.en.md) · [UI](UI-SPEC.md) · [测试](TEST-PLAN.md)
 
-日期：2026-11-11。状态：开发中；纯核心测试已执行，真实宿主、性能与真机交互仍未验证。
+日期：2026-11-16。版本：1.4.0-dev，开发中。原生监视窗已安装运行；构建、逻辑、独立渲染及双屏交互测试通过。下表保留产品需求，逐项验收状态见测试计划。
 
 ## 1. 关键裁决
 
@@ -10,17 +10,17 @@
 
 ## 2. 依据的事实
 
-代码/协议阅读依据：[插件权限](../WinShun/docs/plugins.md)、[系统开关清单](../WinShun/src/switches-plugin/package/plugin.json)、[共享 Qt 协议](../WinShun/docs/plugins.md)。宿主有 ui、resident、共享 Qt 和外观通知机制；是否满足本插件全部交互仍需 L3。
+协议依据为 WinShun SDK 的权限、常驻执行、共享 Qt 和外观通知机制；宿主完整验收按测试计划逐项记录。
 
-用户明确要求独立 ra9fael.sysinfo、系统信息查询展示与桌面 overlay。PDH、DXGI、网络与电源 API 是候选数据源，不等于当前驱动支持所有指标。此前未经测量的 40–80 MB 数字不作为预算。
+插件独立提供系统信息查询与桌面监视窗。PDH、DXGI、网络与电源 API 的字段可用性取决于驱动和设备；资源预算依据实测。
 
-## 3. 架构与清单草案
+## 3. 架构与清单
 
-纯核心负责采样差值、单位、时间戳、过期判断、布局状态；Windows 适配层负责 CPU/内存、磁盘、网卡、GPU、电源和静态系统信息。Qt UI 消费快照；协议线程不得等待慢速 WMI 查询。优先按事件刷新静态信息，动态采样按可见消费者合并调度。
+纯核心负责差值、单位、时间戳、过期判断和布局。hwinfo、IP Helper 与 PDH 负责硬件信息、网络速率和 GPU/磁盘利用率。Qt Core/Gui 管理协议、事件循环及设置；NativeOverlay 将快照转为 DirectWrite/Direct2D 内容。独立的 [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp) 负责 Win32 窗口、D3D11/DXGI 背景采集、HLSL 材质、DirectComposition 与贴边动画，不依赖 Qt 或 WinShun。
 
-清单文字草案：id=ra9fael.sysinfo；normal；resident；命令 sys；ui 权限；有 overlay 开启时常驻。eager/idleExitSec 策略需验证：启动时恢复已明确启用的 overlay 才需要 eager，默认关闭 overlay。共享 Qt 与最低宿主版本在 L3 探针后定，不创建可运行 manifest。
+清单位于 `plugin.json`，id 为 ra9fael.sysinfo，命令为 sys，使用共享 Qt 6.12，权限为 `ui` 和 `clipboard:write`。监视窗默认关闭，恢复用户显式启用的状态。构建使用 Release Qt。
 
-数据模型：MetricDefinition(id/unit/source/refreshClass)、MetricCapability(id/available/reason)、Sample(value/monotonicTime/status)、AdapterIdentity(instanceId/displayName)。身份不能用列表下标。候选数据源能力由表集中定义，所有消费者按表显示，不散落特判。
+采样模型为 `Sample`、`Reading` 和六项指标历史；状态区分采样中、新鲜和不可用。网络差值按适配器身份关联。`intervalMs` 为 500–5000ms，默认 1000ms，控制指标与历史更新；60 点历史的时间跨度随间隔变化。背景采集、动画与指标采样独立。
 
 ## 4. 核心逻辑与需求
 
@@ -49,7 +49,7 @@ sys 打开摘要列表，详情动作用于打开独立面板；overlay 开关�
 
 ## 6. 权限、数据与隐私
 
-拟申请 ui；若通过宿主复制效果需要 clipboard:write，须核实当前契约并仅在确实需要时声明。normal 不代表管理员；任何 API 失败原样分类，不自动提权。设置保存选中指标和布局；不默认持久化采样历史。导出需用户确认目标目录，涉及 files:write 的清单变化须评审。
+已声明 `ui` 与 `clipboard:write`，用于窗口和复制操作。普通权限运行，不自动提权；设置保存指标和布局，不持久化采样历史。导出尚未实现。
 
 ## 7. 失败矩阵
 
@@ -65,16 +65,14 @@ sys 打开摘要列表，详情动作用于打开独立面板；overlay 开关�
 
 ## 8. 交付清单
 
-本阶段仅 README、设计、UI spec、测试计划中英版本。实施阶段再提供清单、源码、打包、双语帮助、精选验证证据。所有可见字串使用本地化资源；发布物不携带用户采样或导出内容。
+交付包括源码、清单、固定提交的渲染库与 hwinfo 子模块、测试、双语文档及 wsplugin 安装包。波形支持 inline、wash、dotted、bars 与关闭；颜色可统一或按六项指标指定。玻璃支持 liquid、frosted、square，配色支持 system、light、dark。设置与交互说明见 README 和 UI 规格。
 
 ## 9. 测试与预算
 
-[测试计划](TEST-PLAN.md) 覆盖 L0–L5，L3 真实宿主与 L4 多显示器/休眠为首版门槛。候选采样间隔：可见动态数据 1 s、无可见消费者暂停动态采样；这是交互目标，需测 CPU/内存/唤醒次数后调整。先记录空载宿主与加载插件的差值，再用实测峰值乘余量决定 job 内存，不沿用脚手架数值。
+[测试计划](TEST-PLAN.md) 覆盖 L0–L5，分别记录核心、接线、宿主、桌面与性能验收。默认指标周期为 1s，可配置 500–5000ms。短时原生探针数据见验证记录；完整宿主内存、唤醒及多消费者预算仍待测量。
 
-## 10. 诚实笔记
+## 10. 验证与限制
 
-已验证：纯核心单测、完整插件的独立 JSON-RPC query/QML/shutdown smoke test。独立查询可枚举 4 个 DXGI 图形适配器；仅显示名称/software 标记，不提供 GPU 利用率、显存、温度或风扇遥测。未验证：真实 Win顺 插件 runner、overlay 焦点/鼠标穿透、多 DPI/全屏、隐私监测、性能预算与宿主关闭进程树。运行中的正式 Win顺 实例未被改动。
+已验证：完整构建、插件逻辑、独立 GPU/桌面渲染、四方向穿透 hover、双屏拖动和重启位置恢复、真实采样间隔及安装后运行状态。短时探针记录了 CPU、GPU 时间、绘制耗时和绘制间隔，详见[材质验证](docs/native-material-validation.md)与[集成结果](docs/native-integration-results.md)。
 
-## 11. 实施后回填
-
-2026-11-11 实施回填：新增 Windows `GetSystemTimes` CPU 差值、`GlobalMemoryStatusEx` 内存、OS/CPU 型号、固定卷容量、`GetAdaptersAddresses`/`GetIfEntry2` 网络字节率、`GetSystemPowerStatus` 电池数据与 DXGI adapter inventory（不含 GPU telemetry）。共享采样快照每秒更新；速率以稳定适配器 identity 关联，计数器下降或首次样本不展示为有效速率。实现详情窗、基础 overlay 与锁定/穿透/显示位置偏好设置；manifest 声明 resident eager（用于恢复用户显式启用的 overlay）、共享 Qt 6.12、`ui` 权限和 sys 动作。核心单测通过；完整 Qt/QRC/MOC 插件可编译链接，独立协议 query 返回系统指标与 4 个 DXGI adapters，QML bridge errors 清零。安装版 WinShun 的隔离 profile 已实测：输入 `sys ` 后结果正常展开，无崩溃/重启。`0xC0000135` 定位为 Debug Qt DLL 依赖与宿主 Release Qt 不匹配；后续 `0xC00000FD` 由 manifest 的 128 MB Job 内存上限与 Qt Quick Controls 文本布局递归共同触发，现改为 256 MB 并使用纯 QtQuick 详情/设置页。宿主查询超时 3 秒，当前首次窗口加载约 1 秒。窗口、显示器/DPI/焦点穿透仍未验收；隐私监测与性能预算未测。
+原生 mixed-DPI、外部录屏、动态背景负载、物理拖动性能轨迹、完整无障碍和宿主退出进程树验收尚未覆盖。导出和自动全屏隐藏未实现；驱动指标可用性不保证跨设备一致。

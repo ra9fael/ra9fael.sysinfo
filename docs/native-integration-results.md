@@ -1,6 +1,6 @@
 # Native overlay integration
 
-Version: 1.4.0-dev.
+Version: 1.4.0-dev. Renderer: `dbde6ec`. Updated: 2026-11-16.
 
 ## Verified behavior
 
@@ -14,13 +14,13 @@ Version: 1.4.0-dev.
   layout. Tiny, wash, labels-only and values-only configurations render.
 - Native pointer events move the panel between BELLATOR N27Q and DELL U2722DX.
   The persisted coordinates and monitor names match each destination.
-- Right click opens no menu. Right-edge collapse makes the interior
-  transparent to hit testing; pointer entry restores the expanded surface.
+- Right click opens no menu. All four edges support half-circle collapse and
+  hover expansion, including click-through pointer entry and delayed exit.
 - Plugin logic tests pass with assertions enabled. The complete plugin builds.
 - WinShun reports the installed 1.4.0-dev plugin enabled and running.
 
-The test sources are `liquid-glass-cpp/tests/render_tests.cpp` and the workspace
-integration driver `build/glass-reference-analysis/verify_interaction.py`.
+The test sources are `third_party/liquid-glass-cpp/tests/render_tests.cpp` and
+`tests/desktop_integration.py`.
 Content snapshots are in `build/glass-reference-analysis/`.
 
 ## Limitations
@@ -31,8 +31,9 @@ testing covers this machine's desktop duplication path, not external recorders.
 Native mixed-DPI transitions require monitors with different system DPI values.
 Both monitors in the current desktop report 96 DPI.
 
-The renderer repository and relative submodule origin are local. Distribution
-to another machine requires publishing both repositories at sibling remote URLs.
+The renderer is published at https://github.com/ra9fael/liquid-glass-cpp and the
+plugin submodule uses that HTTPS URL. Independent cloning passed. Complete
+cross-machine plugin builds remain unverified.
 
 ## Extended desktop coverage
 
@@ -69,8 +70,9 @@ interiors, transparent outer corners and restored expanded surfaces. Collapse
 and expansion interpolate the glass shape in place and fade content; background
 coordinates remain aligned with the desktop throughout the transition.
 
-Default inline sparklines render in the native content pass. Cell dimensions
-follow settings, with side-by-side labels and values for short cells. Desktop
+Inline, wash, dotted and bars render in the native content pass with configurable
+per-metric colors. Normal and compact modes honor explicit rows and center text.
+Cell dimensions follow settings. Desktop
 layout checks pass 1, 2, 3 and 6 columns at cell size 140 by 40, yielding window
 sizes 180 by 280, 320 by 160, 460 by 120 and 880 by 80.
 
@@ -79,8 +81,10 @@ Capture acquisition is nonblocking. Capture-excluded windows use dirty and move
 regions to skip unrelated background copies, with a 250 ms refresh fallback.
 Capture-visible windows retain the affinity-toggle synchronization path.
 Luminance readback copies one pixel instead of the full background texture.
-Actual frame-time and CPU/GPU cost measurements remain outstanding; the timer
-interval does not establish a sustained frame rate.
+Short measurements found capture-visible median draw duration near 10 ms and
+draw completion intervals near 33 ms. Sampling interval measurements, font and
+material coverage, CPU/GPU results and their limitations are recorded in
+[native-material-validation.md](native-material-validation.md).
 
 The rebuilt package was installed and WinShun reports version 1.4.0-dev,
 enabled=true and status=running, with clipboard:write and ui permissions.

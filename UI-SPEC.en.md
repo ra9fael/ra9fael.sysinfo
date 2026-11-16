@@ -23,7 +23,7 @@ Details candidate size: 960×640 DIP initially, minimum 640×480. These are layo
 └──────────────────────────────────────────────────────────┘
 ```
 
-Charts are P1; P0 uses tables and persists no chart history. Export appears only after SYS-F11 is implemented.
+Detail charts remain planned. Desktop charts use 60 in-memory samples without persistence. Export appears only after SYS-F11 is implemented.
 
 ## Overlay
 
@@ -33,9 +33,13 @@ Charts are P1; P0 uses tables and persists no chart history. Export appears only
 └────────────────────────────┘
 ```
 
-Candidate minimum font: 12 DIP in two compact rows. Names, units and unavailable states remain legible. No decorative charts by default. Configuration chooses metrics/adapters, font, background opacity, monitor, lock, click-through and optional fullscreen hiding. High contrast disables translucent backgrounds. Color alone never communicates state.
+Normal and compact native grids honor explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. Measured long text shrinks to fit. Labels, values and units have separate switches.
 
-Unlocked overlays can be dragged; locked overlays cannot move. Click-through receives no mouse input, but sys → Edit overlay restores interaction. Right-click does not open a menu. Persist monitor identity and logical offset; missing monitors fall back to a visible primary work area. Never steal focus or cover Windows secure desktop.
+Default `inline` draws a line below the text; `wash` fills a translucent background area; `dotted` draws sample points; `bars` draws narrow columns; `off` hides charts. `waveColors` accepts one shared color or six colors in CPU, memory, GPU, disk, upload, download order. History retains 60 samples at the configured 500–5000 ms metric interval.
+
+`system/light/dark` controls text and glass tint. `liquid/frosted/square` selects liquid, frosted or square-embossed glass with 8–80 pixel tiles. The animation setting controls local hover refraction, eased pressing, drag flow and edge morphing.
+
+Unlocked overlays can be dragged; locked overlays cannot move. Click-through uses screen-pointer detection to expand the half-circle on hover and collapse after pointer exit. Right click opens no menu. Physical coordinates and monitor name persist across restarts. The overlay does not steal focus. High contrast and full keyboard/screen-reader acceptance remain outstanding; automatic fullscreen hiding is not implemented.
 
 ## Fields and states
 

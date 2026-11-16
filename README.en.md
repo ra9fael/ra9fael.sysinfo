@@ -2,16 +2,90 @@
 
 [中文](README.md)
 
-Status: in development, 2026-11-11. The HTML UI prototype at `design/sysinfo-mockup.html` previews light/dark themes, the hardware overview and desktop overlay. Collection now uses vendored hwinfo 2 APIs for CPU, RAM, OS, GPU, disks, batteries and network interfaces. hwinfo does not currently expose network throughput, so a small Win32 IP Helper adapter remains only for interface byte counters. The Release CMake build and core tests pass; isolated protocol query returns CPU, memory, disk, network and three GPUs.
+Windows system queries and a native liquid-glass desktop monitor. Version
+`1.4.0-dev` is in development and installed in WinShun, confirmed enabled and running.
 
-Earlier crashes are fixed: Debug Qt imports unavailable in the installed host caused `0xC0000135`; the `0xC00000FD` on `sys ` came from the 128 MB Job limit combined with recursive Qt Quick Controls text layout. The manifest now allows 256 MB and details/settings use plain QtQuick. The previous Release binary passed a `sys ` query in an installed WinShun isolated profile. This hwinfo-backed build still needs installed-host verification.
+## Desktop monitor
 
-hwinfo source: [`lfreist/hwinfo`](https://github.com/lfreist/hwinfo), version `2.0.0`, snapshot `acdc2eb4a9109b4ea6bbe207e03d9da33bc16fab`, MIT license; the upstream license is retained at `third_party/hwinfo/LICENSE`. hwinfo is integrated as a Git submodule from [`lfreist/hwinfo`](https://github.com/lfreist/hwinfo), version `2.0.0`, pinned to `acdc2eb4a9109b4ea6bbe207e03d9da33bc16fab`, under MIT license. Upstream source is unmodified; its license is at `third_party/hwinfo/LICENSE`. This environment requires the `http://127.0.0.1:7897` proxy for GitHub.
+CPU, memory, GPU, disk activity, upload and download share a configurable grid.
+Both normal and compact modes support centered text and history charts.
 
-Queries, details and the desktop overlay share a sampler snapshot. Collection does not access the network, launch external processes, scan user files, elevate or change system settings. GPU data is limited to fields hwinfo/drivers actually provide; utilization, memory and temperature are not guaranteed on every adapter. This plugin is independent of System switches.
+- Cell order: `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns.
+  Semicolons or newlines separate rows; commas separate columns; `cpu,,memory`
+  preserves a blank cell.
+- Charts: `off`, bottom-line `inline`, background-area `wash`, sample-point
+  `dotted`, or narrow-column `bars`.
+- Wave colors: one `#RRGGBB` for all metrics, or six comma-separated colors in
+  CPU, memory, GPU, disk, upload, download order, independent of cell order.
+- Fonts: configurable family and 70–180% size. Measured long text shrinks to fit;
+  compact row height follows font size.
+- Theme: `system` follows Windows; `light` and `dark` set glass tint and text color.
+- Glass: `liquid`, `frosted`, or square-embossed `square`. Tile size is 8–80 pixels;
+  refraction controls its strength.
+- Interaction: drag, lock, click-through, four-edge half-circle collapse and hover
+  expansion. Hover wake-up works with click-through enabled. Right click opens no
+  menu. Position and monitor name persist.
+- Motion: local pointer refraction, eased pressing and drag flow, controlled by
+  the animation setting.
 
-- [Functional design](plugin-design.en.md): scope, requirement IDs, architecture, permissions and failure matrix.
-- [UI specification](UI-SPEC.en.md): layout, fields, interaction and states.
-- [Test plan](TEST-PLAN.en.md): L0–L5 acceptance cases traced to requirements.
+`intervalMs` controls metric and history sampling: 500–5000 ms, default 1000 ms.
+History retains 60 samples, so its time span changes with the interval. Glass
+capture and animation are scheduled independently; a 16 ms timer does not imply
+60 fps.
 
-Temperature, fan speed, voltage and other sensor data depend on hardware API support; export is not implemented. Code and prototype checks do not constitute product acceptance.
+`captureVisible` allows the overlay to appear in captures. When enabled,
+background acquisition temporarily excludes the overlay, synchronizes DWM and
+then restores capture visibility.
+
+## Architecture and build
+
+The plugin uses the WinShun SDK, C++23 and Qt 6.12 Core/Gui for protocol, event
+loop, settings and sampling. The overlay uses Win32 HWND, D3D11/DXGI,
+DirectComposition, HLSL and DirectWrite/Direct2D.
+
+Dependencies are pinned Git submodules:
+
+- [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp) owns windows,
+  backdrop capture, materials and edge animation without Qt or WinShun.
+  Attribution is in its `THIRD-PARTY-NOTICES.md`.
+- [hwinfo](https://github.com/lfreist/hwinfo) 2.0.0, commit
+  `acdc2eb4a9109b4ea6bbe207e03d9da33bc16fab`, MIT. Its license is retained at
+  `third_party/hwinfo/LICENSE`.
+
+Run in a Visual Studio developer terminal with the local Qt 6.12 MSVC prefix:
+
+```powershell
+git submodule update --init --recursive
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="<Qt installation>"
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Put Qt's `bin` directory on PATH for tests. Render tests require an interactive
+Windows desktop and a D3D11 device. The executable is written to the source directory.
+
+## Validation and permissions
+
+Permissions are `clipboard:write` and `ui`. Collection does not access the network,
+launch external processes, scan user files, elevate or change system settings.
+hwinfo, Win32 IP Helper and PDH provide hardware information, network rates and
+GPU/disk utilization; availability depends on the system and driver.
+
+- [Functional design](plugin-design.en.md)
+- [UI specification](UI-SPEC.en.md) · [Test plan](TEST-PLAN.en.md)
+- [Native desktop integration](docs/native-integration-results.md)
+- [Material, sampling and performance validation](docs/native-material-validation.md)
+
+Verified: sampling intervals, four-direction click-through hover, dual-monitor
+movement and position restoration. Short probes measured capture-visible median
+draw duration near 10 ms, draw interval near 33 ms and median GPU draw time of
+0.06–0.08 ms. See the validation record for conditions and boundaries.
+
+## Limitations
+
+Both available monitors report 96 native DPI; native mixed-DPI remains untested.
+External recorders, independent dynamic-background workloads, physical-drag
+performance traces and full accessibility acceptance remain outstanding. The
+renderer is public and independently cloned; a complete cross-machine plugin
+build is unverified. Export and automatic fullscreen hiding are not implemented.
+Sensor fields are not guaranteed on every device.
