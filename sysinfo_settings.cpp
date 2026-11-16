@@ -216,19 +216,20 @@ Settings Settings::fromJson(const QJsonObject& v)
 QStringList settingKeys()
 {
     static const QStringList keys = {
-        QStringLiteral("enabled"),    QStringLiteral("sparklines"),
-        QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"), QStringLiteral("waveOpacity"), QStringLiteral("waveBelowOpacity"), QStringLiteral("waveDots"),
-        QStringLiteral("waveColors"), QStringLiteral("theme"),
-        QStringLiteral("scale"),      QStringLiteral("glass"), QStringLiteral("glassStyle"), QStringLiteral("tileSize"), QStringLiteral("blur"), QStringLiteral("refraction"),
-        QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("surfaceMotion"),
-        QStringLiteral("shadow"),     QStringLiteral("radius"),     QStringLiteral("metrics"),
-        QStringLiteral("columns"), QStringLiteral("cellWidth"), QStringLiteral("cellHeight"),
-        QStringLiteral("padding"), QStringLiteral("dividers"), QStringLiteral("dividerOpacity"),
-        QStringLiteral("fontSize"), QStringLiteral("fontFamily"), QStringLiteral("tiny"),
-        QStringLiteral("position"), QStringLiteral("displayTarget"), QStringLiteral("edgeHide"), QStringLiteral("edgeSnap"),
-        QStringLiteral("animations"), QStringLiteral("showLabels"), QStringLiteral("showValues"),
-        QStringLiteral("showUnits"), QStringLiteral("captureVisible"),
-        QStringLiteral("clickThrough"), QStringLiteral("locked"),  QStringLiteral("intervalMs")};
+        QStringLiteral("enabled"), QStringLiteral("intervalMs"),
+        QStringLiteral("metrics"), QStringLiteral("columns"), QStringLiteral("tiny"),
+        QStringLiteral("cellWidth"), QStringLiteral("cellHeight"), QStringLiteral("padding"),
+        QStringLiteral("scale"), QStringLiteral("dividers"), QStringLiteral("dividerOpacity"),
+        QStringLiteral("fontFamily"), QStringLiteral("fontSize"), QStringLiteral("showLabels"),
+        QStringLiteral("showValues"), QStringLiteral("showUnits"),
+        QStringLiteral("sparklines"), QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"),
+        QStringLiteral("waveDots"), QStringLiteral("waveColors"), QStringLiteral("waveOpacity"), QStringLiteral("waveBelowOpacity"),
+        QStringLiteral("theme"), QStringLiteral("glassStyle"), QStringLiteral("glass"), QStringLiteral("blur"),
+        QStringLiteral("refraction"), QStringLiteral("dispersion"), QStringLiteral("rimLight"),
+        QStringLiteral("tileSize"), QStringLiteral("radius"), QStringLiteral("shadow"),
+        QStringLiteral("displayTarget"), QStringLiteral("position"), QStringLiteral("locked"),
+        QStringLiteral("edgeSnap"), QStringLiteral("edgeHide"), QStringLiteral("clickThrough"),
+        QStringLiteral("animations"), QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
     return keys;
 }
 
