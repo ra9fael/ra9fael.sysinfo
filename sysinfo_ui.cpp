@@ -148,8 +148,10 @@ void SysInfoUiBridge::showOverlay()
         m_overlay->moved = [this](const QPoint& point, const QPoint& cursor) { handleMoved(point, cursor); };
         m_overlay->edgeCollapsedChanged = [this](bool collapsed) { return setEdgeCollapsed(collapsed); };
         if (!m_overlay->create()) { m_overlay.reset(); return; }
+        applyGeometry();
+        placeWindow(m_settings.position != QStringLiteral("free"));
     }
-    applyGeometry(); placeWindow(m_settings.position != QStringLiteral("free")); applyClickThrough(); m_overlay->setCaptureVisible(m_settings.captureVisible);
+    applyClickThrough(); m_overlay->setCaptureVisible(m_settings.captureVisible);
     m_overlay->setLocked(m_settings.locked); m_overlay->show(m_overlay->geometry());
     m_enabled = true; refreshSnapshot();
 }
@@ -209,14 +211,14 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
     const bool layoutChanged = previous.scale != settings.scale || previous.columns != settings.columns ||
                                previous.cellWidth != settings.cellWidth || previous.cellHeight != settings.cellHeight ||
                                previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position || previous.padding != settings.padding;
-    applyGeometry(); if (m_overlay && layoutChanged) placeWindow(settings.position != QStringLiteral("free"));
+    applyGeometry();
+    if (m_overlay && layoutChanged && settings.position != QStringLiteral("free"))
+        placeWindow(true);
     applyClickThrough();
     if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible);
     if (!settings.edgeHide && m_edgeCollapsed) {
         m_edgeCollapsed = false;
         if (m_overlay) m_overlay->setCollapsed(false);
-    } else if (!settings.freeHide && m_overlay) {
-        m_overlay->setCollapsed(false);
     }
     if (settings.edgeHide && layoutChanged && m_edgeCollapsed) {
         m_edgeCollapsed = false;
