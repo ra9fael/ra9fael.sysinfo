@@ -107,6 +107,7 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("dispersion"), dispersion},
                         {QStringLiteral("rimLight"), rimLight},
                         {QStringLiteral("surfaceMotion"), surfaceMotion},
+                        {QStringLiteral("mouseDistortion"), mouseDistortion},
                         {QStringLiteral("shadow"), shadow},
                         {QStringLiteral("radius"), radius},
                         {QStringLiteral("metrics"), metrics},
@@ -172,6 +173,8 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.rimLight = clampInt(v.value(QStringLiteral("rimLight")), s.rimLight, 0, 100);
     if (v.contains(QStringLiteral("surfaceMotion")))
         s.surfaceMotion = clampInt(v.value(QStringLiteral("surfaceMotion")), s.surfaceMotion, 0, 100);
+    if (v.contains(QStringLiteral("mouseDistortion")))
+        s.mouseDistortion = v.value(QStringLiteral("mouseDistortion")).toBool(s.mouseDistortion);
     if (v.contains(QStringLiteral("shadow")))
         s.shadow = clampInt(v.value(QStringLiteral("shadow")), s.shadow, 0, 100);
     if (v.contains(QStringLiteral("radius")))
@@ -211,7 +214,8 @@ Settings Settings::fromJson(const QJsonObject& v)
     if (v.contains(QStringLiteral("animations")))
         s.animations = v.value(QStringLiteral("animations")).toBool(s.animations);
     s.animationCurve = choice(v.value(QStringLiteral("animationCurve")),
-        {QStringLiteral("linear"), QStringLiteral("easeOut"), QStringLiteral("easeInOut"), QStringLiteral("easeIn"), QStringLiteral("overshoot")}, s.animationCurve);
+        {QStringLiteral("linear"), QStringLiteral("easeOut"), QStringLiteral("easeInOut"), QStringLiteral("easeIn"),
+         QStringLiteral("overshoot"), QStringLiteral("sine"), QStringLiteral("fastOut"), QStringLiteral("spring")}, s.animationCurve);
     s.animationDurationMs = clampInt(v.value(QStringLiteral("animationDurationMs")), s.animationDurationMs, 100, 1500);
     if (v.contains(QStringLiteral("showLabels")))
         s.showLabels = v.value(QStringLiteral("showLabels")).toBool(s.showLabels);
@@ -259,7 +263,7 @@ QStringList advancedSettingKeys()
         QStringLiteral("position"), QStringLiteral("edgeSnap"), QStringLiteral("edgeHide"),
         QStringLiteral("freeHide"), QStringLiteral("freeHideDelayMs"), QStringLiteral("animations"),
         QStringLiteral("animationCurve"), QStringLiteral("animationDurationMs"),
-        QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
+        QStringLiteral("surfaceMotion"), QStringLiteral("mouseDistortion"), QStringLiteral("captureVisible")};
     return keys;
 }
 

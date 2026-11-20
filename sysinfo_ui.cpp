@@ -200,7 +200,7 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
         NativeOverlayModel model;
         model.dark=m_dark; model.edgeHide=settings.edgeHide && settings.edgeSnap; model.freeHideEnabled=settings.freeHide;
         model.freeHideDelayMs=settings.freeHideDelayMs; model.animations=settings.animations;
-        model.animationCurve=settings.animationCurve==QStringLiteral("linear")?0:settings.animationCurve==QStringLiteral("easeInOut")?2:settings.animationCurve==QStringLiteral("easeIn")?3:settings.animationCurve==QStringLiteral("overshoot")?4:1;
+        model.animationCurve=settings.animationCurve==QStringLiteral("linear")?0:settings.animationCurve==QStringLiteral("easeInOut")?2:settings.animationCurve==QStringLiteral("easeIn")?3:settings.animationCurve==QStringLiteral("overshoot")?4:settings.animationCurve==QStringLiteral("sine")?5:settings.animationCurve==QStringLiteral("fastOut")?6:settings.animationCurve==QStringLiteral("spring")?7:1;
         model.animationDurationMs=settings.animationDurationMs;
         model.radius=settings.radius; model.scale=settings.scale/100.f;
         m_overlay->setModel(model);
@@ -303,7 +303,7 @@ void SysInfoUiBridge::refreshSnapshot()
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide && m_settings.edgeSnap;
     model.freeHideEnabled=m_settings.freeHide; model.freeHideDelayMs=m_settings.freeHideDelayMs;
     model.animations=m_settings.animations;
-    model.animationCurve=m_settings.animationCurve==QStringLiteral("linear")?0:m_settings.animationCurve==QStringLiteral("easeInOut")?2:m_settings.animationCurve==QStringLiteral("easeIn")?3:m_settings.animationCurve==QStringLiteral("overshoot")?4:1;
+    model.animationCurve=m_settings.animationCurve==QStringLiteral("linear")?0:m_settings.animationCurve==QStringLiteral("easeInOut")?2:m_settings.animationCurve==QStringLiteral("easeIn")?3:m_settings.animationCurve==QStringLiteral("overshoot")?4:m_settings.animationCurve==QStringLiteral("sine")?5:m_settings.animationCurve==QStringLiteral("fastOut")?6:m_settings.animationCurve==QStringLiteral("spring")?7:1;
     model.animationDurationMs=m_settings.animationDurationMs;
     model.radius=m_settings.radius; model.scale=m_settings.scale/100.f;
     model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||
@@ -319,7 +319,8 @@ void SysInfoUiBridge::refreshSnapshot()
     model.columns=m_gridColumns; model.rows=m_gridRows; model.radius=qRound((m_settings.tiny?std::min(10,m_settings.radius):m_settings.radius)*m_settings.scale/100.0);
     model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.tiny?28:m_settings.cellHeight;
     model.blur=m_settings.blur; model.glass=m_settings.glass; model.refraction=m_settings.refraction;
-    model.dispersion=m_settings.dispersion; model.rimLight=m_settings.rimLight; model.surfaceMotion=m_settings.surfaceMotion;
+    model.dispersion=m_settings.dispersion; model.rimLight=m_settings.rimLight;
+    model.surfaceMotion=m_settings.surfaceMotion; model.mouseDistortion=m_settings.mouseDistortion;
     model.fontPercent=m_settings.fontSize; model.fontFamily=m_settings.fontFamily;
     model.scale=m_settings.scale/100.0f;
     model.padding=static_cast<float>(m_margin/model.scale);

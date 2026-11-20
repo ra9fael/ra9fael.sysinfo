@@ -47,7 +47,7 @@ static void testSettings()
     const QStringList keys = settingKeys();
     assert(keys.size() == 9);
     const QStringList advanced = advancedSettingKeys();
-    assert(advanced.size() == 40);
+    assert(advanced.size() == 41);
     assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
             && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
@@ -85,6 +85,10 @@ static void testSettings()
     assert(defaults.padding == 4 && defaults.dividers && defaults.dividerOpacity == 12);
     assert(defaults.edgeSnap && !defaults.edgeHide);
     assert(Settings::fromJson({{"animationCurve", "overshoot"}}).animationCurve == "overshoot");
+    assert(Settings::fromJson({{"animationCurve", "spring"}}).animationCurve == "spring");
+    assert(Settings::fromJson({{"mouseDistortion", false}}).mouseDistortion == false);
+    assert(Settings{}.mouseDistortion);
+    assert(Settings{}.toJson().value(QStringLiteral("mouseDistortion")).toBool());
     const Settings independentEdges=Settings::fromJson({{"edgeSnap", false}, {"edgeHide", true}});
     assert(!independentEdges.edgeSnap && independentEdges.edgeHide);
     assert(defaults.radius == 20);

@@ -188,7 +188,8 @@ void NativeOverlay::setModel(NativeOverlayModel model){
     material.animations=v.animations; material.animationCurve=v.animationCurve; material.animationDurationMs=v.animationDurationMs;
     material.style=v.glassStyle; material.tileSize=static_cast<float>(v.tileSize);
     material.radius=v.radius; material.blur=v.blur; material.glass=v.glass; material.refraction=v.refraction;
-    material.dispersion=v.dispersion; material.rimLight=v.rimLight; material.surfaceMotion=v.surfaceMotion; material.scale=v.scale;
+    material.dispersion=v.dispersion; material.rimLight=v.rimLight;
+    material.surfaceMotion=v.mouseDistortion?v.surfaceMotion:0; material.scale=v.scale;
     m->window.setMaterial(material);
 }
 void NativeOverlay::setEdgeCollapsed(bool v,const QString& side,int anchor,const QRect& workArea){

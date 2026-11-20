@@ -66,6 +66,7 @@ struct NativeOverlayModel {
     int dispersion = 12;
     int rimLight = 54;
     int surfaceMotion = 35;
+    bool mouseDistortion = true;
     int fontPercent = 100;
     float scale = 1.0f;
     QString fontFamily;

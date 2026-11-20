@@ -33,6 +33,7 @@ struct Settings {
     int dispersion = 12;                           // 0 – 100
     int rimLight = 54;                             // 0 – 100
     int surfaceMotion = 35;                        // 0 – 100
+    bool mouseDistortion = true;
     int shadow = 0;                                // 0 – 100
     int radius = 20;                               // 8 – 28
     QString metrics = QStringLiteral("cpu,disk,netUp,memory,gpu,netDown");

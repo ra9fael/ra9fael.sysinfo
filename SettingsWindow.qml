@@ -44,7 +44,7 @@ ApplicationWindow {
         "blur": "背景模糊（%）", "refraction": "边缘折射（%）", "dispersion": "边缘色散（%）",
         "rimLight": "边缘高光（%）", "tileSize": "方格尺寸（px）", "cornerRadius": "圆角（px）",
         "display": "显示器", "position": "窗口位置", "snap": "贴边吸附",
-        "animations": "交互动画", "animationCurve": "动画曲线", "animationDuration": "动画时长（毫秒）", "surfaceMotion": "表面流动（%）", "capture": "允许截图和录屏捕获",
+        "animations": "交互动画", "animationCurve": "动画曲线", "animationDuration": "动画时长（毫秒）", "mouseDistortion": "鼠标移动畸变", "surfaceMotion": "畸变强度（%）", "capture": "允许截图和录屏捕获",
         "auto": "自动", "off": "关闭", "inline": "折线", "wash": "面积", "dotted": "点阵",
         "bars": "细柱", "below": "文字下方", "background": "文字背景",
         "system": "跟随系统", "light": "浅色", "darkTheme": "深色",
@@ -74,7 +74,7 @@ ApplicationWindow {
         "blur": "Background blur (%)", "refraction": "Edge refraction (%)", "dispersion": "Edge dispersion (%)",
         "rimLight": "Rim light (%)", "tileSize": "Square tile size (px)", "cornerRadius": "Corner radius (px)",
         "display": "Display", "position": "Position", "snap": "Snap to edge",
-        "animations": "Interaction animations", "animationCurve": "Animation curve", "animationDuration": "Animation duration (ms)", "surfaceMotion": "Surface motion (%)", "capture": "Allow screenshots and recording",
+        "animations": "Interaction animations", "animationCurve": "Animation curve", "animationDuration": "Animation duration (ms)", "mouseDistortion": "Mouse movement distortion", "surfaceMotion": "Distortion strength (%)", "capture": "Allow screenshots and recording",
         "auto": "Automatic", "off": "Off", "inline": "Line", "wash": "Area", "dotted": "Dots",
         "bars": "Bars", "below": "Below text", "background": "Behind text",
         "system": "Follow system", "light": "Light", "darkTheme": "Dark",
@@ -231,6 +231,7 @@ ApplicationWindow {
         positionRow.value = v.position
         interactionSnapBox.checked = v.edgeSnap === true
         surfaceRow.value = v.surfaceMotion
+        mouseDistortionBox.checked = v.mouseDistortion !== false
         captureBox.checked = v.captureVisible === true
         loading = false
     }
@@ -984,9 +985,11 @@ ApplicationWindow {
                         SettingDivider {}
                         CheckRow { id: animationsBox; labelText: root.t.animations; onChanged: if (!root.loading) sysinfo.edit("animations", checked) }
                         SettingDivider {}
-                        ChoiceRow { id: animationCurveRow; labelText: root.t.animationCurve; values: ["linear", "easeOut", "easeInOut", "easeIn", "overshoot"]; labels: root.zh ? ["线性", "缓出", "缓入缓出", "缓入", "回弹"] : ["Linear", "Ease out", "Ease in-out", "Ease in", "Overshoot"]; onChosen: sysinfo.edit("animationCurve", value) }
+                        ChoiceRow { id: animationCurveRow; labelText: root.t.animationCurve; values: ["linear", "easeOut", "easeInOut", "easeIn", "overshoot", "sine", "fastOut", "spring"]; labels: root.zh ? ["线性", "缓出", "缓入缓出", "缓入", "回弹", "正弦", "快速收尾", "弹簧"] : ["Linear", "Ease out", "Ease in-out", "Ease in", "Overshoot", "Sine", "Fast out", "Spring"]; onChosen: sysinfo.edit("animationCurve", value) }
                         SettingDivider {}
                         NumberRow { id: animationDurationRow; labelText: root.t.animationDuration; from: 100; to: 1500; stepSize: 50; onEdited: sysinfo.edit("animationDurationMs", value); onPreviewed: sysinfo.preview("animationDurationMs", value); onCommitted: sysinfo.commitPreview() }
+                        SettingDivider {}
+                        CheckRow { id: mouseDistortionBox; labelText: root.t.mouseDistortion; onChanged: if (!root.loading) sysinfo.edit("mouseDistortion", checked) }
                         SettingDivider {}
                         NumberRow { id: surfaceRow; labelText: root.t.surfaceMotion; from: 0; to: 100; onEdited: sysinfo.edit("surfaceMotion", value); onPreviewed: sysinfo.preview("surfaceMotion", value); onCommitted: sysinfo.commitPreview() }
                         SettingDivider {}
