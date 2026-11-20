@@ -47,7 +47,7 @@ static void testSettings()
     const QStringList keys = settingKeys();
     assert(keys.size() == 9);
     const QStringList advanced = advancedSettingKeys();
-    assert(advanced.size() == 37);
+    assert(advanced.size() == 40);
     assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
             && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
@@ -84,6 +84,7 @@ static void testSettings()
     assert(defaults.columns == 3 && defaults.cellWidth == 120 && defaults.cellHeight == 40);
     assert(defaults.padding == 4 && defaults.dividers && defaults.dividerOpacity == 12);
     assert(defaults.edgeSnap && !defaults.edgeHide);
+    assert(Settings::fromJson({{"animationCurve", "overshoot"}}).animationCurve == "overshoot");
     const Settings independentEdges=Settings::fromJson({{"edgeSnap", false}, {"edgeHide", true}});
     assert(!independentEdges.edgeSnap && independentEdges.edgeHide);
     assert(defaults.radius == 20);

@@ -211,7 +211,7 @@ Settings Settings::fromJson(const QJsonObject& v)
     if (v.contains(QStringLiteral("animations")))
         s.animations = v.value(QStringLiteral("animations")).toBool(s.animations);
     s.animationCurve = choice(v.value(QStringLiteral("animationCurve")),
-        {QStringLiteral("linear"), QStringLiteral("easeOut"), QStringLiteral("easeInOut"), QStringLiteral("easeIn")}, s.animationCurve);
+        {QStringLiteral("linear"), QStringLiteral("easeOut"), QStringLiteral("easeInOut"), QStringLiteral("easeIn"), QStringLiteral("overshoot")}, s.animationCurve);
     s.animationDurationMs = clampInt(v.value(QStringLiteral("animationDurationMs")), s.animationDurationMs, 100, 1500);
     if (v.contains(QStringLiteral("showLabels")))
         s.showLabels = v.value(QStringLiteral("showLabels")).toBool(s.showLabels);
@@ -256,7 +256,8 @@ QStringList advancedSettingKeys()
         QStringLiteral("glass"), QStringLiteral("blur"), QStringLiteral("refraction"),
         QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("tileSize"),
         QStringLiteral("radius"), QStringLiteral("shadow"), QStringLiteral("displayTarget"),
-        QStringLiteral("position"), QStringLiteral("edgeSnap"), QStringLiteral("animations"),
+        QStringLiteral("position"), QStringLiteral("edgeSnap"), QStringLiteral("edgeHide"),
+        QStringLiteral("freeHide"), QStringLiteral("freeHideDelayMs"), QStringLiteral("animations"),
         QStringLiteral("animationCurve"), QStringLiteral("animationDurationMs"),
         QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
     return keys;

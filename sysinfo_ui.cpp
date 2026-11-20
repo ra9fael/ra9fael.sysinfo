@@ -198,9 +198,9 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
     if (m_settingsWindow) m_settingsWindow->setSettings(settings);
     if (m_overlay) {
         NativeOverlayModel model;
-        model.dark=m_dark; model.edgeHide=settings.edgeHide; model.freeHideEnabled=settings.freeHide;
+        model.dark=m_dark; model.edgeHide=settings.edgeHide && settings.edgeSnap; model.freeHideEnabled=settings.freeHide;
         model.freeHideDelayMs=settings.freeHideDelayMs; model.animations=settings.animations;
-        model.animationCurve=settings.animationCurve==QStringLiteral("linear")?0:settings.animationCurve==QStringLiteral("easeInOut")?2:settings.animationCurve==QStringLiteral("easeIn")?3:1;
+        model.animationCurve=settings.animationCurve==QStringLiteral("linear")?0:settings.animationCurve==QStringLiteral("easeInOut")?2:settings.animationCurve==QStringLiteral("easeIn")?3:settings.animationCurve==QStringLiteral("overshoot")?4:1;
         model.animationDurationMs=settings.animationDurationMs;
         model.radius=settings.radius; model.scale=settings.scale/100.f;
         m_overlay->setModel(model);
@@ -212,10 +212,13 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
     applyGeometry(); if (m_overlay && layoutChanged) placeWindow(settings.position != QStringLiteral("free"));
     applyClickThrough();
     if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible);
-    if (!settings.edgeHide) {
+    if (!settings.edgeHide && m_edgeCollapsed) {
         m_edgeCollapsed = false;
         if (m_overlay) m_overlay->setCollapsed(false);
-    } else if (layoutChanged && m_edgeCollapsed) {
+    } else if (!settings.freeHide && m_overlay) {
+        m_overlay->setCollapsed(false);
+    }
+    if (settings.edgeHide && layoutChanged && m_edgeCollapsed) {
         m_edgeCollapsed = false;
         setEdgeCollapsed(true);
     }
@@ -234,8 +237,9 @@ bool SysInfoUiBridge::setEdgeCollapsed(bool collapsed)
     if (!collapsed) {
         m_edgeCollapsed = false;
         m_overlay->setCollapsed(false);
-        return false;
+        return true;
     }
+    if (!m_settings.edgeSnap) return false;
 
     const int left = std::abs(rect.left() - area.left());
     const int right = std::abs(rect.right() - area.right());
@@ -285,7 +289,7 @@ void SysInfoUiBridge::handleMoved(const QPoint& position, const QPoint& cursor)
         else if(std::abs(rect.bottom()-area.bottom())<=threshold) rect.moveBottom(area.bottom());
     }
     m_overlay->setGeometry(rect); m_windowPos=rect; updateSavedScreen(); saveWindowState();
-    if (m_settings.edgeHide) setEdgeCollapsed(true);
+    if (m_settings.edgeSnap && m_settings.edgeHide) setEdgeCollapsed(true);
     if (m_settings.position != QStringLiteral("free")) {
         const QJsonObject changed=m_store->patch({{QStringLiteral("position"),QStringLiteral("free")}});
         if (!changed.isEmpty()) { m_settings=m_store->get(); emit settingsEdited(changed); }
@@ -296,10 +300,10 @@ void SysInfoUiBridge::refreshSnapshot()
 {
     if (!m_overlay || !m_sampler) return;
     const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
-    NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide;
+    NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide && m_settings.edgeSnap;
     model.freeHideEnabled=m_settings.freeHide; model.freeHideDelayMs=m_settings.freeHideDelayMs;
     model.animations=m_settings.animations;
-    model.animationCurve=m_settings.animationCurve==QStringLiteral("linear")?0:m_settings.animationCurve==QStringLiteral("easeInOut")?2:m_settings.animationCurve==QStringLiteral("easeIn")?3:1;
+    model.animationCurve=m_settings.animationCurve==QStringLiteral("linear")?0:m_settings.animationCurve==QStringLiteral("easeInOut")?2:m_settings.animationCurve==QStringLiteral("easeIn")?3:m_settings.animationCurve==QStringLiteral("overshoot")?4:1;
     model.animationDurationMs=m_settings.animationDurationMs;
     model.radius=m_settings.radius; model.scale=m_settings.scale/100.f;
     model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||

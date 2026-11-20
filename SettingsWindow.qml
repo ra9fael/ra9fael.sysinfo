@@ -178,6 +178,7 @@ ApplicationWindow {
         intervalRow.value = v.intervalMs
         tinyBox.checked = v.tiny === true
         scaleRow.value = v.scale
+        snapBox.checked = v.edgeSnap === true
         lockBox.checked = v.locked === true
         animationsBox.checked = v.animations === true
         edgeHideBox.checked = v.edgeHide === true
@@ -652,6 +653,9 @@ ApplicationWindow {
                         CheckRow { id: lockBox; labelText: root.t.lock
                             onChanged: if (!root.loading) sysinfo.edit("locked", checked) }
                         SettingDivider {}
+                        CheckRow { id: snapBox; labelText: root.t.snap
+                            onChanged: if (!root.loading) sysinfo.edit("edgeSnap", checked) }
+                        SettingDivider {}
                         CheckRow { id: edgeHideBox; labelText: root.t.edgeHide
                             onChanged: if (!root.loading) sysinfo.edit("edgeHide", checked) }
                         SettingDivider {}
@@ -979,7 +983,7 @@ ApplicationWindow {
                         SettingDivider {}
                         CheckRow { id: animationsBox; labelText: root.t.animations; onChanged: if (!root.loading) sysinfo.edit("animations", checked) }
                         SettingDivider {}
-                        ChoiceRow { id: animationCurveRow; labelText: root.t.animationCurve; values: ["linear", "easeOut", "easeInOut", "easeIn"]; labels: root.zh ? ["线性", "缓出", "缓入缓出", "缓入"] : ["Linear", "Ease out", "Ease in-out", "Ease in"]; onChosen: sysinfo.edit("animationCurve", value) }
+                        ChoiceRow { id: animationCurveRow; labelText: root.t.animationCurve; values: ["linear", "easeOut", "easeInOut", "easeIn", "overshoot"]; labels: root.zh ? ["线性", "缓出", "缓入缓出", "缓入", "回弹"] : ["Linear", "Ease out", "Ease in-out", "Ease in", "Overshoot"]; onChosen: sysinfo.edit("animationCurve", value) }
                         SettingDivider {}
                         NumberRow { id: animationDurationRow; labelText: root.t.animationDuration; from: 100; to: 1500; stepSize: 50; onEdited: sysinfo.edit("animationDurationMs", value); onPreviewed: sysinfo.preview("animationDurationMs", value); onCommitted: sysinfo.commitPreview() }
                         SettingDivider {}
