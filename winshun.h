@@ -953,7 +953,7 @@ protected:
         return {effect::copy(text), effect::notify(chinese() ? "已复制" : "Copied"), effect::hide()};
     }
     virtual void settingsChanged(const Json& settings) { (void)settings; }
-    virtual void showSettings() {}
+    virtual bool showSettings() { return true; }
     // An item made withDetails() shown in the content pane or the preview
     // (GitHub #202): Json::Object {{"text", …}} or {{"file", a file in
     // dataDir()}}. Without it (nullopt): "method not found", and the pane
@@ -1100,8 +1100,21 @@ private:
             m_settings = params["settings"];
             settingsChanged(m_settings);
         } else if (method == "showSettings") {
-            showSettings();
-            answer(Json::Object {});
+            try {
+                const bool shown = showSettings();
+                if (shown)
+                    answer(Json::Object {});
+                else {
+                    fail(id, -32000, "Settings window could not be opened");
+                    answered = true;
+                }
+            } catch (const std::exception& e) {
+                fail(id, -32000, std::string("Settings window could not be opened: ") + e.what());
+                answered = true;
+            } catch (...) {
+                fail(id, -32000, "Settings window could not be opened");
+                answered = true;
+            }
         } else if (method == "hotkey") {
             hotkey(params["key"].toString());
         } else if (method == "appearance") {

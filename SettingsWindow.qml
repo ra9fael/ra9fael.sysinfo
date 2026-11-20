@@ -6,6 +6,7 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     id: root
+    required property var sysinfo
     width: 680
     height: 616
     minimumWidth: 600
@@ -178,6 +179,7 @@ ApplicationWindow {
         intervalRow.value = v.intervalMs
         tinyBox.checked = v.tiny === true
         scaleRow.value = v.scale
+        interactionSnapBox.checked = v.edgeSnap === true
         snapBox.checked = v.edgeSnap === true
         lockBox.checked = v.locked === true
         animationsBox.checked = v.animations === true
@@ -227,8 +229,7 @@ ApplicationWindow {
 
         displayRow.value = v.displayTarget
         positionRow.value = v.position
-        snapBox.checked = v.edgeSnap === true
-        animationsBox.checked = v.animations === true
+        interactionSnapBox.checked = v.edgeSnap === true
         surfaceRow.value = v.surfaceMotion
         captureBox.checked = v.captureVisible === true
         loading = false
@@ -979,7 +980,7 @@ ApplicationWindow {
                         SettingDivider {}
                         ChoiceRow { id: positionRow; labelText: root.t.position; values: ["topLeft", "topRight", "bottomLeft", "bottomRight", "center", "free"]; labels: root.options(["topLeft", "topRight", "bottomLeft", "bottomRight", "center", "free"]); onChosen: sysinfo.edit("position", value) }
                         SettingDivider {}
-                        CheckRow { id: snapBox; labelText: root.t.snap; onChanged: if (!root.loading) sysinfo.edit("edgeSnap", checked) }
+                        CheckRow { id: interactionSnapBox; labelText: root.t.snap; onChanged: if (!root.loading) sysinfo.edit("edgeSnap", checked) }
                         SettingDivider {}
                         CheckRow { id: animationsBox; labelText: root.t.animations; onChanged: if (!root.loading) sysinfo.edit("animations", checked) }
                         SettingDivider {}

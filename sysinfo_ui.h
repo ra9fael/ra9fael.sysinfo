@@ -27,7 +27,8 @@ public:
     void applyAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook);
     void applySettings(const Settings& settings);
     void showOverlay();
-    void showSettings();
+    HWND overlayHandle() const { return m_overlay ? m_overlay->hwnd() : nullptr; }
+    bool showSettings();
     void hideAll();
     void refreshSnapshot();
     bool saveOverlaySnapshot(const QString& path) const;

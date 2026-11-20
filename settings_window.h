@@ -11,7 +11,7 @@
 
 #include "sysinfo_settings.h"
 
-class QQmlEngine;
+class QQmlApplicationEngine;
 class QQuickWindow;
 
 namespace sysinfo {
@@ -29,7 +29,7 @@ public:
 
     void setSettings(const Settings& settings);
     void setAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook);
-    void show();
+    bool show();
 
     QVariantMap values() const { return m_values; }
     QVariantMap look() const { return m_look; }
@@ -59,7 +59,7 @@ private:
     QVariantMap m_look;
     QString m_locale = QStringLiteral("zh");
     QStringList m_fontFamilies;
-    QQmlEngine* m_engine = nullptr;
+    QQmlApplicationEngine* m_engine = nullptr;
     QQuickWindow* m_window = nullptr;
 };
 

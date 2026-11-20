@@ -157,7 +157,7 @@ void SysInfoUiBridge::showOverlay()
 void SysInfoUiBridge::hideOverlayOnly() { if (m_overlay) m_overlay->hide(); m_enabled = false; }
 void SysInfoUiBridge::hideAll() { hideOverlayOnly(); }
 
-void SysInfoUiBridge::showSettings()
+bool SysInfoUiBridge::showSettings()
 {
     if (!m_settingsWindow) {
         m_settingsWindow = new SettingsWindow;
@@ -182,7 +182,7 @@ void SysInfoUiBridge::showSettings()
         });
     }
     m_settingsWindow->setSettings(m_store->get());
-    m_settingsWindow->show();
+    return m_settingsWindow->show();
 }
 
 void SysInfoUiBridge::applyAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook)

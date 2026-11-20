@@ -63,20 +63,22 @@ LRESULT CALLBACK probeBackdropProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
     return DefWindowProcW(hwnd, message, wParam, lParam);
 }
 
-HWND createProbeBackdrop()
+HWND createProbeBackdrop(HWND overlay)
 {
+    RECT bounds{};
+    if (!overlay || !GetWindowRect(overlay, &bounds))
+        return nullptr;
     static bool registered = false;
     if (!registered) {
         WNDCLASSW wc{}; wc.hInstance = GetModuleHandleW(nullptr); wc.lpszClassName = kProbeBackdropClass;
         wc.lpfnWndProc = probeBackdropProc; wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
         registered = RegisterClassW(&wc) || GetLastError() == ERROR_CLASS_ALREADY_EXISTS;
     }
-    const int left=GetSystemMetrics(SM_XVIRTUALSCREEN), top=GetSystemMetrics(SM_YVIRTUALSCREEN);
-    const int width=GetSystemMetrics(SM_CXVIRTUALSCREEN), height=GetSystemMetrics(SM_CYVIRTUALSCREEN);
-    HWND window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, kProbeBackdropClass, L"", WS_POPUP | WS_VISIBLE,
-                                  left, top, width, height, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
-    ShowWindow(window, SW_SHOWNOACTIVATE);
-    SetWindowPos(window, HWND_TOPMOST, left, top, width, height, SWP_NOACTIVATE);
+    const int width = bounds.right - bounds.left, height = bounds.bottom - bounds.top;
+    HWND window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, kProbeBackdropClass, L"", WS_POPUP,
+                                  bounds.left, bounds.top, width, height, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
+    if (window)
+        SetWindowPos(window, overlay, bounds.left, bounds.top, width, height, SWP_NOACTIVATE | SWP_SHOWWINDOW);
     return window;
 }
 
@@ -192,11 +194,15 @@ public:
         });
     }
 
-    void showSettings() override
+    bool showSettings() override
     {
-        post([this] {
-            if (m_ui) m_ui->showSettings();
-        });
+        bool shown = false;
+        const bool invoked = QMetaObject::invokeMethod(QCoreApplication::instance(), [this, &shown] {
+            shown = m_ui && m_ui->showSettings();
+        }, Qt::BlockingQueuedConnection);
+        if (!invoked)
+            qWarning("sysinfo: failed to dispatch settings-window creation to the GUI thread");
+        return invoked && shown;
     }
 
     winshun::Items query(const winshun::Query& q) override
@@ -434,7 +440,6 @@ private:
 int runProbe(QGuiApplication& app)
 {
     const bool diagnosticPattern = app.arguments().contains(QStringLiteral("--probe-pattern"));
-    HWND backdrop = diagnosticPattern ? nullptr : createProbeBackdrop();
     if (diagnosticPattern)
         qputenv("SYSINFO_DEBUG_PATTERN", "1");
     FakeSampler sampler;
@@ -475,6 +480,7 @@ int runProbe(QGuiApplication& app)
                      });
     bridge.applySettings(store->get());
     bridge.showOverlay();
+    const HWND backdrop = diagnosticPattern ? nullptr : createProbeBackdrop(bridge.overlayHandle());
 
     if (app.arguments().contains(QStringLiteral("--probe-settings")))
         QTimer::singleShot(300, &bridge, [&bridge] { bridge.showSettings(); });

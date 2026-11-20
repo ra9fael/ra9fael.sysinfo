@@ -8,12 +8,11 @@
 #include <QPainter>
 #include <QPalette>
 #include <QPixmap>
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <QQmlEngine>
+#include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QUrl>
 #include <QVariant>
+
 
 namespace sysinfo {
 namespace {
@@ -40,8 +39,9 @@ SettingsWindow::SettingsWindow(QObject* parent) : QObject(parent)
 
 SettingsWindow::~SettingsWindow()
 {
-    delete m_window;
+    delete m_engine;
     m_window = nullptr;
+    m_engine = nullptr;
 }
 
 void SettingsWindow::setSettings(const Settings& settings)
@@ -71,11 +71,11 @@ void SettingsWindow::ensureWindow()
 {
     if (m_window)
         return;
-    m_engine = new QQmlEngine(this);
-    m_engine->rootContext()->setContextProperty(QStringLiteral("sysinfo"), this);
-    QQmlComponent component(m_engine, QUrl(QStringLiteral("qrc:/sysinfo/SettingsWindow.qml")));
-    QObject* object = component.create();
-    m_window = qobject_cast<QQuickWindow*>(object);
+    m_engine = new QQmlApplicationEngine(this);
+    m_engine->setInitialProperties({{QStringLiteral("sysinfo"), QVariant::fromValue(this)}});
+    m_engine->load(QUrl(QStringLiteral("qrc:/sysinfo/SettingsWindow.qml")));
+    if (!m_engine->rootObjects().isEmpty())
+        m_window = qobject_cast<QQuickWindow*>(m_engine->rootObjects().first());
     if (m_window) {
         QPixmap pixmap(32, 32);
         pixmap.fill(Qt::transparent);
@@ -91,19 +91,25 @@ void SettingsWindow::ensureWindow()
         m_window->setIcon(QIcon(pixmap));
     }
     if (!m_window) {
-        qWarning().noquote() << "sysinfo: settings window failed:" << component.errorString();
-        delete object;
+        delete m_engine;
+        m_engine = nullptr;
     }
 }
 
-void SettingsWindow::show()
+bool SettingsWindow::show()
 {
     ensureWindow();
     if (!m_window)
-        return;
-    m_window->show();
-    m_window->raise();
-    m_window->requestActivate();
+        return false;
+    if (m_window->visibility() == QWindow::Minimized)
+        m_window->showNormal();
+    else
+        m_window->show();
+    if (QGuiApplication::platformName() == QStringLiteral("windows")) {
+        m_window->raise();
+        m_window->requestActivate();
+    }
+    return m_window->isVisible();
 }
 
 void SettingsWindow::closeWindow()
