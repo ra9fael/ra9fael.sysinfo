@@ -13,6 +13,8 @@
 #include <QUrl>
 #include <QVariant>
 
+#include <algorithm>
+
 
 namespace sysinfo {
 namespace {
@@ -50,6 +52,7 @@ void SettingsWindow::setSettings(const Settings& settings)
     m_hasSettings = true;
     rebuildValues();
     emit valuesChanged();
+    emit panelMetricsChanged();
 }
 
 void SettingsWindow::setAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook)
@@ -65,6 +68,22 @@ void SettingsWindow::setAppearance(const QString& locale, const QString& theme, 
 void SettingsWindow::rebuildValues()
 {
     m_values = m_hasSettings ? QJsonValue(m_settings.toJson()).toVariant().toMap() : QVariantMap();
+}
+
+QVariantMap SettingsWindow::panelMetrics() const
+{
+    const QVector<QStringList> rows = m_settings.slotRows();
+    int columns = 1;
+    for (const QStringList& row : rows)
+        columns = std::max(columns, static_cast<int>(row.size()));
+    const qreal scale = m_settings.scale / 100.0;
+    const qreal padding = m_settings.padding * scale;
+    const int width = qRound(columns * m_settings.cellWidth * scale + 2 * padding);
+    const int height = qRound(static_cast<int>(rows.size()) * m_settings.cellHeight * scale + 2 * padding);
+    return QVariantMap{{QStringLiteral("width"), width},
+                       {QStringLiteral("height"), height},
+                       {QStringLiteral("columns"), columns},
+                       {QStringLiteral("rows"), static_cast<int>(rows.size())}};
 }
 
 void SettingsWindow::ensureWindow()
@@ -136,10 +155,16 @@ void SettingsWindow::commitPreview()
     emit previewCommitted();
 }
 
-void SettingsWindow::applyLayout(const QString& metrics, int columns)
+void SettingsWindow::applyLayout(const QVariantMap& changes)
 {
-    emit settingEdited(QJsonObject{{QStringLiteral("columns"), columns},
-                                  {QStringLiteral("metrics"), metrics}});
+    QJsonObject object;
+    for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
+        const QJsonValue converted = toJsonValue(it.value());
+        if (!converted.isNull())
+            object.insert(it.key(), converted);
+    }
+    if (!object.isEmpty())
+        emit settingEdited(object);
 }
 
 } // namespace sysinfo

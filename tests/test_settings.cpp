@@ -47,7 +47,7 @@ static void testSettings()
     const QStringList keys = settingKeys();
     assert(keys.size() == 9);
     const QStringList advanced = advancedSettingKeys();
-    assert(advanced.size() == 41);
+    assert(advanced.size() == 42);
     assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
             && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
@@ -89,6 +89,11 @@ static void testSettings()
     assert(Settings::fromJson({{"mouseDistortion", false}}).mouseDistortion == false);
     assert(Settings{}.mouseDistortion);
     assert(Settings{}.toJson().value(QStringLiteral("mouseDistortion")).toBool());
+    assert(Settings{}.labelLanguage == "follow");
+    assert(Settings::fromJson({{"labelLanguage", "en"}}).labelLanguage == "en");
+    assert(Settings::fromJson({{"labelLanguage", "zh"}}).labelLanguage == "zh");
+    assert(Settings::fromJson({{"labelLanguage", "fr"}}).labelLanguage == "follow");
+    assert(Settings::fromJson({{"labelLanguage", "en"}}).toJson().value(QStringLiteral("labelLanguage")).toString() == "en");
     const Settings independentEdges=Settings::fromJson({{"edgeSnap", false}, {"edgeHide", true}});
     assert(!independentEdges.edgeSnap && independentEdges.edgeHide);
     assert(defaults.radius == 20);

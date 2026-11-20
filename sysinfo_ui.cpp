@@ -106,13 +106,8 @@ void SysInfoUiBridge::applyGeometry()
     m_gridColumns = 1;
     for (const QStringList& row : rows) m_gridColumns = std::max(m_gridColumns, static_cast<int>(row.size()));
     m_margin = m_settings.padding * scale;
-    if (m_settings.tiny) {
-        m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
-        m_panelHeight = m_gridRows * 28 * scale;
-    } else {
-        m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
-        m_panelHeight = m_gridRows * m_settings.cellHeight * scale;
-    }
+    m_panelWidth = m_gridColumns * m_settings.cellWidth * scale;
+    m_panelHeight = m_gridRows * m_settings.cellHeight * scale;
 }
 
 void SysInfoUiBridge::placeWindow(bool resetToPreset)
@@ -210,10 +205,11 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
     if(m_sampler) m_sampler->setInterval(settings.intervalMs);
     const bool layoutChanged = previous.scale != settings.scale || previous.columns != settings.columns ||
                                previous.cellWidth != settings.cellWidth || previous.cellHeight != settings.cellHeight ||
-                               previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position || previous.padding != settings.padding;
+                               previous.metrics != settings.metrics || previous.tiny != settings.tiny ||
+                               previous.position != settings.position || previous.padding != settings.padding;
     applyGeometry();
-    if (m_overlay && layoutChanged && settings.position != QStringLiteral("free"))
-        placeWindow(true);
+    if (m_overlay && layoutChanged)
+        placeWindow(settings.position != QStringLiteral("free"));
     applyClickThrough();
     if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible);
     if (!settings.edgeHide && m_edgeCollapsed) {
@@ -301,7 +297,9 @@ void SysInfoUiBridge::handleMoved(const QPoint& position, const QPoint& cursor)
 void SysInfoUiBridge::refreshSnapshot()
 {
     if (!m_overlay || !m_sampler) return;
-    const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
+    const Sample sample=m_sampler->get();
+    const bool zh=m_settings.labelLanguage==QStringLiteral("zh") ||
+        (m_settings.labelLanguage!=QStringLiteral("en") && m_locale!=QStringLiteral("en"));
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide && m_settings.edgeSnap;
     model.freeHideEnabled=m_settings.freeHide; model.freeHideDelayMs=m_settings.freeHideDelayMs;
     model.animations=m_settings.animations;
@@ -319,7 +317,7 @@ void SysInfoUiBridge::refreshSnapshot()
     model.tileSize=m_settings.tileSize;
     const auto waveColors=m_settings.waveColors.split(',');
     model.columns=m_gridColumns; model.rows=m_gridRows; model.radius=qRound((m_settings.tiny?std::min(10,m_settings.radius):m_settings.radius)*m_settings.scale/100.0);
-    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.tiny?28:m_settings.cellHeight;
+    model.cellWidth=m_settings.cellWidth; model.cellHeight=m_settings.cellHeight;
     model.blur=m_settings.blur; model.glass=m_settings.glass; model.refraction=m_settings.refraction;
     model.dispersion=m_settings.dispersion; model.rimLight=m_settings.rimLight;
     model.surfaceMotion=m_settings.surfaceMotion; model.mouseDistortion=m_settings.mouseDistortion;

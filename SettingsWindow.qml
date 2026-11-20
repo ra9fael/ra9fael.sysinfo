@@ -27,12 +27,17 @@ ApplicationWindow {
     readonly property var zhText: ({
         "general": "常用", "layout": "布局", "text": "文字", "charts": "波形",
         "material": "材质", "interaction": "交互与录屏", "close": "关闭",
-        "showMonitor": "显示监视窗", "interval": "采样间隔（毫秒）", "tiny": "Tiny 紧凑模式",
+        "showMonitor": "显示监视窗", "interval": "采样间隔（毫秒）",
         "scale": "整体缩放（%）", "lock": "锁定位置", "edgeHide": "贴边自动隐藏", "freeHide": "非贴边自动隐藏", "freeHideDelay": "非贴边收起延时（毫秒）",
         "clickThrough": "鼠标穿透", "cellOrder": "单元格顺序", "blank": "空格",
         "columns": "每行列数", "cellWidth": "单元格宽度（px）", "cellHeight": "单元格高度（px）",
         "padding": "面板内边距（px）", "dividers": "显示分隔线", "dividerOpacity": "分隔线不透明度（%）",
         "layoutPreview": "布局预览", "applyLayout": "应用布局",
+        "presets": "布局预设", "presetsHint": "只改布局，不覆盖指标、材质与自动隐藏",
+        "restoreLayout": "恢复默认布局", "sizeTitle": "布局与尺寸",
+        "scaleDesc": "文字、单元格、内边距与玻璃外框一起缩放", "actualSize": "实际尺寸",
+        "compactBar": "紧凑横条", "standardGrid": "标准网格", "tallStack": "竖向堆叠",
+        "custom": "自定义", "labelLanguage": "指标标签语言", "followHost": "跟随 WinShun",
         "font": "字体", "fontSize": "字号（%）", "showLabels": "显示指标名称",
         "showValues": "显示数值", "showUnits": "显示单位",
         "shape": "波形形状", "placement": "波形位置", "height": "波形高度",
@@ -57,12 +62,17 @@ ApplicationWindow {
     readonly property var enText: ({
         "general": "General", "layout": "Layout", "text": "Text", "charts": "Charts",
         "material": "Material", "interaction": "Interaction & capture", "close": "Close",
-        "showMonitor": "Show monitor", "interval": "Sampling interval (ms)", "tiny": "Tiny mode",
+        "showMonitor": "Show monitor", "interval": "Sampling interval (ms)",
         "scale": "Overall scale (%)", "lock": "Lock position", "edgeHide": "Auto-hide at edge", "freeHide": "Auto-hide away from edges", "freeHideDelay": "Free-position delay (ms)",
         "clickThrough": "Click-through", "cellOrder": "Cell order", "blank": "Blank",
         "columns": "Columns per row", "cellWidth": "Cell width (px)", "cellHeight": "Cell height (px)",
         "padding": "Panel padding (px)", "dividers": "Show dividers", "dividerOpacity": "Divider opacity (%)",
         "layoutPreview": "Layout preview", "applyLayout": "Apply layout",
+        "presets": "Layout presets", "presetsHint": "Layout only; metrics, material and auto-hide stay untouched",
+        "restoreLayout": "Restore default layout", "sizeTitle": "Layout & size",
+        "scaleDesc": "Scales text, cells, padding and the glass frame together", "actualSize": "Actual size",
+        "compactBar": "Compact bar", "standardGrid": "Standard grid", "tallStack": "Tall stack",
+        "custom": "Custom", "labelLanguage": "Metric label language", "followHost": "Follow WinShun",
         "font": "Font family", "fontSize": "Font size (%)", "showLabels": "Show metric labels",
         "showValues": "Show values", "showUnits": "Show units",
         "shape": "Chart shape", "placement": "Chart placement", "height": "Chart height",
@@ -172,12 +182,53 @@ ApplicationWindow {
         return rows.join(";")
     }
 
+    // 布局预设只覆盖列数、单元格尺寸和内边距；指标、材质与自动隐藏保持原样。
+    readonly property var layoutPresets: [
+        { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 76, cellHeight: 28, padding: 4, tiny: true },
+        { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 120, cellHeight: 40, padding: 4, tiny: false },
+        { id: "tallStack", title: t.tallStack, columns: 1, cellWidth: 220, cellHeight: 48, padding: 6, tiny: false }
+    ]
+
+    function activePreset() {
+        for (var i = 0; i < layoutPresets.length; i++) {
+            var preset = layoutPresets[i]
+            if (v.columns === preset.columns && v.cellWidth === preset.cellWidth &&
+                v.cellHeight === preset.cellHeight && v.padding === preset.padding && (v.tiny === true) === preset.tiny)
+                return preset.id
+        }
+        return ""
+    }
+
+    function applyPreset(preset) {
+        var changes = {
+            "columns": preset.columns,
+            "cellWidth": preset.cellWidth,
+            "cellHeight": preset.cellHeight,
+            "padding": preset.padding,
+            "tiny": preset.tiny
+        }
+        draftColumns = preset.columns
+        sysinfo.applyLayout(changes)
+    }
+
+    function restoreLayout() {
+        var preset = layoutPresets[1]
+        draftColumns = preset.columns
+        sysinfo.applyLayout({
+            "columns": preset.columns,
+            "cellWidth": preset.cellWidth,
+            "cellHeight": preset.cellHeight,
+            "padding": preset.padding,
+            "tiny": preset.tiny,
+            "scale": 100
+        })
+    }
+
     function reload() {
         v = sysinfo.values
         loading = true
         enabledBox.checked = v.enabled === true
         intervalRow.value = v.intervalMs
-        tinyBox.checked = v.tiny === true
         scaleRow.value = v.scale
         interactionSnapBox.checked = v.edgeSnap === true
         snapBox.checked = v.edgeSnap === true
@@ -206,6 +257,7 @@ ApplicationWindow {
         labelsBox.checked = v.showLabels === true
         valuesBox.checked = v.showValues === true
         unitsBox.checked = v.showUnits === true
+        labelLanguageRow.value = v.labelLanguage || "follow"
 
         shapeRow.value = v.sparklines
         placementRow.value = v.wavePlacement
@@ -279,6 +331,26 @@ ApplicationWindow {
         Layout.rightMargin: 16
         Layout.preferredHeight: 42
         spacing: 12
+        function submit(raw) {
+            const next = Math.max(numberRow.from, Math.min(numberRow.to, Math.round(raw)))
+            if (next === numberRow.value)
+                return
+            numberRow.value = next
+            numberRow.edited(next)
+        }
+        function revertSpin() {
+            // displayText 在可编辑状态下会跟随输入框文字，不能用它撤销；
+            // 已提交的值由 textFromValue(value) 给出。
+            spinInput.text = Qt.binding(function() { return spin.textFromValue(spin.value, spin.locale) })
+        }
+        // Escape 被 TextInput 自己吃掉，不会冒泡到 Keys；用只在数字框有焦点时
+        // 启用的窗口级快捷键，撤销尚未提交的输入。
+        Shortcut {
+            sequences: ["Escape"]
+            enabled: spin.activeFocus
+            context: Qt.WindowShortcut
+            onActivated: numberRow.revertSpin()
+        }
         Label {
             text: numberRow.labelText
             color: root.textColor
@@ -298,8 +370,11 @@ ApplicationWindow {
             value: numberRow.value
             onMoved: {
                 if (root.loading) return
-                if (pressed) numberRow.previewed(Math.round(value))
-                else numberRow.edited(Math.round(value))
+                const next = Math.round(value)
+                if (next === numberRow.value) return
+                numberRow.value = next
+                if (pressed) numberRow.previewed(next)
+                else numberRow.edited(next)
             }
             onPressedChanged: if (!pressed && !root.loading) numberRow.committed()
             background: Rectangle {
@@ -350,7 +425,8 @@ ApplicationWindow {
             palette.button: root.controlColor
             palette.buttonText: root.subColor
             contentItem: TextInput {
-                text: spin.displayText
+                id: spinInput
+                text: spin.textFromValue(spin.value, spin.locale)
                 font: spin.font
                 color: root.textColor
                 horizontalAlignment: TextInput.AlignHCenter
@@ -359,9 +435,17 @@ ApplicationWindow {
                 readOnly: !spin.editable
                 validator: spin.validator
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
-                onEditingFinished: spin.value = spin.valueFromText(text, spin.locale)
+                onEditingFinished: {
+                    const parsed = spin.valueFromText(text, spin.locale)
+                    if (!isFinite(parsed)) {
+                        numberRow.revertSpin()
+                        return
+                    }
+                    numberRow.submit(parsed)
+                    numberRow.revertSpin()
+                }
             }
-            onValueModified: if (!root.loading) numberRow.edited(value)
+            onValueModified: if (!root.loading) numberRow.submit(value)
             background: Rectangle {
                 radius: 4
                 color: root.controlColor
@@ -500,6 +584,63 @@ ApplicationWindow {
         Layout.rightMargin: 1
         Layout.preferredHeight: 1
         color: root.separatorColor
+    }
+
+    component PresetCard: Button {
+        id: presetCard
+        required property var preset
+        checkable: true
+        checked: activePreset() === presetCard.preset.id
+        Accessible.name: presetCard.preset.title
+        Layout.fillWidth: true
+        Layout.minimumWidth: 120
+        Layout.preferredHeight: 132
+        padding: 10
+        onClicked: applyPreset(presetCard.preset)
+        readonly property real cellWidth: Math.max(14, Math.min(120,
+            (presetCard.width - 2 * presetCard.padding - (presetCard.preset.columns - 1) * 3) / presetCard.preset.columns))
+        background: Rectangle {
+            radius: 8
+            color: presetCard.checked ? root.c("accentSoft", root.dark ? "#1B3A57" : "#EDF3FA") : root.controlColor
+            border.color: presetCard.checked ? root.accentColor : root.controlBorderColor
+            border.width: presetCard.checked ? 2 : 1
+        }
+        contentItem: ColumnLayout {
+            spacing: 6
+            Grid {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredHeight: 40
+                columns: presetCard.preset.columns
+                columnSpacing: 3
+                rowSpacing: 3
+                Repeater {
+                    model: 6
+                    Rectangle {
+                        required property int index
+                        width: presetCard.cellWidth
+                        height: 8
+                        radius: 2
+                        color: root.accentColor
+                        opacity: presetCard.checked ? 0.85 : 0.45
+                    }
+                }
+            }
+            Label {
+                text: presetCard.preset.title
+                color: root.textColor
+                font.pixelSize: 14
+                font.weight: Font.DemiBold
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+            }
+            Label {
+                text: presetCard.preset.columns + " × " + presetCard.preset.cellWidth + " × " + presetCard.preset.cellHeight + " px"
+                color: presetCard.checked ? root.accentColor : root.subColor
+                font.pixelSize: 12
+                horizontalAlignment: Text.AlignHCenter
+                Layout.fillWidth: true
+            }
+        }
     }
 
     component SettingsCard: ColumnLayout {
@@ -644,12 +785,6 @@ ApplicationWindow {
                         SettingDivider {}
                         NumberRow { id: intervalRow; labelText: root.t.interval; from: 500; to: 5000; stepSize: 100
                             onEdited: sysinfo.edit("intervalMs", value); onPreviewed: sysinfo.preview("intervalMs", value); onCommitted: sysinfo.commitPreview() }
-                        SettingDivider {}
-                        CheckRow { id: tinyBox; labelText: root.t.tiny
-                            onChanged: if (!root.loading) sysinfo.edit("tiny", checked) }
-                        SettingDivider {}
-                        NumberRow { id: scaleRow; labelText: root.t.scale; from: 80; to: 200
-                            onEdited: sysinfo.edit("scale", value); onPreviewed: sysinfo.preview("scale", value); onCommitted: sysinfo.commitPreview() }
                     }
                     SettingsCard { titleText: root.t.interaction
                         CheckRow { id: lockBox; labelText: root.t.lock
@@ -740,7 +875,71 @@ ApplicationWindow {
                                 onValueModified: { root.draftColumns = value; layoutPreview.text = root.previewText() } }
                         }
                     }
-                    SettingsCard { titleText: root.t.layout
+                    SettingsCard { titleText: root.t.presets
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 16
+                            Layout.rightMargin: 16
+                            Layout.bottomMargin: 4
+                            spacing: 8
+                            Label {
+                                text: root.t.presetsHint
+                                color: root.subColor
+                                font.pixelSize: 12
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                            }
+                            Button {
+                                id: restoreButton
+                                text: root.t.restoreLayout
+                                Layout.preferredWidth: 116
+                                Layout.preferredHeight: 30
+                                palette.button: root.controlColor
+                                palette.buttonText: root.textColor
+                                onClicked: restoreLayout()
+                                background: Rectangle {
+                                    radius: 6
+                                    color: restoreButton.down ? root.c("controlHover", root.dark ? "#3C3C3C" : "#F6F6F6") : root.controlColor
+                                    border.color: restoreButton.activeFocus ? root.accentColor : root.controlBorderColor
+                                    border.width: restoreButton.activeFocus ? 2 : 1
+                                }
+                                Accessible.name: root.t.restoreLayout
+                            }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 16
+                            Layout.rightMargin: 16
+                            Layout.bottomMargin: 14
+                            spacing: 8
+                            Repeater {
+                                model: root.layoutPresets
+                                PresetCard {
+                                    required property var modelData
+                                    preset: modelData
+                                }
+                            }
+                        }
+                    }
+                    SettingsCard { titleText: root.t.sizeTitle
+                        NumberRow { id: scaleRow; labelText: root.t.scale; from: 80; to: 200
+                            onEdited: sysinfo.edit("scale", value); onPreviewed: sysinfo.preview("scale", value); onCommitted: sysinfo.commitPreview() }
+                        SettingDivider {}
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 16
+                            Layout.rightMargin: 16
+                            Layout.preferredHeight: 40
+                            spacing: 12
+                            Label { text: root.t.actualSize; color: root.textColor; font.pixelSize: 14; Layout.fillWidth: true }
+                            Label {
+                                text: sysinfo.panelMetrics.width + " × " + sysinfo.panelMetrics.height + " px"
+                                color: root.accentColor
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                            }
+                        }
+                        SettingDivider {}
                         NumberRow { id: cellWidthRow; labelText: root.t.cellWidth; from: 80; to: 320
                             onEdited: sysinfo.edit("cellWidth", value); onPreviewed: sysinfo.preview("cellWidth", value); onCommitted: sysinfo.commitPreview() }
                         SettingDivider {}
@@ -749,7 +948,8 @@ ApplicationWindow {
                         SettingDivider {}
                         NumberRow { id: paddingRow; labelText: root.t.padding; from: 0; to: 40
                             onEdited: sysinfo.edit("padding", value); onPreviewed: sysinfo.preview("padding", value); onCommitted: sysinfo.commitPreview() }
-                        SettingDivider {}
+                    }
+                    SettingsCard { titleText: root.zh ? "分隔线" : "Dividers"
                         CheckRow { id: dividersBox; labelText: root.t.dividers
                             onChanged: if (!root.loading) sysinfo.edit("dividers", checked) }
                         SettingDivider {}
@@ -775,7 +975,7 @@ ApplicationWindow {
                             Layout.preferredHeight: 32
                             palette.button: root.accentColor
                             palette.buttonText: "#FFFFFF"
-                            onClicked: sysinfo.applyLayout(root.draftMetrics(), root.draftColumns)
+                            onClicked: sysinfo.applyLayout({ "metrics": root.draftMetrics(), "columns": root.draftColumns })
                         }
                     }
                 }
@@ -795,6 +995,11 @@ ApplicationWindow {
                     spacing: 12
 
                     SettingsCard { titleText: root.t.text
+                        ChoiceRow { id: labelLanguageRow; labelText: root.t.labelLanguage
+                            values: ["follow", "zh", "en"]
+                            labels: [root.t.followHost, "中文", "English"]
+                            onChosen: sysinfo.edit("labelLanguage", value) }
+                        SettingDivider {}
                         RowLayout {
                             Layout.fillWidth: true
                             Layout.leftMargin: 16

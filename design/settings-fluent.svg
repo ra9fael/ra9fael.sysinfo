@@ -1,0 +1,603 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1432" height="2652" viewBox="0 0 1432 2652" role="img" aria-labelledby="title desc">
+<title id="title">系统监控设置 · Fluent 视觉稿</title>
+<desc id="desc">六个浅色设置页面，以及常用和材质的深色页面。每个窗口为 680 × 616。</desc>
+<rect x="0" y="0" width="1432" height="2652" rx="0" fill="#E6E9ED" stroke="none"/>
+<g font-family="Segoe UI Variable, Segoe UI, Microsoft YaHei UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<text x="24" y="35" fill="#1B1B1B" font-size="22" font-weight="600" text-anchor="start">系统监控设置</text>
+<text x="1408" y="35" fill="#545B65" font-size="14" font-weight="400" text-anchor="end">Fluent  ·  680 × 616</text>
+<g transform="translate(24 58)" aria-label="常用 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">常用</text>
+<rect x="28.0" y="115" width="92" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="181" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">监视窗</text>
+<rect x="24.5" y="157.5" width="631" height="191" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 205.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 253.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 301.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="187.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示监视窗</text>
+<text x="588" y="186.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="171.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="181.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="235.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">采样间隔（毫秒）</text>
+<path d="M338 229.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 229.0H360" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="360" cy="229.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="360" cy="229.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="213.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="234.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">1000</text>
+<path d="M614 218.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 226.0l4-3 4 3 M621 232.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="283.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">Tiny 紧凑模式</text>
+<text x="588" y="282.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="267.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="277.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="331.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">整体缩放（%）</text>
+<path d="M338 325.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 325.0H371" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="371" cy="325.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="371" cy="325.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="309.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="330.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">100</text>
+<path d="M614 314.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 322.0l4-3 4 3 M621 328.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="378" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">窗口操作</text>
+<rect x="24.5" y="387.5" width="631" height="143" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 435.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 483.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="417.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">锁定位置</text>
+<text x="588" y="416.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">关</text>
+<rect x="598.5" y="401.5" width="39" height="19" rx="9.5" fill="none" stroke="#767676"/>
+<circle cx="608" cy="411.0" r="6" fill="#666666" stroke="none"/>
+<text x="42" y="465.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">贴边自动隐藏</text>
+<text x="588" y="464.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="449.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="459.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="513.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">鼠标穿透</text>
+<text x="588" y="512.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">关</text>
+<rect x="598.5" y="497.5" width="39" height="19" rx="9.5" fill="none" stroke="#767676"/>
+<circle cx="608" cy="507.0" r="6" fill="#666666" stroke="none"/>
+</g>
+<g transform="translate(728 58)" aria-label="布局 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">布局</text>
+<rect x="135.0" y="115" width="92" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="283" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">单元格顺序</text>
+<rect x="24.5" y="157.5" width="631" height="117" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 235.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="42.5" y="162.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="54" y="183.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">CPU</text>
+<path d="M213 176.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="244.5" y="162.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="256" y="183.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">内存</text>
+<path d="M415 176.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="446.5" y="162.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="458" y="183.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">GPU</text>
+<path d="M617 176.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="42.5" y="198.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="54" y="219.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">空格</text>
+<path d="M213 212.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="244.5" y="198.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="256" y="219.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">空格</text>
+<path d="M415 212.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="446.5" y="198.5" width="191" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="458" y="219.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">空格</text>
+<path d="M617 212.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="261.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">每行列数</text>
+<rect x="550.5" y="239.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="260.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">3</text>
+<path d="M614 244.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 252.0l4-3 4 3 M621 258.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="304" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">尺寸与分隔线</text>
+<rect x="24.5" y="313.5" width="631" height="209" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 355.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 397.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 439.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 481.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="340.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">单元格宽度（px）</text>
+<path d="M338 334.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 334.0H358" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="358" cy="334.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="358" cy="334.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="318.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="339.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">104</text>
+<path d="M614 323.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 331.0l4-3 4 3 M621 337.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="382.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">单元格高度（px）</text>
+<path d="M338 376.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 376.0H350" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="350" cy="376.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="350" cy="376.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="360.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="381.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">36</text>
+<path d="M614 365.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 373.0l4-3 4 3 M621 379.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="424.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">面板内边距（px）</text>
+<path d="M338 418.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 418.0H367" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="367" cy="418.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="367" cy="418.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="402.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="423.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">6</text>
+<path d="M614 407.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 415.0l4-3 4 3 M621 421.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="466.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示分隔线</text>
+<text x="588" y="465.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="450.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="460.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="508.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">分隔线不透明度（%）</text>
+<path d="M338 502.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 502.0H365" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="365" cy="502.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="365" cy="502.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="486.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="507.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">14</text>
+<path d="M614 491.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 499.0l4-3 4 3 M621 505.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="552" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">布局预览</text>
+<rect x="24.5" y="561.5" width="631" height="55" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<rect x="42.5" y="572.5" width="342" height="33" rx="6" fill="#EDF3FA" stroke="#DFE7F1"/>
+<text x="99" y="594.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="middle">CPU</text>
+<path d="M156 580.0v18" fill="none" stroke="#DFE7F1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="213" y="594.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="middle">内存</text>
+<path d="M270 580.0v18" fill="none" stroke="#DFE7F1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="327" y="594.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="middle">GPU</text>
+<rect x="530" y="573.0" width="108" height="32" rx="4" fill="#005FB8" stroke="none"/>
+<text x="584" y="594.0" fill="#FFFFFF" font-size="14" font-weight="600" text-anchor="middle">应用布局</text>
+</g>
+<g transform="translate(24 698)" aria-label="文字 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">文字</text>
+<rect x="237.0" y="115" width="92" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="386" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">字体</text>
+<rect x="24.5" y="157.5" width="631" height="95" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 205.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="187.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">字体</text>
+<rect x="456.5" y="165.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="186.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">Consolas</text>
+<path d="M617 179.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="235.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">字号（%）</text>
+<path d="M338 229.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 229.0H427" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="427" cy="229.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="427" cy="229.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="213.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<rect x="548.5" y="211.5" width="91" height="35" rx="6" fill="none" stroke="#005FB8"/>
+<text x="564" y="234.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">120</text>
+<path d="M614 218.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 226.0l4-3 4 3 M621 232.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="282" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">显示内容</text>
+<rect x="24.5" y="291.5" width="631" height="143" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 339.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 387.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="321.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示指标名称</text>
+<text x="588" y="320.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="305.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="315.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="369.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示数值</text>
+<text x="588" y="368.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="353.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="363.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="417.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示单位</text>
+<text x="588" y="416.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="401.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="411.0" r="6" fill="#FFFFFF" stroke="none"/>
+</g>
+<g transform="translate(728 698)" aria-label="波形 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">波形</text>
+<rect x="340.0" y="115" width="92" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="488" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">形状与位置</text>
+<rect x="24.5" y="157.5" width="631" height="191" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 205.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 253.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 301.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="187.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">波形形状</text>
+<rect x="456.5" y="165.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="186.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">点阵</text>
+<path d="M617 179.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="235.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">波形位置</text>
+<rect x="456.5" y="213.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="234.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">文字背景</text>
+<path d="M617 227.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="283.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">波形高度</text>
+<rect x="456.5" y="261.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="282.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">自动</text>
+<path d="M617 275.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="331.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">点阵样式</text>
+<rect x="456.5" y="309.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="330.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">填充</text>
+<path d="M617 323.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="378" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">不透明度与颜色</text>
+<rect x="24.5" y="387.5" width="631" height="147" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 431.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 475.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="415.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">背景波形不透明度（%）</text>
+<path d="M338 409.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 409.0H534" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="534" cy="409.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="534" cy="409.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="393.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="414.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">100</text>
+<path d="M614 398.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 406.0l4-3 4 3 M621 412.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="459.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">下方波形不透明度（%）</text>
+<path d="M338 453.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 453.0H524" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="524" cy="453.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="524" cy="453.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="437.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="458.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">95</text>
+<path d="M614 442.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 450.0l4-3 4 3 M621 456.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="511.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">波形颜色</text>
+<rect x="314.5" y="489.5" width="121" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="326" y="510.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">统一颜色</text>
+<path d="M415 503.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="448" y="499.0" width="12" height="12" rx="2" fill="#36BFFA" stroke="#D5D5D5"/>
+<rect x="464" y="499.0" width="12" height="12" rx="2" fill="#A78BFA" stroke="#D5D5D5"/>
+<rect x="480" y="499.0" width="12" height="12" rx="2" fill="#34D399" stroke="#D5D5D5"/>
+<rect x="496" y="499.0" width="12" height="12" rx="2" fill="#FBBF24" stroke="#D5D5D5"/>
+<rect x="512" y="499.0" width="12" height="12" rx="2" fill="#FB7185" stroke="#D5D5D5"/>
+<rect x="528" y="499.0" width="12" height="12" rx="2" fill="#60A5FA" stroke="#D5D5D5"/>
+<rect x="554.5" y="489.5" width="83" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="596" y="510.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="middle">选择颜色</text>
+</g>
+<g transform="translate(24 1338)" aria-label="材质 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">材质</text>
+<rect x="442.0" y="115" width="92" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="584" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">外观</text>
+<rect x="24.5" y="157.5" width="631" height="87" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 201.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="185.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">监视窗配色</text>
+<rect x="456.5" y="163.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="184.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">浅色</text>
+<path d="M617 177.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="229.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">玻璃材质</text>
+<rect x="456.5" y="207.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="228.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">液态玻璃</text>
+<path d="M617 221.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="274" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">材质参数</text>
+<rect x="24.5" y="283.5" width="631" height="293" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 325.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 367.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 409.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 451.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 493.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 535.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="310.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">通透度（%）</text>
+<path d="M338 304.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 304.0H475" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="475" cy="304.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="475" cy="304.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="288.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="309.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">70</text>
+<path d="M614 293.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 301.0l4-3 4 3 M621 307.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="352.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">背景模糊（%）</text>
+<path d="M338 346.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 346.0H362" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="362" cy="346.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="362" cy="346.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="330.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="351.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">12</text>
+<path d="M614 335.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 343.0l4-3 4 3 M621 349.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="394.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">边缘折射（%）</text>
+<path d="M338 388.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 388.0H452" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="452" cy="388.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="452" cy="388.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="372.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="393.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">58</text>
+<path d="M614 377.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 385.0l4-3 4 3 M621 391.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="436.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">边缘色散（%）</text>
+<path d="M338 430.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 430.0H365" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="365" cy="430.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="365" cy="430.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="414.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="435.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">14</text>
+<path d="M614 419.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 427.0l4-3 4 3 M621 433.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="478.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">边缘高光（%）</text>
+<path d="M338 472.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 472.0H444" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="444" cy="472.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="444" cy="472.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="456.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="477.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">54</text>
+<path d="M614 461.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 469.0l4-3 4 3 M621 475.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="520.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">方格尺寸（px）</text>
+<path d="M338 514.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 514.0H425" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="425" cy="514.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="425" cy="514.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="498.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="519.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">40</text>
+<path d="M614 503.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 511.0l4-3 4 3 M621 517.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="562.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">圆角（px）</text>
+<path d="M338 556.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 556.0H456" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="456" cy="556.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="456" cy="556.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="540.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="561.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">20</text>
+<path d="M614 545.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 553.0l4-3 4 3 M621 559.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(728 1338)" aria-label="交互与录屏 · 浅色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#F3F3F3" stroke="#B4B4B4"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#666666"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#005FB8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#1B1B1B" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#1B1B1B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#1B1B1B" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#666666" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="middle">交互与录屏</text>
+<rect x="525.0" y="115" width="118" height="3" rx="1.5" fill="#005FB8" stroke="none"/>
+<text x="24" y="148" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">位置与动画</text>
+<rect x="24.5" y="157.5" width="631" height="239" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<path d="M25 205.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 253.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 301.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 349.5H655" fill="none" stroke="#EAEAEA" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="187.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">显示器</text>
+<rect x="456.5" y="165.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="186.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">主显示器</text>
+<path d="M617 179.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="235.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">窗口位置</text>
+<rect x="456.5" y="213.5" width="181" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="468" y="234.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">自由拖动</text>
+<path d="M617 227.0l4 4 4-4" fill="none" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="283.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">贴边吸附</text>
+<text x="588" y="282.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="267.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="277.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="331.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">交互动画</text>
+<text x="588" y="330.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="315.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="325.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="379.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">表面流动（%）</text>
+<path d="M338 373.0H534" fill="none" stroke="#767676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 373.0H534" fill="none" stroke="#005FB8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="534" cy="373.0" r="9" fill="#FFFFFF" stroke="#767676"/>
+<circle cx="534" cy="373.0" r="5" fill="#005FB8" stroke="none"/>
+<rect x="550.5" y="357.5" width="87" height="31" rx="4" fill="#FFFFFF" stroke="#D5D5D5"/>
+<text x="564" y="378.0" fill="#1B1B1B" font-size="14" font-weight="400" text-anchor="start">100</text>
+<path d="M614 362.0v22" fill="none" stroke="#D5D5D5" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 370.0l4-3 4 3 M621 376.0l4 3 4-3" fill="none" stroke="#666666" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="426" fill="#1B1B1B" font-size="16" font-weight="600" text-anchor="start">截图与录屏</text>
+<rect x="24.5" y="435.5" width="631" height="47" rx="8" fill="#FBFBFB" stroke="#E5E5E5"/>
+<text x="42" y="465.0" fill="#1B1B1B" font-size="16" font-weight="400" text-anchor="start">允许截图和录屏捕获</text>
+<text x="588" y="464.0" fill="#666666" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="449.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="459.0" r="6" fill="#FFFFFF" stroke="none"/>
+</g>
+<text x="24" y="2005" fill="#1B1B1B" font-size="18" font-weight="600" text-anchor="start">深色主题</text>
+<g transform="translate(24 2018)" aria-label="常用 · 深色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#202020" stroke="#6A6A6A"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#B8B8B8"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#60CDFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#F3F3F3" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#F3F3F3" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#F3F3F3" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="middle">常用</text>
+<rect x="28.0" y="115" width="92" height="3" rx="1.5" fill="#60CDFF" stroke="none"/>
+<text x="181" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">材质</text>
+<text x="584" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="start">监视窗</text>
+<rect x="24.5" y="157.5" width="631" height="191" rx="8" fill="#2B2B2B" stroke="#1D1D1D"/>
+<path d="M25 205.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 253.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 301.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="187.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">显示监视窗</text>
+<text x="588" y="186.0" fill="#B8B8B8" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="171.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="181.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="235.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">采样间隔（毫秒）</text>
+<path d="M338 229.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 229.0H360" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="360" cy="229.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="360" cy="229.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="213.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="234.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">1000</text>
+<path d="M614 218.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 226.0l4-3 4 3 M621 232.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="283.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">Tiny 紧凑模式</text>
+<text x="588" y="282.0" fill="#B8B8B8" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="267.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="277.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="331.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">整体缩放（%）</text>
+<path d="M338 325.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 325.0H371" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="371" cy="325.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="371" cy="325.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="309.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="330.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">100</text>
+<path d="M614 314.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 322.0l4-3 4 3 M621 328.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="378" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="start">窗口操作</text>
+<rect x="24.5" y="387.5" width="631" height="143" rx="8" fill="#2B2B2B" stroke="#1D1D1D"/>
+<path d="M25 435.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 483.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="417.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">锁定位置</text>
+<text x="588" y="416.0" fill="#B8B8B8" font-size="14" font-weight="400" text-anchor="end">关</text>
+<rect x="598.5" y="401.5" width="39" height="19" rx="9.5" fill="none" stroke="#9D9D9D"/>
+<circle cx="608" cy="411.0" r="6" fill="#B8B8B8" stroke="none"/>
+<text x="42" y="465.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">贴边自动隐藏</text>
+<text x="588" y="464.0" fill="#B8B8B8" font-size="14" font-weight="400" text-anchor="end">开</text>
+<rect x="598.5" y="449.5" width="39" height="19" rx="9.5" fill="#005FB8" stroke="#005FB8"/>
+<circle cx="628" cy="459.0" r="6" fill="#FFFFFF" stroke="none"/>
+<text x="42" y="513.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">鼠标穿透</text>
+<text x="588" y="512.0" fill="#B8B8B8" font-size="14" font-weight="400" text-anchor="end">关</text>
+<rect x="598.5" y="497.5" width="39" height="19" rx="9.5" fill="none" stroke="#9D9D9D"/>
+<circle cx="608" cy="507.0" r="6" fill="#B8B8B8" stroke="none"/>
+</g>
+<g transform="translate(728 2018)" aria-label="材质 · 深色">
+<rect x="2" y="4" width="680" height="616" rx="8" fill="#00000014" stroke="none"/>
+<rect x="0.5" y="0.5" width="679" height="615" rx="8" fill="#202020" stroke="#6A6A6A"/>
+<rect x="24" y="11" width="17" height="13" rx="2" fill="none" stroke="#B8B8B8"/>
+<path d="M27 18h3l2-3 2 5 2-3h2" fill="none" stroke="#60CDFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="49" y="23" fill="#F3F3F3" font-size="12" font-weight="400" text-anchor="start">系统监控设置 - Win顺</text>
+<path d="M565 17.5h10 M611.5 13.5h9v9h-9z M658 13l9 9m0-9-9 9" fill="none" stroke="#F3F3F3" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="72" fill="#F3F3F3" font-size="28" font-weight="600" text-anchor="start">系统监控</text>
+<text x="74" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">常用</text>
+<text x="181" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">布局</text>
+<text x="283" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">文字</text>
+<text x="386" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">波形</text>
+<text x="488" y="105" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="middle">材质</text>
+<rect x="442.0" y="115" width="92" height="3" rx="1.5" fill="#60CDFF" stroke="none"/>
+<text x="584" y="105" fill="#B8B8B8" font-size="16" font-weight="400" text-anchor="middle">交互与录屏</text>
+<text x="24" y="148" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="start">外观</text>
+<rect x="24.5" y="157.5" width="631" height="87" rx="8" fill="#2B2B2B" stroke="#1D1D1D"/>
+<path d="M25 201.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="185.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">监视窗配色</text>
+<rect x="456.5" y="163.5" width="181" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="468" y="184.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">浅色</text>
+<path d="M617 177.0l4 4 4-4" fill="none" stroke="#B8B8B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="229.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">玻璃材质</text>
+<rect x="456.5" y="207.5" width="181" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="468" y="228.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">液态玻璃</text>
+<path d="M617 221.0l4 4 4-4" fill="none" stroke="#B8B8B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="274" fill="#F3F3F3" font-size="16" font-weight="600" text-anchor="start">材质参数</text>
+<rect x="24.5" y="283.5" width="631" height="293" rx="8" fill="#2B2B2B" stroke="#1D1D1D"/>
+<path d="M25 325.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 367.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 409.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 451.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 493.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 535.5H655" fill="none" stroke="#3B3B3B" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="310.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">通透度（%）</text>
+<path d="M338 304.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 304.0H475" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="475" cy="304.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="475" cy="304.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="288.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="309.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">70</text>
+<path d="M614 293.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 301.0l4-3 4 3 M621 307.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="352.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">背景模糊（%）</text>
+<path d="M338 346.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 346.0H362" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="362" cy="346.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="362" cy="346.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="330.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="351.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">12</text>
+<path d="M614 335.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 343.0l4-3 4 3 M621 349.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="394.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">边缘折射（%）</text>
+<path d="M338 388.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 388.0H452" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="452" cy="388.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="452" cy="388.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="372.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="393.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">58</text>
+<path d="M614 377.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 385.0l4-3 4 3 M621 391.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="436.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">边缘色散（%）</text>
+<path d="M338 430.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 430.0H365" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="365" cy="430.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="365" cy="430.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="414.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="435.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">14</text>
+<path d="M614 419.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 427.0l4-3 4 3 M621 433.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="478.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">边缘高光（%）</text>
+<path d="M338 472.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 472.0H444" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="444" cy="472.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="444" cy="472.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="456.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="477.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">54</text>
+<path d="M614 461.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 469.0l4-3 4 3 M621 475.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="520.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">方格尺寸（px）</text>
+<path d="M338 514.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 514.0H425" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="425" cy="514.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="425" cy="514.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="498.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="519.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">40</text>
+<path d="M614 503.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 511.0l4-3 4 3 M621 517.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="42" y="562.0" fill="#F3F3F3" font-size="16" font-weight="400" text-anchor="start">圆角（px）</text>
+<path d="M338 556.0H534" fill="none" stroke="#9D9D9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M338 556.0H456" fill="none" stroke="#60CDFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="456" cy="556.0" r="9" fill="#373737" stroke="#9D9D9D"/>
+<circle cx="456" cy="556.0" r="5" fill="#60CDFF" stroke="none"/>
+<rect x="550.5" y="540.5" width="87" height="31" rx="4" fill="#373737" stroke="#535353"/>
+<text x="564" y="561.0" fill="#F3F3F3" font-size="14" font-weight="400" text-anchor="start">20</text>
+<path d="M614 545.0v22" fill="none" stroke="#535353" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621 553.0l4-3 4 3 M621 559.0l4 3 4-3" fill="none" stroke="#B8B8B8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

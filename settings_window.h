@@ -19,6 +19,7 @@ namespace sysinfo {
 class SettingsWindow final : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariantMap values READ values NOTIFY valuesChanged)
+    Q_PROPERTY(QVariantMap panelMetrics READ panelMetrics NOTIFY panelMetricsChanged)
     Q_PROPERTY(QVariantMap look READ look NOTIFY appearanceChanged)
     Q_PROPERTY(QString locale READ locale NOTIFY appearanceChanged)
     Q_PROPERTY(QStringList fontFamilies READ fontFamilies CONSTANT)
@@ -32,6 +33,7 @@ public:
     bool show();
 
     QVariantMap values() const { return m_values; }
+    QVariantMap panelMetrics() const;
     QVariantMap look() const { return m_look; }
     QString locale() const { return m_locale; }
     QStringList fontFamilies() const { return m_fontFamilies; }
@@ -39,7 +41,7 @@ public:
     Q_INVOKABLE void edit(const QString& key, const QVariant& value);
     Q_INVOKABLE void preview(const QString& key, int value);
     Q_INVOKABLE void commitPreview();
-    Q_INVOKABLE void applyLayout(const QString& metrics, int columns);
+    Q_INVOKABLE void applyLayout(const QVariantMap& changes);
     Q_INVOKABLE void closeWindow();
 
 signals:
@@ -47,6 +49,7 @@ signals:
     void previewRequested(const QJsonObject& changes);
     void previewCommitted();
     void valuesChanged();
+    void panelMetricsChanged();
     void appearanceChanged();
 
 private:

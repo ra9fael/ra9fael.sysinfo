@@ -27,21 +27,28 @@ Detail charts remain planned. Desktop charts use 60 in-memory samples without pe
 
 ## Overlay
 
-Normal rows default to 40px. Both modes use independent `padding` (default 4px).
+Normal rows default to 40px with 4px `padding`.
 Column `dividers` default to enabled at 12% `dividerOpacity`. Filled dots use a
 3px grid; bars aggregate history to available width while retaining peaks.
 Settings are split: the host card keeps General (show, sampling interval, Tiny,
 scale, lock, edge auto-hide, click-through); the plugin window holds General,
-Layout, Text, Charts, Material and Interaction & capture, with layout edits
-committed by Apply layout. `edgeSnap` snaps within 12px on drag release;
+Layout, Text, Charts, Material and Interaction & capture. The Layout page holds
+columns, cell width, cell height and padding, plus three presets (compact bar,
+standard grid, tall stack) that write those five values at once. Presets change
+layout only; metric ordering is committed by Apply layout, and Restore default
+layout returns the standard grid with scale reset to 100. Scale applies to
+text, cells, padding and the glass frame together, and the page reports the
+resulting pixel size. The Text page exposes metric label language
+(`follow`/`zh`/`en`) so mixed CJK and Latin glyph heights can be levelled.
+`edgeSnap` snaps within 12px on drag release;
 `edgeHide` independently controls collapse and hover expansion. Glass
 transparency controls backdrop/tint mixing without changing content opacity.
 
-`tiny` uses single-line text, fixed 28px rows, 4px outer padding and a 10px radius
-cap, all following overall scale. Text shrinks to its available area. Cell width,
+`tiny` compacts text only: 13px type, a 10px radius cap and units kept visible
+when values are hidden. Row height, padding and the glass frame follow
+`cellHeight`, `padding` and overall scale. Text shrinks to its available area. Cell width,
 blank cells and label/value/unit switches are preserved. Every shape supports
-below-text or background placement. Tiny automatically allocates a 6px bottom
-chart; background charts reserve no extra height.
+below-text or background placement; background charts reserve no extra height.
 
 ```text
 ┌ CPU 12%    RAM 8.1/32 GiB  ┐
@@ -49,7 +56,7 @@ chart; background charts reserve no extra height.
 └────────────────────────────┘
 ```
 
-Normal and compact native grids honor explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. Measured long text shrinks to fit. Labels, values and units have separate switches.
+The native grid honors explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. Measured long text shrinks to fit. Labels, values and units have separate switches.
 
 Shapes are `inline` lines, `wash` areas, `dotted` dots, `bars` columns and `off`.
 `wavePlacement` selects `below`, `background` or `auto` (wash behind text, others

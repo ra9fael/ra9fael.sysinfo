@@ -132,6 +132,7 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("showLabels"), showLabels},
                         {QStringLiteral("showValues"), showValues},
                         {QStringLiteral("showUnits"), showUnits},
+                        {QStringLiteral("labelLanguage"), labelLanguage},
                         {QStringLiteral("captureVisible"), captureVisible},
                        {QStringLiteral("clickThrough"), clickThrough},
                        {QStringLiteral("locked"), locked},
@@ -223,6 +224,8 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.showValues = v.value(QStringLiteral("showValues")).toBool(s.showValues);
     if (v.contains(QStringLiteral("showUnits")))
         s.showUnits = v.value(QStringLiteral("showUnits")).toBool(s.showUnits);
+    s.labelLanguage = choice(v.value(QStringLiteral("labelLanguage")),
+                             {QStringLiteral("follow"), QStringLiteral("zh"), QStringLiteral("en")}, s.labelLanguage);
     if (v.contains(QStringLiteral("captureVisible")))
         s.captureVisible = v.value(QStringLiteral("captureVisible")).toBool(s.captureVisible);
     if (v.contains(QStringLiteral("clickThrough")))
@@ -254,6 +257,7 @@ QStringList advancedSettingKeys()
         QStringLiteral("cellHeight"), QStringLiteral("padding"), QStringLiteral("dividers"),
         QStringLiteral("dividerOpacity"), QStringLiteral("fontFamily"), QStringLiteral("fontSize"),
         QStringLiteral("showLabels"), QStringLiteral("showValues"), QStringLiteral("showUnits"),
+        QStringLiteral("labelLanguage"),
         QStringLiteral("sparklines"), QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"),
         QStringLiteral("waveDots"), QStringLiteral("waveColors"), QStringLiteral("waveOpacity"),
         QStringLiteral("waveBelowOpacity"), QStringLiteral("theme"), QStringLiteral("glassStyle"),

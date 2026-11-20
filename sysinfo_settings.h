@@ -58,6 +58,7 @@ struct Settings {
     bool showLabels = true;
     bool showValues = true;
     bool showUnits = true;
+    QString labelLanguage = QStringLiteral("follow"); // follow | zh | en
     bool captureVisible = true;
     bool clickThrough = false;
     bool locked = false;
