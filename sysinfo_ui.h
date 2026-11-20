@@ -50,6 +50,7 @@ private:
     QString resolveTheme() const;
     void handleMoved(const QPoint& position, const QPoint& cursor);
     bool setEdgeCollapsed(bool collapsed);
+    void commitPendingPreview();
 
     std::shared_ptr<SettingsStore> m_store;
     Sampler* m_sampler = nullptr;

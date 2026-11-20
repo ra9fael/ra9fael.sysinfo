@@ -57,17 +57,23 @@ static void testSettings()
     const QJsonArray declared = QJsonDocument::fromJson(manifest.readAll()).object().value("settings").toArray();
     QStringList declaredKeys;
     QJsonObject freeHideDelay;
+    QJsonObject intervalDeclared;
     for (const QJsonValue& setting : declared) {
         const QJsonObject object = setting.toObject();
         declaredKeys.append(object.value("key").toString());
         if (object.value("key").toString() == "freeHideDelayMs")
             freeHideDelay = object;
+        if (object.value("key").toString() == "intervalMs")
+            intervalDeclared = object;
         assert(!object.value("title").toObject().value("zh").toString().startsWith("基本"));
         assert(!object.value("title").toObject().value("en").toString().startsWith("General"));
     }
     assert(declaredKeys == keys);
     assert(freeHideDelay.value("min").toInt() == 500 && freeHideDelay.value("max").toInt() == 30000);
     assert(Settings::fromJson({{"freeHideDelayMs", 50000}}).freeHideDelayMs == 30000);
+    assert(intervalDeclared.value("min").toInt() == 100 && intervalDeclared.value("max").toInt() == 5000);
+    assert(Settings::fromJson({{"intervalMs", 10}}).intervalMs == 100);
+    assert(Settings::fromJson({{"intervalMs", 9000}}).intervalMs == 5000);
 
     // 默认值
     SettingsStore store;

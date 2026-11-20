@@ -62,7 +62,7 @@ struct Settings {
     bool captureVisible = true;
     bool clickThrough = false;
     bool locked = false;
-    int intervalMs = 1000; // 500 – 5000
+    int intervalMs = 1000; // 100 – 5000
 
     // 逗号分列、分号或换行分行；空项保留为空格，不自动补齐。
     QStringList slotList() const;

@@ -46,7 +46,7 @@
   ],
   "settings": [
     {"key": "enabled", "type": "bool", "title": {"zh": "显示桌面监视窗", "en": "Show the desktop monitor"}, "hint": {"zh": "悬浮在所有窗口之上，不抢焦点；隐藏时不再采样", "en": "Floats above every window without taking focus; sampling stops while hidden"}, "default": false},
-    {"key": "intervalMs", "type": "number", "title": {"zh": "采样间隔（毫秒）", "en": "Sampling interval (ms)"}, "hint": {"zh": "500 – 5000 毫秒；控制系统指标和波形历史的更新，不影响玻璃背景和动画", "en": "500–5000 ms between metric and history samples; independent of glass capture and animation"}, "default": 1000, "min": 500, "max": 5000, "step": 100},
+    {"key": "intervalMs", "type": "number", "title": {"zh": "采样间隔（毫秒）", "en": "Sampling interval (ms)"}, "hint": {"zh": "100 – 5000 毫秒；控制系统指标和波形历史的更新，不影响玻璃背景和动画", "en": "100–5000 ms between metric and history samples; independent of glass capture and animation"}, "default": 1000, "min": 100, "max": 5000, "step": 100},
     {"key": "tiny", "type": "bool", "title": {"zh": "Tiny 模式", "en": "Tiny mode"}, "hint": {"zh": "更小的标签字号与更窄的圆角，单元格尺寸独立设置", "en": "Smaller label text and a tighter corner radius; cell size stays independent"}, "default": false},
     {"key": "scale", "type": "number", "title": {"zh": "整体缩放（%）", "en": "Overall scale (%)"}, "hint": {"zh": "80–200；整体缩放文字、格子、内边距和波形", "en": "80–200; scales text, cells, padding and charts together"}, "default": 100, "min": 80, "max": 200, "step": 1},
     {"key": "locked", "type": "bool", "title": {"zh": "锁定位置", "en": "Lock position"}, "hint": {"zh": "锁住后拖不动", "en": "Locked, it cannot be dragged"}, "default": false},

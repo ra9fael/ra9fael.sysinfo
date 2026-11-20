@@ -46,7 +46,7 @@ The currently inactive `shadow` parameter must not appear as a working control. 
 7. Make visual adjustments preview on the overlay. Commit numeric drags at release rather than writing every pointer event; individual control changes are immediate and require no whole-window Save. Store layout drafts until a valid layout is committed.
 8. Apply host appearance to the settings window, including language, colors and radii. Keep the overlay's independently selected theme semantics.
 
-Sampling uses the existing 500–5000 ms range; scale uses 80–200%. Other ranges come from current settings validation. Preserve integer precision unless the current parameter already supports fractions. Special values such as automatic chart height need an explicit automatic option rather than a misleading continuous range.
+Sampling uses the existing 100–5000 ms range; scale uses 80–200%. Other ranges come from current settings validation. Preserve integer precision unless the current parameter already supports fractions. Special values such as automatic chart height need an explicit automatic option rather than a misleading continuous range.
 
 ## Acceptance
 

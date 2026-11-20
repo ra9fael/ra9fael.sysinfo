@@ -44,7 +44,7 @@ Both normal and compact modes support centered text and history charts.
 - Motion: local pointer refraction, eased pressing and drag flow, controlled by
   the animation setting.
 
-`intervalMs` controls metric and history sampling: 500–5000 ms, default 1000 ms.
+`intervalMs` controls metric and history sampling: 100–5000 ms, default 1000 ms.
 History retains 60 samples, so its time span changes with the interval. Glass
 capture and animation are scheduled independently; a 16 ms timer does not imply
 60 fps.
@@ -67,9 +67,10 @@ Interaction & capture.
 - The host still stores the common settings. Advanced settings are written to
   `advanced-settings.json` in the plugin data directory; the first run migrates
   existing values from the host, after which the file wins.
-- Dragging a numeric slider previews live and writes on release. Switches,
-  choices, fonts and colours apply immediately. Cell order and column count
-  edit a draft and apply with Apply layout.
+- Dragging a numeric slider follows the pointer and writes once on release.
+  Switches, choices, fonts and colours apply immediately. On the Layout page,
+  presets, size and padding only preview the glass frame; Apply layout commits
+  metric ordering together with every layout value.
 - Search rows offer show/hide, lock, click-through, edge auto-hide and open
   settings. `shadow` keeps its stored value, but the native renderer draws no
   outer shadow and the settings window has no control for it.

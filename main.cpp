@@ -241,7 +241,7 @@ public:
     winshun::Json queryResult(const winshun::Query& q) override
     {
         winshun::Json result = winshun::Plugin::queryResult(q);
-        const double refreshSeconds = std::clamp(m_store->get().intervalMs / 1000.0, 0.5, 60.0);
+        const double refreshSeconds = std::clamp(m_store->get().intervalMs / 1000.0, 0.1, 60.0);
         result.set("rerun", refreshSeconds);
         return result;
     }

@@ -32,6 +32,17 @@ QJsonValue toJsonValue(const QVariant& value)
     return QJsonValue(value.toString());
 }
 
+QJsonObject toJsonObject(const QVariantMap& changes)
+{
+    QJsonObject object;
+    for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
+        const QJsonValue converted = toJsonValue(it.value());
+        if (!converted.isNull())
+            object.insert(it.key(), converted);
+    }
+    return object;
+}
+
 } // namespace
 
 SettingsWindow::SettingsWindow(QObject* parent) : QObject(parent)
@@ -133,7 +144,7 @@ bool SettingsWindow::show()
 
 void SettingsWindow::closeWindow()
 {
-    emit previewCommitted();
+    emit previewCancelled();
     if (m_window)
         m_window->hide();
 }
@@ -145,24 +156,21 @@ void SettingsWindow::edit(const QString& key, const QVariant& value)
         emit settingEdited(QJsonObject{{key, converted}});
 }
 
-void SettingsWindow::preview(const QString& key, int value)
+void SettingsWindow::previewLayout(const QVariantMap& changes)
 {
-    emit previewRequested(QJsonObject{{key, value}});
+    const QJsonObject object = toJsonObject(changes);
+    if (!object.isEmpty())
+        emit previewRequested(object);
 }
 
-void SettingsWindow::commitPreview()
+void SettingsWindow::cancelPreview()
 {
-    emit previewCommitted();
+    emit previewCancelled();
 }
 
 void SettingsWindow::applyLayout(const QVariantMap& changes)
 {
-    QJsonObject object;
-    for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
-        const QJsonValue converted = toJsonValue(it.value());
-        if (!converted.isNull())
-            object.insert(it.key(), converted);
-    }
+    const QJsonObject object = toJsonObject(changes);
     if (!object.isEmpty())
         emit settingEdited(object);
 }

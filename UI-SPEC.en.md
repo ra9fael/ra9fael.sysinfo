@@ -34,12 +34,16 @@ Settings are split: the host card keeps General (show, sampling interval, Tiny,
 scale, lock, edge auto-hide, click-through); the plugin window holds General,
 Layout, Text, Charts, Material and Interaction & capture. The Layout page holds
 columns, cell width, cell height and padding, plus three presets (compact bar,
-standard grid, tall stack) that write those five values at once. Presets change
-layout only; metric ordering is committed by Apply layout, and Restore default
-layout returns the standard grid with scale reset to 100. Scale applies to
+standard grid, tall stack) that combine those five values. Presets, size
+changes and Restore default preview the glass frame only; Apply layout commits
+metric ordering together with every layout value, and Restore default drafts
+the standard grid with scale reset to 100. Scale applies to
 text, cells, padding and the glass frame together, and the page reports the
-resulting pixel size. The Text page exposes metric label language
-(`follow`/`zh`/`en`) so mixed CJK and Latin glyph heights can be levelled.
+resulting pixel size. Value sliders follow the pointer while dragged and
+commit once on release. The Text page exposes metric label language
+(`follow`/`zh`/`en`), using the short names CPU, MEM, GPU, DISK, UP and DOWN or
+处理器, 内存, 显卡, 磁盘, 上行 and 下行 so mixed CJK and Latin glyph heights can
+be levelled.
 `edgeSnap` snaps within 12px on drag release;
 `edgeHide` independently controls collapse and hover expansion. Glass
 transparency controls backdrop/tint mixing without changing content opacity.
@@ -73,7 +77,7 @@ controls background opacity, default 55%; `waveBelowOpacity` defaults to 95%.
 Both accept 0–100%. `waveColors` accepts one shared color or six colors in
 CPU, memory, GPU, disk, upload, download order. Percentages use a fixed 0–100%
 axis; network rates scale to history peaks. History retains 60 samples at the
-configured 500–5000 ms metric interval.
+configured 100–5000 ms metric interval.
 
 `system/light/dark` controls text and glass tint. `liquid/frosted/square` selects liquid, frosted or square-embossed glass with 8–80 pixel tiles. The animation setting controls local hover refraction, eased pressing, drag flow and edge morphing.
 

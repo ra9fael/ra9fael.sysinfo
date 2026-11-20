@@ -29,7 +29,7 @@ without Qt or WinShun dependencies. Both renderer and hwinfo are pinned submodul
 user's explicitly enabled state. Builds use Release Qt.
 
 `Sample` and `Reading` hold values, status and six metric histories. Network
-deltas use adapter identity. `intervalMs` ranges from 500 to 5000 ms, default
+deltas use adapter identity. `intervalMs` ranges from 100 to 5000 ms, default
 1000 ms. History retains 60 samples; its time span follows the interval. Capture
 and animation are scheduled independently of metrics.
 

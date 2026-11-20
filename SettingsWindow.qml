@@ -33,7 +33,7 @@ ApplicationWindow {
         "columns": "每行列数", "cellWidth": "单元格宽度（px）", "cellHeight": "单元格高度（px）",
         "padding": "面板内边距（px）", "dividers": "显示分隔线", "dividerOpacity": "分隔线不透明度（%）",
         "layoutPreview": "布局预览", "applyLayout": "应用布局",
-        "presets": "布局预设", "presetsHint": "只改布局，不覆盖指标、材质与自动隐藏",
+        "presets": "布局预设", "presetsHint": "点击即预览，按“应用布局”保存",
         "restoreLayout": "恢复默认布局", "sizeTitle": "布局与尺寸",
         "scaleDesc": "文字、单元格、内边距与玻璃外框一起缩放", "actualSize": "实际尺寸",
         "compactBar": "紧凑横条", "standardGrid": "标准网格", "tallStack": "竖向堆叠",
@@ -43,8 +43,7 @@ ApplicationWindow {
         "shape": "波形形状", "placement": "波形位置", "height": "波形高度",
         "dots": "点阵样式", "bgOpacity": "背景波形不透明度（%）",
         "belowOpacity": "下方波形不透明度（%）", "colors": "波形颜色",
-        "chooseColor": "选择颜色", "shared": "统一颜色", "cpu": "CPU", "memory": "内存",
-        "gpu": "GPU", "disk": "磁盘", "upload": "上传", "download": "下载",
+        "chooseColor": "选择颜色", "shared": "统一颜色",
         "theme": "配色", "glassStyle": "玻璃材质", "transparency": "通透度（%）",
         "blur": "背景模糊（%）", "refraction": "边缘折射（%）", "dispersion": "边缘色散（%）",
         "rimLight": "边缘高光（%）", "tileSize": "方格尺寸（px）", "cornerRadius": "圆角（px）",
@@ -68,7 +67,7 @@ ApplicationWindow {
         "columns": "Columns per row", "cellWidth": "Cell width (px)", "cellHeight": "Cell height (px)",
         "padding": "Panel padding (px)", "dividers": "Show dividers", "dividerOpacity": "Divider opacity (%)",
         "layoutPreview": "Layout preview", "applyLayout": "Apply layout",
-        "presets": "Layout presets", "presetsHint": "Layout only; metrics, material and auto-hide stay untouched",
+        "presets": "Layout presets", "presetsHint": "Click to preview; Apply layout saves",
         "restoreLayout": "Restore default layout", "sizeTitle": "Layout & size",
         "scaleDesc": "Scales text, cells, padding and the glass frame together", "actualSize": "Actual size",
         "compactBar": "Compact bar", "standardGrid": "Standard grid", "tallStack": "Tall stack",
@@ -78,8 +77,7 @@ ApplicationWindow {
         "shape": "Chart shape", "placement": "Chart placement", "height": "Chart height",
         "dots": "Dot style", "bgOpacity": "Background chart opacity (%)",
         "belowOpacity": "Below-text chart opacity (%)", "colors": "Chart colours",
-        "chooseColor": "Choose colour", "shared": "Shared", "cpu": "CPU", "memory": "Memory",
-        "gpu": "GPU", "disk": "Disk", "upload": "Upload", "download": "Download",
+        "chooseColor": "Choose colour", "shared": "Shared",
         "theme": "Colour theme", "glassStyle": "Glass material", "transparency": "Transparency (%)",
         "blur": "Background blur (%)", "refraction": "Edge refraction (%)", "dispersion": "Edge dispersion (%)",
         "rimLight": "Rim light (%)", "tileSize": "Square tile size (px)", "cornerRadius": "Corner radius (px)",
@@ -134,8 +132,23 @@ ApplicationWindow {
         return ["", "cpu", "memory", "gpu", "disk", "netUp", "netDown"]
     }
 
+    // 指标标签跟随 overlay 的标签语言，中英文都用短名，避免中英文字形高度参差。
+    function labelZh() {
+        const mode = v.labelLanguage || "follow"
+        if (mode === "zh") return true
+        if (mode === "en") return false
+        return root.zh
+    }
+
     function metricLabels() {
-        return [root.t.blank, "CPU", root.t.memory, "GPU", root.t.disk, root.t.upload, root.t.download]
+        const zh = labelZh()
+        return [zh ? root.zhText.blank : root.enText.blank,
+            zh ? "处理器" : "CPU",
+            zh ? "内存" : "MEM",
+            zh ? "显卡" : "GPU",
+            zh ? "磁盘" : "DISK",
+            zh ? "上行" : "UP",
+            zh ? "下行" : "DOWN"]
     }
 
     function indexOf(list, value) {
@@ -165,7 +178,8 @@ ApplicationWindow {
             var names = []
             for (var i = start; i < Math.min(start + columns, cells.length); i++)
                 names.push(metricLabel(cells[i]))
-            while (names.length && names[names.length - 1] === root.t.blank) names.pop()
+            var blank = labelZh() ? root.zhText.blank : root.enText.blank
+            while (names.length && names[names.length - 1] === blank) names.pop()
             if (names.length) rows.push(names.join(" · "))
         }
         return rows.join("   /   ")
@@ -182,7 +196,8 @@ ApplicationWindow {
         return rows.join(";")
     }
 
-    // 布局预设只覆盖列数、单元格尺寸和内边距；指标、材质与自动隐藏保持原样。
+    // 布局预设只预览，不落盘：点击后监视窗立即按该布局的自然尺寸变化，
+    // 指标、材质与自动隐藏保持原样，按“应用布局”才真正保存。
     readonly property var layoutPresets: [
         { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 76, cellHeight: 28, padding: 4, tiny: true },
         { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 120, cellHeight: 40, padding: 4, tiny: false },
@@ -191,7 +206,7 @@ ApplicationWindow {
 
     function activePreset() {
         for (var i = 0; i < layoutPresets.length; i++) {
-            var preset = layoutPresets[i]
+            const preset = layoutPresets[i]
             if (v.columns === preset.columns && v.cellWidth === preset.cellWidth &&
                 v.cellHeight === preset.cellHeight && v.padding === preset.padding && (v.tiny === true) === preset.tiny)
                 return preset.id
@@ -200,21 +215,22 @@ ApplicationWindow {
     }
 
     function applyPreset(preset) {
-        var changes = {
+        draftColumns = preset.columns
+        layoutPreview.text = previewText()
+        sysinfo.previewLayout({
             "columns": preset.columns,
             "cellWidth": preset.cellWidth,
             "cellHeight": preset.cellHeight,
             "padding": preset.padding,
             "tiny": preset.tiny
-        }
-        draftColumns = preset.columns
-        sysinfo.applyLayout(changes)
+        })
     }
 
     function restoreLayout() {
-        var preset = layoutPresets[1]
+        const preset = layoutPresets[1]
         draftColumns = preset.columns
-        sysinfo.applyLayout({
+        layoutPreview.text = previewText()
+        sysinfo.previewLayout({
             "columns": preset.columns,
             "cellWidth": preset.cellWidth,
             "cellHeight": preset.cellHeight,
@@ -324,8 +340,6 @@ ApplicationWindow {
         property int stepSize: 1
         property int value: 0
         signal edited(int value)
-        signal previewed(int value)
-        signal committed()
         Layout.fillWidth: true
         Layout.leftMargin: 16
         Layout.rightMargin: 16
@@ -369,14 +383,11 @@ ApplicationWindow {
             stepSize: numberRow.stepSize
             value: numberRow.value
             onMoved: {
-                if (root.loading) return
-                const next = Math.round(value)
-                if (next === numberRow.value) return
-                numberRow.value = next
-                if (pressed) numberRow.previewed(next)
-                else numberRow.edited(next)
+                // 拖动过程中只跟手，不回写；松手时才提交一次。
+                if (root.loading || pressed) return
+                numberRow.submit(value)
             }
-            onPressedChanged: if (!pressed && !root.loading) numberRow.committed()
+            onPressedChanged: if (!pressed && !root.loading) numberRow.submit(slider.value)
             background: Rectangle {
                 x: slider.leftPadding
                 y: slider.topPadding + slider.availableHeight / 2 - height / 2
@@ -676,7 +687,7 @@ ApplicationWindow {
 
     onClosing: {
         close.accepted = false
-        sysinfo.commitPreview()
+        sysinfo.cancelPreview()
         root.visible = false
     }
 
@@ -783,8 +794,8 @@ ApplicationWindow {
                         CheckRow { id: enabledBox; labelText: root.t.showMonitor
                             onChanged: if (!root.loading) sysinfo.edit("enabled", checked) }
                         SettingDivider {}
-                        NumberRow { id: intervalRow; labelText: root.t.interval; from: 500; to: 5000; stepSize: 100
-                            onEdited: sysinfo.edit("intervalMs", value); onPreviewed: sysinfo.preview("intervalMs", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: intervalRow; labelText: root.t.interval; from: 100; to: 5000; stepSize: 100
+                            onEdited: sysinfo.edit("intervalMs", value) }
                     }
                     SettingsCard { titleText: root.t.interaction
                         CheckRow { id: lockBox; labelText: root.t.lock
@@ -800,7 +811,7 @@ ApplicationWindow {
                             onChanged: if (!root.loading) sysinfo.edit("freeHide", checked) }
                         SettingDivider {}
                         NumberRow { id: freeHideDelayRow; labelText: root.t.freeHideDelay; from: 500; to: 30000; stepSize: 100
-                            onEdited: sysinfo.edit("freeHideDelayMs", value); onPreviewed: sysinfo.preview("freeHideDelayMs", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.edit("freeHideDelayMs", value) }
                         SettingDivider {}
                         CheckRow { id: clickThroughBox; labelText: root.t.clickThrough
                             onChanged: if (!root.loading) sysinfo.edit("clickThrough", checked) }
@@ -923,7 +934,7 @@ ApplicationWindow {
                     }
                     SettingsCard { titleText: root.t.sizeTitle
                         NumberRow { id: scaleRow; labelText: root.t.scale; from: 80; to: 200
-                            onEdited: sysinfo.edit("scale", value); onPreviewed: sysinfo.preview("scale", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.previewLayout({ "scale": value }) }
                         SettingDivider {}
                         RowLayout {
                             Layout.fillWidth: true
@@ -941,20 +952,20 @@ ApplicationWindow {
                         }
                         SettingDivider {}
                         NumberRow { id: cellWidthRow; labelText: root.t.cellWidth; from: 80; to: 320
-                            onEdited: sysinfo.edit("cellWidth", value); onPreviewed: sysinfo.preview("cellWidth", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.previewLayout({ "cellWidth": value }) }
                         SettingDivider {}
                         NumberRow { id: cellHeightRow; labelText: root.t.cellHeight; from: 28; to: 160
-                            onEdited: sysinfo.edit("cellHeight", value); onPreviewed: sysinfo.preview("cellHeight", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.previewLayout({ "cellHeight": value }) }
                         SettingDivider {}
                         NumberRow { id: paddingRow; labelText: root.t.padding; from: 0; to: 40
-                            onEdited: sysinfo.edit("padding", value); onPreviewed: sysinfo.preview("padding", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.previewLayout({ "padding": value }) }
                     }
                     SettingsCard { titleText: root.zh ? "分隔线" : "Dividers"
                         CheckRow { id: dividersBox; labelText: root.t.dividers
-                            onChanged: if (!root.loading) sysinfo.edit("dividers", checked) }
+                            onChanged: if (!root.loading) sysinfo.previewLayout({ "dividers": checked }) }
                         SettingDivider {}
                         NumberRow { id: dividerOpacityRow; labelText: root.t.dividerOpacity; from: 0; to: 100
-                            onEdited: sysinfo.edit("dividerOpacity", value); onPreviewed: sysinfo.preview("dividerOpacity", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.previewLayout({ "dividerOpacity": value }) }
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -975,7 +986,15 @@ ApplicationWindow {
                             Layout.preferredHeight: 32
                             palette.button: root.accentColor
                             palette.buttonText: "#FFFFFF"
-                            onClicked: sysinfo.applyLayout({ "metrics": root.draftMetrics(), "columns": root.draftColumns })
+                            onClicked: sysinfo.applyLayout({
+                                "metrics": root.draftMetrics(),
+                                "columns": root.draftColumns,
+                                "cellWidth": v.cellWidth,
+                                "cellHeight": v.cellHeight,
+                                "padding": v.padding,
+                                "scale": v.scale,
+                                "tiny": v.tiny
+                            })
                         }
                     }
                 }
@@ -1046,7 +1065,7 @@ ApplicationWindow {
                         }
                         SettingDivider {}
                         NumberRow { id: fontSizeRow; labelText: root.t.fontSize; from: 70; to: 180
-                            onEdited: sysinfo.edit("fontSize", value); onPreviewed: sysinfo.preview("fontSize", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.edit("fontSize", value) }
                         SettingDivider {}
                         CheckRow { id: labelsBox; labelText: root.t.showLabels
                             onChanged: if (!root.loading) sysinfo.edit("showLabels", checked) }
@@ -1088,10 +1107,10 @@ ApplicationWindow {
                     }
                     SettingsCard { titleText: root.zh ? "不透明度与颜色" : "Opacity & colour"
                         NumberRow { id: waveOpacityRow; labelText: root.t.bgOpacity; from: 0; to: 100
-                            onEdited: sysinfo.edit("waveOpacity", value); onPreviewed: sysinfo.preview("waveOpacity", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.edit("waveOpacity", value) }
                         SettingDivider {}
                         NumberRow { id: waveBelowOpacityRow; labelText: root.t.belowOpacity; from: 0; to: 100
-                            onEdited: sysinfo.edit("waveBelowOpacity", value); onPreviewed: sysinfo.preview("waveBelowOpacity", value); onCommitted: sysinfo.commitPreview() }
+                            onEdited: sysinfo.edit("waveBelowOpacity", value) }
                         SettingDivider {}
                         RowLayout {
                             Layout.fillWidth: true
@@ -1102,7 +1121,7 @@ ApplicationWindow {
                             Label { text: root.t.colors; color: root.textColor; font.pixelSize: 14; Layout.fillWidth: true }
                             ComboBox { id: colorTarget; Layout.preferredWidth: 122; Layout.preferredHeight: 32
                                 font.pixelSize: 14
-                                model: [root.t.shared, root.t.cpu, root.t.memory, root.t.gpu, root.t.disk, root.t.upload, root.t.download]
+                                model: [root.t.shared].concat(root.metricLabels().slice(1))
                                 delegate: ComboItem {}
                                 palette.text: root.textColor
                                 palette.button: root.controlColor
@@ -1151,19 +1170,19 @@ ApplicationWindow {
                         SettingDivider {}
                         ChoiceRow { id: glassRow; labelText: root.t.glassStyle; values: ["liquid", "frosted", "square"]; labels: root.options(["liquid", "frosted", "square"]); onChosen: sysinfo.edit("glassStyle", value) }
                         SettingDivider {}
-                        NumberRow { id: glassRow2; labelText: root.t.transparency; from: 0; to: 100; onEdited: sysinfo.edit("glass", value); onPreviewed: sysinfo.preview("glass", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: glassRow2; labelText: root.t.transparency; from: 0; to: 100; onEdited: sysinfo.edit("glass", value) }
                         SettingDivider {}
-                        NumberRow { id: blurRow; labelText: root.t.blur; from: 0; to: 100; onEdited: sysinfo.edit("blur", value); onPreviewed: sysinfo.preview("blur", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: blurRow; labelText: root.t.blur; from: 0; to: 100; onEdited: sysinfo.edit("blur", value) }
                         SettingDivider {}
-                        NumberRow { id: refractionRow; labelText: root.t.refraction; from: 0; to: 100; onEdited: sysinfo.edit("refraction", value); onPreviewed: sysinfo.preview("refraction", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: refractionRow; labelText: root.t.refraction; from: 0; to: 100; onEdited: sysinfo.edit("refraction", value) }
                         SettingDivider {}
-                        NumberRow { id: dispersionRow; labelText: root.t.dispersion; from: 0; to: 100; onEdited: sysinfo.edit("dispersion", value); onPreviewed: sysinfo.preview("dispersion", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: dispersionRow; labelText: root.t.dispersion; from: 0; to: 100; onEdited: sysinfo.edit("dispersion", value) }
                         SettingDivider {}
-                        NumberRow { id: rimRow; labelText: root.t.rimLight; from: 0; to: 100; onEdited: sysinfo.edit("rimLight", value); onPreviewed: sysinfo.preview("rimLight", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: rimRow; labelText: root.t.rimLight; from: 0; to: 100; onEdited: sysinfo.edit("rimLight", value) }
                         SettingDivider {}
-                        NumberRow { id: tileRow; labelText: root.t.tileSize; from: 8; to: 80; onEdited: sysinfo.edit("tileSize", value); onPreviewed: sysinfo.preview("tileSize", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: tileRow; labelText: root.t.tileSize; from: 8; to: 80; onEdited: sysinfo.edit("tileSize", value) }
                         SettingDivider {}
-                        NumberRow { id: radiusRow; labelText: root.t.cornerRadius; from: 8; to: 28; onEdited: sysinfo.edit("radius", value); onPreviewed: sysinfo.preview("radius", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: radiusRow; labelText: root.t.cornerRadius; from: 8; to: 28; onEdited: sysinfo.edit("radius", value) }
                     }
                 }
             }
@@ -1192,11 +1211,11 @@ ApplicationWindow {
                         SettingDivider {}
                         ChoiceRow { id: animationCurveRow; labelText: root.t.animationCurve; values: ["linear", "easeOut", "easeInOut", "easeIn", "overshoot", "sine", "fastOut", "spring"]; labels: root.zh ? ["线性", "缓出", "缓入缓出", "缓入", "回弹", "正弦", "快速收尾", "弹簧"] : ["Linear", "Ease out", "Ease in-out", "Ease in", "Overshoot", "Sine", "Fast out", "Spring"]; onChosen: sysinfo.edit("animationCurve", value) }
                         SettingDivider {}
-                        NumberRow { id: animationDurationRow; labelText: root.t.animationDuration; from: 100; to: 1500; stepSize: 50; onEdited: sysinfo.edit("animationDurationMs", value); onPreviewed: sysinfo.preview("animationDurationMs", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: animationDurationRow; labelText: root.t.animationDuration; from: 100; to: 1500; stepSize: 50; onEdited: sysinfo.edit("animationDurationMs", value) }
                         SettingDivider {}
                         CheckRow { id: mouseDistortionBox; labelText: root.t.mouseDistortion; onChanged: if (!root.loading) sysinfo.edit("mouseDistortion", checked) }
                         SettingDivider {}
-                        NumberRow { id: surfaceRow; labelText: root.t.surfaceMotion; from: 0; to: 100; onEdited: sysinfo.edit("surfaceMotion", value); onPreviewed: sysinfo.preview("surfaceMotion", value); onCommitted: sysinfo.commitPreview() }
+                        NumberRow { id: surfaceRow; labelText: root.t.surfaceMotion; from: 0; to: 100; onEdited: sysinfo.edit("surfaceMotion", value) }
                         SettingDivider {}
                         CheckRow { id: captureBox; labelText: root.t.capture; onChanged: if (!root.loading) sysinfo.edit("captureVisible", checked) }
                     }

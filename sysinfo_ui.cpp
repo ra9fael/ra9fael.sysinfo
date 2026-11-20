@@ -160,6 +160,7 @@ bool SysInfoUiBridge::showSettings()
         m_settingsWindow = new SettingsWindow;
         m_settingsWindow->setAppearance(m_locale, resolveTheme(), m_nativeLook);
         connect(m_settingsWindow, &SettingsWindow::settingEdited, this, [this](const QJsonObject& changes) {
+            commitPendingPreview();
             const QJsonObject changed = m_store->patch(changes);
             if (!changed.isEmpty()) {
                 applySettings(m_store->get());
@@ -170,12 +171,9 @@ bool SysInfoUiBridge::showSettings()
             m_store->preview(changes);
             applySettings(m_store->get());
         });
-        connect(m_settingsWindow, &SettingsWindow::previewCommitted, this, [this] {
-            const QJsonObject changed = m_store->commitPreview();
-            if (!changed.isEmpty()) {
-                applySettings(m_store->get());
-                emit settingsEdited(changed);
-            }
+        connect(m_settingsWindow, &SettingsWindow::previewCancelled, this, [this] {
+            m_store->cancelPreview();
+            applySettings(m_store->get());
         });
     }
     m_settingsWindow->setSettings(m_store->get());
@@ -187,6 +185,16 @@ void SysInfoUiBridge::applyAppearance(const QString& locale, const QString& them
     m_locale = locale; m_nativeLook = nativeLook; m_dark = resolveTheme() == QStringLiteral("dark");
     if (m_settingsWindow) m_settingsWindow->setAppearance(locale, theme, nativeLook);
     refreshSnapshot();
+}
+
+// 待定的布局预览落盘；保证屏幕上看到的与已保存的设置一致。
+void SysInfoUiBridge::commitPendingPreview()
+{
+    const QJsonObject changed = m_store->commitPreview();
+    if (!changed.isEmpty()) {
+        applySettings(m_store->get());
+        emit settingsEdited(changed);
+    }
 }
 
 void SysInfoUiBridge::applySettings(const Settings& settings)
@@ -333,7 +341,12 @@ void SysInfoUiBridge::refreshSnapshot()
         if(!metric.empty) {
             const Metric key=id==QStringLiteral("cpu")?Metric::Cpu:id==QStringLiteral("memory")?Metric::Memory:id==QStringLiteral("gpu")?Metric::Gpu:id==QStringLiteral("disk")?Metric::Disk:id==QStringLiteral("netUp")?Metric::NetUp:Metric::NetDown;
             const Reading& reading=sample.readings[static_cast<size_t>(key)]; metric.rate=key==Metric::NetUp||key==Metric::NetDown;
-            metric.label=id==QStringLiteral("netUp")?(zh?QStringLiteral("上行"):QStringLiteral("Upload")):id==QStringLiteral("netDown")?(zh?QStringLiteral("下行"):QStringLiteral("Download")):id==QStringLiteral("memory")?(zh?QStringLiteral("内存"):QStringLiteral("Memory")):id.toUpper();
+            if(id==QStringLiteral("cpu"))metric.label=zh?QStringLiteral("处理器"):QStringLiteral("CPU");
+            else if(id==QStringLiteral("gpu"))metric.label=zh?QStringLiteral("显卡"):QStringLiteral("GPU");
+            else if(id==QStringLiteral("memory"))metric.label=zh?QStringLiteral("内存"):QStringLiteral("MEM");
+            else if(id==QStringLiteral("disk"))metric.label=zh?QStringLiteral("磁盘"):QStringLiteral("DISK");
+            else if(id==QStringLiteral("netUp"))metric.label=zh?QStringLiteral("上行"):QStringLiteral("UP");
+            else metric.label=zh?QStringLiteral("下行"):QStringLiteral("DOWN");
             if(reading.status==Status::Fresh){const MetricText text=metric.rate?formatRate(reading.value):formatPercent(reading.value);metric.value=QString::fromStdString(text.number);metric.unit=QString::fromStdString(text.unit);}
             else metric.value=reading.status==Status::Sampling?(zh?QStringLiteral("采样中"):QStringLiteral("Sampling")):QStringLiteral("—");
             metric.history=sample.history[static_cast<size_t>(key)];

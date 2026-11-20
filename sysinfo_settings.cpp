@@ -233,7 +233,7 @@ Settings Settings::fromJson(const QJsonObject& v)
     if (v.contains(QStringLiteral("locked")))
         s.locked = v.value(QStringLiteral("locked")).toBool(s.locked);
     if (v.contains(QStringLiteral("intervalMs")))
-        s.intervalMs = clampInt(v.value(QStringLiteral("intervalMs")), s.intervalMs, 500, 5000);
+        s.intervalMs = clampInt(v.value(QStringLiteral("intervalMs")), s.intervalMs, 100, 5000);
     return s;
 }
 
