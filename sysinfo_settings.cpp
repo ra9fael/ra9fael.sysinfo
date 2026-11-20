@@ -126,6 +126,8 @@ QJsonObject Settings::toJson() const
                          {QStringLiteral("freeHideDelayMs"), freeHideDelayMs},
                          {QStringLiteral("edgeSnap"), edgeSnap},
                         {QStringLiteral("animations"), animations},
+                        {QStringLiteral("animationCurve"), animationCurve},
+                        {QStringLiteral("animationDurationMs"), animationDurationMs},
                         {QStringLiteral("showLabels"), showLabels},
                         {QStringLiteral("showValues"), showValues},
                         {QStringLiteral("showUnits"), showUnits},
@@ -208,6 +210,9 @@ Settings Settings::fromJson(const QJsonObject& v)
     s.edgeSnap = v.value(QStringLiteral("edgeSnap")).toBool(s.edgeSnap);
     if (v.contains(QStringLiteral("animations")))
         s.animations = v.value(QStringLiteral("animations")).toBool(s.animations);
+    s.animationCurve = choice(v.value(QStringLiteral("animationCurve")),
+        {QStringLiteral("linear"), QStringLiteral("easeOut"), QStringLiteral("easeInOut"), QStringLiteral("easeIn")}, s.animationCurve);
+    s.animationDurationMs = clampInt(v.value(QStringLiteral("animationDurationMs")), s.animationDurationMs, 100, 1500);
     if (v.contains(QStringLiteral("showLabels")))
         s.showLabels = v.value(QStringLiteral("showLabels")).toBool(s.showLabels);
     if (v.contains(QStringLiteral("showValues")))
@@ -252,6 +257,7 @@ QStringList advancedSettingKeys()
         QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("tileSize"),
         QStringLiteral("radius"), QStringLiteral("shadow"), QStringLiteral("displayTarget"),
         QStringLiteral("position"), QStringLiteral("edgeSnap"), QStringLiteral("animations"),
+        QStringLiteral("animationCurve"), QStringLiteral("animationDurationMs"),
         QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
     return keys;
 }

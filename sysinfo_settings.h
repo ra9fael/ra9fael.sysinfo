@@ -52,6 +52,8 @@ struct Settings {
     int freeHideDelayMs = 3000;
     bool edgeSnap = true;
     bool animations = true;
+    QString animationCurve = QStringLiteral("easeOut");
+    int animationDurationMs = 400;
     bool showLabels = true;
     bool showValues = true;
     bool showUnits = true;

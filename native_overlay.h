@@ -41,6 +41,8 @@ struct NativeOverlayModel {
     int waveOpacity = 45;
     bool sparklines = true;
     bool animations = true;
+    int animationCurve = 1;
+    int animationDurationMs = 400;
     bool edgeHide = false;
     int freeHideDelayMs = 0;
     bool freeHideEnabled = false;

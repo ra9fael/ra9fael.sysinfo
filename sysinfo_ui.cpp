@@ -200,6 +200,8 @@ void SysInfoUiBridge::applySettings(const Settings& settings)
         NativeOverlayModel model;
         model.dark=m_dark; model.edgeHide=settings.edgeHide; model.freeHideEnabled=settings.freeHide;
         model.freeHideDelayMs=settings.freeHideDelayMs; model.animations=settings.animations;
+        model.animationCurve=settings.animationCurve==QStringLiteral("linear")?0:settings.animationCurve==QStringLiteral("easeInOut")?2:settings.animationCurve==QStringLiteral("easeIn")?3:1;
+        model.animationDurationMs=settings.animationDurationMs;
         model.radius=settings.radius; model.scale=settings.scale/100.f;
         m_overlay->setModel(model);
     }
@@ -296,7 +298,10 @@ void SysInfoUiBridge::refreshSnapshot()
     const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide;
     model.freeHideEnabled=m_settings.freeHide; model.freeHideDelayMs=m_settings.freeHideDelayMs;
-    model.animations=m_settings.animations; model.radius=m_settings.radius; model.scale=m_settings.scale/100.f;
+    model.animations=m_settings.animations;
+    model.animationCurve=m_settings.animationCurve==QStringLiteral("linear")?0:m_settings.animationCurve==QStringLiteral("easeInOut")?2:m_settings.animationCurve==QStringLiteral("easeIn")?3:1;
+    model.animationDurationMs=m_settings.animationDurationMs;
+    model.radius=m_settings.radius; model.scale=m_settings.scale/100.f;
     model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||
         (m_settings.wavePlacement==QStringLiteral("auto") && m_settings.sparklines==QStringLiteral("wash"));
     model.waveHeight=m_settings.waveHeight;

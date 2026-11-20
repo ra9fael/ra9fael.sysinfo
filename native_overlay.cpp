@@ -185,7 +185,7 @@ void NativeOverlay::setModel(NativeOverlayModel model){
     m->model=std::move(model); const auto& v=m->model;
     liquid_glass::Material material;
     material.dark=v.dark; material.edgeHide=v.edgeHide; material.freeHideEnabled=v.freeHideEnabled; material.freeHideDelayMs=v.freeHideDelayMs; material.debugPattern=v.debugPattern;
-    material.animations=v.animations;
+    material.animations=v.animations; material.animationCurve=v.animationCurve; material.animationDurationMs=v.animationDurationMs;
     material.style=v.glassStyle; material.tileSize=static_cast<float>(v.tileSize);
     material.radius=v.radius; material.blur=v.blur; material.glass=v.glass; material.refraction=v.refraction;
     material.dispersion=v.dispersion; material.rimLight=v.rimLight; material.surfaceMotion=v.surfaceMotion; material.scale=v.scale;

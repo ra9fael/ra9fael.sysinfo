@@ -47,7 +47,7 @@ static void testSettings()
     const QStringList keys = settingKeys();
     assert(keys.size() == 9);
     const QStringList advanced = advancedSettingKeys();
-    assert(advanced.size() == 35);
+    assert(advanced.size() == 37);
     assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
             && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
