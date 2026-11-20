@@ -30,10 +30,12 @@ Detail charts remain planned. Desktop charts use 60 in-memory samples without pe
 Normal rows default to 40px. Both modes use independent `padding` (default 4px).
 Column `dividers` default to enabled at 12% `dividerOpacity`. Filled dots use a
 3px grid; bars aggregate history to available width while retaining peaks.
-Settings are ordered as General, Layout, Text, Charts, Glass, Interaction and
-Capture. `edgeSnap` snaps within 12px on drag release; `edgeHide` independently
-controls collapse and hover expansion. Glass transparency controls backdrop/tint
-mixing without changing content opacity.
+Settings are split: the host card keeps General (show, sampling interval, Tiny,
+scale, lock, edge auto-hide, click-through); the plugin window holds General,
+Layout, Text, Charts, Material and Interaction & capture, with layout edits
+committed by Apply layout. `edgeSnap` snaps within 12px on drag release;
+`edgeHide` independently controls collapse and hover expansion. Glass
+transparency controls backdrop/tint mixing without changing content opacity.
 
 `tiny` uses single-line text, fixed 28px rows, 4px outer padding and a 10px radius
 cap, all following overall scale. Text shrinks to its available area. Cell width,
@@ -81,7 +83,9 @@ Unlocked overlays can be dragged; locked overlays cannot move. Click-through use
 
 ## Keyboard, accessibility and appearance
 
-Details Tab order: category → metrics → actions → overlay toggle. Arrows change categories/rows; Enter selects; Escape closes details without closing an explicitly enabled overlay. Disabling the plugin closes all windows. Settings focus enters the first field and returns to its trigger on close.
+Details Tab order: category → metrics → actions → overlay toggle. Arrows change categories/rows; Enter selects; Escape closes details without closing an explicitly enabled overlay. Disabling the plugin closes all windows. The settings window is independent of
+the card; opening it takes foreground focus and closing it returns to the
+previous foreground window.
 
 Provide accessible icon names. Do not announce values every second; announce error transitions once. Tables support keyboard copy without overriding search shortcuts. Candidate target sizes: at least 28 DIP, 32 DIP for frequent toggles, adjusted to host scaling. Visually verify 100/125/150/200%, mixed DPI and long English/Chinese strings. Inherit host theme/type/radii and semantic color tokens rather than inventing an unverified palette.
 

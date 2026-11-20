@@ -14,7 +14,11 @@ unavailable, never fabricated zeroes. Core logic handles deltas, units,
 timestamps, stale state and layout. hwinfo, IP Helper and PDH provide hardware
 information, network rates and GPU/disk utilization.
 
-Qt 6.12 Core/Gui manages protocol, event loop and settings. NativeOverlay converts
+Qt 6.12 Core/Gui/Qml/Quick manages protocol, event loop, settings and the
+settings window; the window uses only QtQuick, QtQuick.Controls.Basic and
+QtQuick.Layouts from the host's shared Qt contract. The host card stores the
+common settings, while layout, text, charts, material and interaction values go
+to `advanced-settings.json` in the plugin data directory. NativeOverlay converts
 snapshots into DirectWrite/Direct2D content. The independent
 [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp) library owns Win32
 windows, D3D11/DXGI capture, HLSL materials, DirectComposition and edge animation,

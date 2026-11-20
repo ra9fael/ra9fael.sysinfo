@@ -77,15 +77,29 @@ Capture-visible frame p95 was 17.214–18.029 ms. Its synchronization dominates
 frame duration. The capture strategy remains unchanged; shader execution is
 small at the median. The measured cadence is approximately 30–33 ms, not 60 fps.
 
+Version 1.5.1-dev passes the core and native renderer suites, including desktop
+capture with capture visibility enabled and disabled, four-edge click-through
+hover, and a bright-backdrop retention assertion. Glass tint ranges from 30% at
+minimum transparency to 2% at maximum transparency.
+
+## Settings window
+
+`sysinfo.exe --probe --probe-settings` opens the settings window on the
+standalone probe. Win32 enumeration found a single visible dialog owned by the
+process, and it was the foreground window after opening. The bridge reuses that
+window on later opens. Locale, resolved theme and host `nativeLook` are applied
+when the window is created and on later appearance changes. The settings tests
+cover legacy string migration, file precedence, host-key isolation and
+preview commit/cancel.
+
 ## Limitations
 
-Version 1.5.0-dev builds and passes the settings test. Seventeen native captures
-cover shape/placement, row heights, tiny text fitting and glass transparency at
-0/50/100. The current desktop run did not pass interaction acceptance: renderer
-CTest reached its 60-second timeout, direct execution failed click-through hover
-expansion, and the desktop drag probe observed a position different from its
-requested target. The cause remains unconfirmed. Independent edge-snap/auto-hide
-desktop acceptance remains pending.
+Version 1.5.1-dev builds and passes the settings and renderer suites. The render
+suite completes in 31–85 seconds and its timeout is 180 seconds. Seventeen
+native captures cover shape/placement, row heights, tiny text fitting and glass
+transparency at 0/50/100. Host appearance and the card's Settings button remain
+to be checked in an installed host. Independent edge-snap/auto-hide desktop
+acceptance remains pending.
 
 These short observations are not a hardware-independent benchmark. Windows
 process CPU accounting can round very small consumption to zero. GPU timestamp

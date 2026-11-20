@@ -3,7 +3,7 @@
 [中文](README.md)
 
 Windows system queries and a native liquid-glass desktop monitor. Version
-`1.5.0-dev` is in development.
+`1.5.1-dev` is in development.
 
 ## Desktop monitor
 
@@ -53,10 +53,33 @@ capture and animation are scheduled independently; a 16 ms timer does not imply
 background acquisition temporarily excludes the overlay, synchronizes DWM and
 then restores capture visibility.
 
+## Settings
+
+The host card keeps seven common settings: show monitor, sampling interval,
+Tiny, overall scale, lock position, edge auto-hide and click-through. Layout,
+text, charts, material and interaction options live in the plugin's own
+settings window, grouped as General, Layout, Text, Charts, Material, and
+Interaction & capture.
+
+- Open it from the card's Settings button, or search for `sys` and choose
+  System Information Settings / Open settings. Opening it again focuses the
+  existing window and never enables the monitor.
+- The host still stores the common settings. Advanced settings are written to
+  `advanced-settings.json` in the plugin data directory; the first run migrates
+  existing values from the host, after which the file wins.
+- Dragging a numeric slider previews live and writes on release. Switches,
+  choices, fonts and colours apply immediately. Cell order and column count
+  edit a draft and apply with Apply layout.
+- Search rows offer show/hide, lock, click-through, edge auto-hide and open
+  settings. `shadow` keeps its stored value, but the native renderer draws no
+  outer shadow and the settings window has no control for it.
+
 ## Architecture and build
 
-The plugin uses the WinShun SDK, C++23 and Qt 6.12 Core/Gui for protocol, event
-loop, settings and sampling. The overlay uses Win32 HWND, D3D11/DXGI,
+The plugin uses the WinShun SDK, C++23 and Qt 6.12 Core/Gui/Qml/Quick for
+protocol, event loop, settings, sampling and the settings window. The settings
+window uses only QtQuick, QtQuick.Controls.Basic and QtQuick.Layouts, which the
+host's shared Qt contract guarantees. The overlay uses Win32 HWND, D3D11/DXGI,
 DirectComposition, HLSL and DirectWrite/Direct2D.
 
 Dependencies are pinned Git submodules:
@@ -91,6 +114,7 @@ GPU/disk utilization; availability depends on the system and driver.
 - [UI specification](UI-SPEC.en.md) · [Test plan](TEST-PLAN.en.md)
 - [Native desktop integration](docs/native-integration-results.md)
 - [Material, sampling and performance validation](docs/native-material-validation.md)
+- [Settings window validation](docs/validation/settings-window-test.md)
 
 Verified: sampling intervals, four-direction click-through hover, dual-monitor
 movement and position restoration. Short probes measured capture-visible median
@@ -104,4 +128,7 @@ External recorders, independent dynamic-background workloads, physical-drag
 performance traces and full accessibility acceptance remain outstanding. The
 renderer is public and independently cloned; a complete cross-machine plugin
 build is unverified. Export and automatic fullscreen hiding are not implemented.
-Sensor fields are not guaranteed on every device.
+Sensor fields are not guaranteed on every device. The settings window is
+verified through the standalone probe and protocol path; the real host card
+button, host appearance screenshots and recovery while click-through is active
+remain to be tested.

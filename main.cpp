@@ -5,6 +5,7 @@
 // winshun/settings/update（SDK 的发送带锁，任何线程都能发）。
 // 原生 Win32/D3D11 Overlay 与协议/采样线程保持分离。
 #include <QGuiApplication>
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -158,7 +159,8 @@ public:
     void initialized() override
     {
         m_sampler.start();
-        m_store->reset(toJsonObject(settings()));
+        m_store->initialize(toJsonObject(settings()),
+                            QDir(toQString(dataDir())).filePath(QStringLiteral("advanced-settings.json")));
         post([this] { createUi(); });
     }
     void shuttingDown() override
@@ -172,7 +174,7 @@ public:
 
     void settingsChanged(const winshun::Json& value) override
     {
-        m_store->reset(toJsonObject(value));
+        m_store->resetHostSettings(toJsonObject(value));
         post([this] {
             if (m_ui)
                 m_ui->applySettings(m_store->get());
@@ -183,9 +185,17 @@ public:
     {
         const std::string uiLocale = locale();
         const std::string uiTheme = theme();
-        post([this, uiLocale, uiTheme] {
+        const QJsonObject nativeLook = toJsonObject(appearance())["nativeLook"].toObject();
+        post([this, uiLocale, uiTheme, nativeLook] {
             if (m_ui)
-                m_ui->applyAppearance(toQString(uiLocale), toQString(uiTheme), {});
+                m_ui->applyAppearance(toQString(uiLocale), toQString(uiTheme), nativeLook);
+        });
+    }
+
+    void showSettings() override
+    {
+        post([this] {
+            if (m_ui) m_ui->showSettings();
         });
     }
 
@@ -201,9 +211,19 @@ public:
     {
         const bool zh = chinese();
         const Settings before = m_store->get();
-
-        if (a.action == "toggleEnabled") {
-            const QJsonObject changed = m_store->patch({{QStringLiteral("enabled"), !before.enabled}});
+        if (a.action == "openSettings") {
+            showSettings();
+            return {winshun::effect::keep()};
+        }
+        const QString key = a.action == "toggleEnabled" ? QStringLiteral("enabled")
+            : a.action == "toggleLocked" ? QStringLiteral("locked")
+            : a.action == "toggleClickThrough" ? QStringLiteral("clickThrough")
+            : a.action == "toggleEdgeHide" ? QStringLiteral("edgeHide") : QString();
+        if (!key.isEmpty()) {
+            const bool current = key == QStringLiteral("enabled") ? before.enabled
+                : key == QStringLiteral("locked") ? before.locked
+                : key == QStringLiteral("clickThrough") ? before.clickThrough : before.edgeHide;
+            const QJsonObject changed = m_store->patch({{key, !current}});
             sendSettingChange(changed);
             return {winshun::effect::replace(queryItems()), winshun::effect::keep()};
         }
@@ -215,7 +235,8 @@ public:
     winshun::Json queryResult(const winshun::Query& q) override
     {
         winshun::Json result = winshun::Plugin::queryResult(q);
-        result = winshun::Json(winshun::Json::Object {{"items", result.toArray()}, {"rerun", 2}});
+        const double refreshSeconds = std::clamp(m_store->get().intervalMs / 1000.0, 0.5, 60.0);
+        result.set("rerun", refreshSeconds);
         return result;
     }
 
@@ -230,6 +251,7 @@ private:
         m_ui = std::make_unique<SysInfoUiBridge>(m_store, &m_sampler, toQString(dataDir()));
         QObject::connect(m_ui.get(), &SysInfoUiBridge::settingsEdited, m_ui.get(),
                          [this](const QJsonObject& changed) { sendSettingChange(changed); });
+        m_ui->applyAppearance(toQString(locale()), toQString(theme()), toJsonObject(appearance())["nativeLook"].toObject());
         m_ui->applySettings(m_store->get());
         if (m_store->get().enabled)
             m_ui->showOverlay();
@@ -242,16 +264,21 @@ private:
         }
     }
 
-    // UI 线程的改动 → 宿主。发出去以后宿主会回 settingsChanged，本地已经先应用了。
+    // 常用项回写宿主；高级项已经写入插件数据目录。
     void sendSettingChange(const QJsonObject& changed)
     {
         if (changed.isEmpty())
             return;
+        QJsonObject hostChanges;
+        for (const QString& key : hostSettingKeys()) {
+            if (changed.contains(key)) hostChanges.insert(key, changed.value(key));
+        }
         post([this] {
             if (m_ui)
                 m_ui->applySettings(m_store->get());
         });
-        updateHostSettings(toWire(QJsonValue(changed).toObject()));
+        if (!hostChanges.isEmpty())
+            updateSettings(toWire(QJsonValue(hostChanges).toObject()));
     }
 
     winshun::Items queryItems()
@@ -276,8 +303,20 @@ private:
             winshun::Item overlay("sysinfo:overlay", zh ? "桌面监视窗" : "Desktop monitor", toStdString(subtitle));
             overlay.withIcon("glyph:U+E7F4")
                 .withScore(100)
-                .withActions({{"toggleEnabled", zh ? (s.enabled ? "隐藏" : "显示") : (s.enabled ? "Hide" : "Show"), "Enter"}});
+                .withActions({{"toggleEnabled", zh ? (s.enabled ? "隐藏" : "显示") : (s.enabled ? "Hide" : "Show"), "Enter"},
+                              {"toggleLocked", zh ? (s.locked ? "解除位置锁定" : "锁定位置") : (s.locked ? "Unlock position" : "Lock position"), "Ctrl+Enter"},
+                              {"toggleClickThrough", zh ? (s.clickThrough ? "关闭鼠标穿透" : "开启鼠标穿透") : (s.clickThrough ? "Disable click-through" : "Enable click-through"), "Shift+Enter"},
+                              {"toggleEdgeHide", zh ? (s.edgeHide ? "关闭贴边隐藏" : "开启贴边隐藏") : (s.edgeHide ? "Disable edge auto-hide" : "Enable edge auto-hide"), ""},
+                              {"openSettings", zh ? "打开设置" : "Open settings", ""}});
             items.push_back(std::move(overlay));
+        }
+
+        if (matches("settings") || matches("设置") || matches("config")) {
+            winshun::Item settings("sysinfo:settings", zh ? "系统信息设置" : "System Information Settings",
+                                   zh ? "布局、字体、波形、材质与交互" : "Layout, text, charts, material and interaction");
+            settings.withIcon("glyph:U+E950").withScore(95)
+                .withActions({{"openSettings", zh ? "打开设置" : "Open settings", "Enter"}});
+            items.push_back(std::move(settings));
         }
 
         if (matches("value") || matches("数值") || matches("指标")) {
@@ -436,6 +475,9 @@ int runProbe(QGuiApplication& app)
                      });
     bridge.applySettings(store->get());
     bridge.showOverlay();
+
+    if (app.arguments().contains(QStringLiteral("--probe-settings")))
+        QTimer::singleShot(300, &bridge, [&bridge] { bridge.showSettings(); });
 
     QTimer ticker;
     QObject::connect(&ticker, &QTimer::timeout, [&sampler, &bridge] {

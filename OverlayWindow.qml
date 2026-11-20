@@ -20,13 +20,14 @@ Window {
     readonly property string fontFamily: bridge.fontFamily
     readonly property int gridColumns: bridge.gridColumns
     readonly property int gridRows: bridge.gridRows
-    readonly property real edgeReveal: 7 * s
+    readonly property real edgeReveal: 26 * s
+    readonly property real edgeDiameter: edgeReveal * 2
     readonly property real contentShiftX: !bridge.edgeCollapsed ? 0
-        : bridge.edgeSide === "left" ? -(width - edgeReveal)
-        : bridge.edgeSide === "right" ? width - edgeReveal : 0
+        : bridge.edgeSide === "left" ? -width
+        : bridge.edgeSide === "right" ? width : 0
     readonly property real contentShiftY: !bridge.edgeCollapsed ? 0
-        : bridge.edgeSide === "top" ? -(height - edgeReveal)
-        : bridge.edgeSide === "bottom" ? height - edgeReveal : 0
+        : bridge.edgeSide === "top" ? -height
+        : bridge.edgeSide === "bottom" ? height : 0
     function touchesEdge() {
         const area = bridge.availableArea()
         const gap = 8
@@ -281,11 +282,11 @@ Window {
     Rectangle {
         id: edgeStrip
         visible: bridge.edgeCollapsed
-        width: bridge.edgeSide === "top" || bridge.edgeSide === "bottom" ? Math.min(50 * root.s, root.width) : root.edgeReveal
-        height: bridge.edgeSide === "top" || bridge.edgeSide === "bottom" ? root.edgeReveal : Math.min(50 * root.s, root.height)
-        radius: width / 2
-        x: bridge.edgeSide === "left" ? 0 : bridge.edgeSide === "right" ? parent.width - width : (parent.width - width) / 2
-        y: bridge.edgeSide === "top" ? 0 : bridge.edgeSide === "bottom" ? parent.height - height : (parent.height - height) / 2
+        width: root.edgeDiameter
+        height: root.edgeDiameter
+        radius: root.edgeReveal
+        x: bridge.edgeSide === "left" ? -root.edgeReveal : bridge.edgeSide === "right" ? root.width - root.edgeReveal : (root.width - width) / 2
+        y: bridge.edgeSide === "top" ? -root.edgeReveal : bridge.edgeSide === "bottom" ? root.height - root.edgeReveal : (root.height - height) / 2
         color: root.dark ? Qt.rgba(0.7, 0.9, 1, 0.82) : Qt.rgba(0.08, 0.2, 0.34, 0.74)
     }
 

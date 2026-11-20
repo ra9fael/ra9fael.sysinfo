@@ -15,6 +15,8 @@
 
 namespace sysinfo {
 
+class SettingsWindow;
+
 class SysInfoUiBridge : public QObject {
     Q_OBJECT
 public:
@@ -25,6 +27,7 @@ public:
     void applyAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook);
     void applySettings(const Settings& settings);
     void showOverlay();
+    void showSettings();
     void hideAll();
     void refreshSnapshot();
     bool saveOverlaySnapshot(const QString& path) const;
@@ -44,22 +47,24 @@ private:
     void applyClickThrough();
     QRect availableArea() const;
     QString resolveTheme() const;
-    void handleMoved(const QPoint& position);
-    void setEdgeCollapsed(bool collapsed);
+    void handleMoved(const QPoint& position, const QPoint& cursor);
+    bool setEdgeCollapsed(bool collapsed);
 
     std::shared_ptr<SettingsStore> m_store;
     Sampler* m_sampler = nullptr;
     QString m_dataDir;
     std::unique_ptr<NativeOverlay> m_overlay;
+    SettingsWindow* m_settingsWindow = nullptr;
     Settings m_settings;
     bool m_enabled = false;
     bool m_dark = true;
     QString m_locale = QStringLiteral("zh");
-    QString m_themeSetting = QStringLiteral("system");
+    QJsonObject m_nativeLook;
     QRect m_windowPos;
     QString m_savedScreenName;
     bool m_edgeCollapsed = false;
     QString m_edgeSide = QStringLiteral("right");
+    std::optional<int> m_releaseX;
     qreal m_margin = 20;
     qreal m_panelWidth = 360;
     qreal m_panelHeight = 100;

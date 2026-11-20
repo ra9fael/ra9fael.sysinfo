@@ -16,7 +16,7 @@
 
 ## 3. 架构与清单
 
-纯核心负责差值、单位、时间戳、过期判断和布局。hwinfo、IP Helper 与 PDH 负责硬件信息、网络速率和 GPU/磁盘利用率。Qt Core/Gui 管理协议、事件循环及设置；NativeOverlay 将快照转为 DirectWrite/Direct2D 内容。独立的 [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp) 负责 Win32 窗口、D3D11/DXGI 背景采集、HLSL 材质、DirectComposition 与贴边动画，不依赖 Qt 或 WinShun。
+纯核心负责差值、单位、时间戳、过期判断和布局。hwinfo、IP Helper 与 PDH 负责硬件信息、网络速率和 GPU/磁盘利用率。Qt Core/Gui/Qml/Quick 管理协议、事件循环、设置与设置窗口；设置窗口只使用宿主共享 Qt 契约内的 QtQuick、QtQuick.Controls.Basic 和 QtQuick.Layouts。常用项由宿主卡片保存，布局、文字、波形、材质与交互写入插件数据目录的 `advanced-settings.json`。NativeOverlay 将快照转为 DirectWrite/Direct2D 内容。独立的 [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp) 负责 Win32 窗口、D3D11/DXGI 背景采集、HLSL 材质、DirectComposition 与贴边动画，不依赖 Qt 或 WinShun。
 
 清单位于 `plugin.json`，id 为 ra9fael.sysinfo，命令为 sys，使用共享 Qt 6.12，权限为 `ui` 和 `clipboard:write`。监视窗默认关闭，恢复用户显式启用的状态。构建使用 Release Qt。
 

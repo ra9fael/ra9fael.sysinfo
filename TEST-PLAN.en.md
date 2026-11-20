@@ -29,7 +29,7 @@ Python scripts retain development-workspace executable/Qt paths; adjust them on 
 | ID | Requirement | Layer | Preconditions | Steps | Expected | Evidence | Status |
 |---|---|---|---|---|---|---|---|
 | TSYS-00 | SYS-F07/08/09 | L0 | Future package | Validate manifest, Qt dependencies, languages, permissions and absence of user data | Installable; permissions match use; no undeclared dependencies | package-audit | Manifest structure/permissions/Qt terms checked; full package audit not run |
-| TSYS-01 | SYS-F01 | L3 | Real host enabled | Query sys; inspect summary and copy a metric | No query side effects; correct isolated copied value | host-query/copy | Typing `sys ` in an installed WinShun isolated profile expanded results without crash; isolated protocol returned P0 fields and four DXGI adapters with no QML bridge errors. Copy/details and settings visuals not tested |
+| TSYS-01 | SYS-F01 | L3 | Real host enabled | Query sys; inspect summary and copy a metric | No query side effects; correct isolated copied value | host-query/copy | Typing `sys ` in an installed WinShun isolated profile expanded results without crash; isolated protocol returned P0 fields and four DXGI adapters with no QML bridge errors. Settings window checked by a standalone probe; copy/details not tested |
 | TSYS-02 | SYS-F02/12 | L2 | Fake healthy/unsupported/failed sources | Inject multiple adapters, absent battery and failed GPU | Distinct states; healthy metrics remain; missing is not zero | fake-matrix | NOT RUN |
 | TSYS-03 | SYS-F03 | L2 | Fake clock/source | Open all three consumers; count source reads | Same snapshot agrees; no duplicate samplers | sample-count | NOT RUN |
 | TSYS-04 | SYS-F04/09 | L4 | Unlocked desktop | Show/lock/click-through; edit through sys; switch foreground | Defaults off; editing remains recoverable; no focus stealing | overlay-video/screens | Four-edge click-through expansion/collapse passes; full focus matrix pending |
@@ -42,6 +42,8 @@ Python scripts retain development-workspace executable/Qt paths; adjust them on 
 | TSYS-11 | SYS-F11 | L2 | Fake sensitive fields/write errors | Default/explicit export; cancel; reject writes | Redacted by default; explicit selection honored; failures preserve page | export-tests | NOT RUN |
 | TSYS-12 | SYS-F06/12 | L4 | Two real adapters and sleep support | Transfer test data; disconnect; sleep/resume | Correct units/identity, baseline reset, no double counting | resume-network | NOT RUN |
 | TSYS-13 | SYS-F02/03/06 | L5 | Reproducible idle/load | Compare disabled/enabled/three consumers/hidden | Measure CPU/memory/wakeup peaks; derive budget from peak plus margin | budget-report | Short native CPU/GPU/frame probes recorded; complete host budget pending |
+| TSYS-14 | SYS-F09 | L4 | Monitor hidden or click-through | Open settings from the card and search, reopen, switch tabs and single settings | Reuse and focus the existing window; do not enable the monitor; changes apply immediately | settings-window | Standalone probe confirmed creation, visibility and foreground activation; real host card button pending |
+| TSYS-15 | SYS-F07/09 | L1 | Older settings and plugin data directory | First-run migration, edit advanced values, restart, edit host values | Legacy values migrate once; advanced values persist; host values stay with the host | migration-tests | `sysinfo_tests` covers migration, persistence, host-key isolation and preview commit/cancel |
 
 ## Layers and regression gates
 

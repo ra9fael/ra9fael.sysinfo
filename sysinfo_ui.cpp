@@ -1,4 +1,5 @@
 #include "sysinfo_ui.h"
+#include "settings_window.h"
 
 #include <QDir>
 #include <QCursor>
@@ -70,7 +71,12 @@ SysInfoUiBridge::SysInfoUiBridge(std::shared_ptr<SettingsStore> settings, Sample
     m_snapshotTimer.start();
 }
 
-SysInfoUiBridge::~SysInfoUiBridge() { hideAll(); }
+SysInfoUiBridge::~SysInfoUiBridge()
+{
+    hideAll();
+    delete m_settingsWindow;
+    m_settingsWindow = nullptr;
+}
 
 QString SysInfoUiBridge::resolveTheme() const
 {
@@ -139,8 +145,8 @@ void SysInfoUiBridge::showOverlay()
 {
     if (!m_overlay) {
         m_overlay = std::make_unique<NativeOverlay>();
-        m_overlay->moved = [this](const QPoint& point) { handleMoved(point); };
-        m_overlay->edgeCollapsedChanged = [this](bool collapsed) { setEdgeCollapsed(collapsed); };
+        m_overlay->moved = [this](const QPoint& point, const QPoint& cursor) { handleMoved(point, cursor); };
+        m_overlay->edgeCollapsedChanged = [this](bool collapsed) { return setEdgeCollapsed(collapsed); };
         if (!m_overlay->create()) { m_overlay.reset(); return; }
     }
     applyGeometry(); placeWindow(m_settings.position != QStringLiteral("free")); applyClickThrough(); m_overlay->setCaptureVisible(m_settings.captureVisible);
@@ -151,52 +157,120 @@ void SysInfoUiBridge::showOverlay()
 void SysInfoUiBridge::hideOverlayOnly() { if (m_overlay) m_overlay->hide(); m_enabled = false; }
 void SysInfoUiBridge::hideAll() { hideOverlayOnly(); }
 
-void SysInfoUiBridge::applyAppearance(const QString& locale, const QString& theme, const QJsonObject&)
+void SysInfoUiBridge::showSettings()
 {
-    m_locale = locale; m_themeSetting = theme; m_dark = resolveTheme() == QStringLiteral("dark"); refreshSnapshot();
+    if (!m_settingsWindow) {
+        m_settingsWindow = new SettingsWindow;
+        m_settingsWindow->setAppearance(m_locale, resolveTheme(), m_nativeLook);
+        connect(m_settingsWindow, &SettingsWindow::settingEdited, this, [this](const QJsonObject& changes) {
+            const QJsonObject changed = m_store->patch(changes);
+            if (!changed.isEmpty()) {
+                applySettings(m_store->get());
+                emit settingsEdited(changed);
+            }
+        });
+        connect(m_settingsWindow, &SettingsWindow::previewRequested, this, [this](const QJsonObject& changes) {
+            m_store->preview(changes);
+            applySettings(m_store->get());
+        });
+        connect(m_settingsWindow, &SettingsWindow::previewCommitted, this, [this] {
+            const QJsonObject changed = m_store->commitPreview();
+            if (!changed.isEmpty()) {
+                applySettings(m_store->get());
+                emit settingsEdited(changed);
+            }
+        });
+    }
+    m_settingsWindow->setSettings(m_store->get());
+    m_settingsWindow->show();
+}
+
+void SysInfoUiBridge::applyAppearance(const QString& locale, const QString& theme, const QJsonObject& nativeLook)
+{
+    m_locale = locale; m_nativeLook = nativeLook; m_dark = resolveTheme() == QStringLiteral("dark");
+    if (m_settingsWindow) m_settingsWindow->setAppearance(locale, theme, nativeLook);
+    refreshSnapshot();
 }
 
 void SysInfoUiBridge::applySettings(const Settings& settings)
 {
     const Settings previous = m_settings; m_settings = settings; m_dark = resolveTheme() == QStringLiteral("dark");
+    if (m_settingsWindow) m_settingsWindow->setSettings(settings);
+    if (m_overlay) {
+        NativeOverlayModel model;
+        model.dark=m_dark; model.edgeHide=settings.edgeHide; model.freeHideEnabled=settings.freeHide;
+        model.freeHideDelayMs=settings.freeHideDelayMs; model.animations=settings.animations;
+        model.radius=settings.radius; model.scale=settings.scale/100.f;
+        m_overlay->setModel(model);
+    }
     if(m_sampler) m_sampler->setInterval(settings.intervalMs);
     const bool layoutChanged = previous.scale != settings.scale || previous.columns != settings.columns ||
                                previous.cellWidth != settings.cellWidth || previous.cellHeight != settings.cellHeight ||
                                previous.metrics != settings.metrics || previous.tiny != settings.tiny || previous.position != settings.position || previous.padding != settings.padding;
     applyGeometry(); if (m_overlay && layoutChanged) placeWindow(settings.position != QStringLiteral("free"));
-    applyClickThrough(); if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible); if (!settings.edgeHide) setEdgeCollapsed(false);
+    applyClickThrough();
+    if (m_overlay) m_overlay->setCaptureVisible(settings.captureVisible);
+    if (!settings.edgeHide) {
+        m_edgeCollapsed = false;
+        if (m_overlay) m_overlay->setCollapsed(false);
+    } else if (layoutChanged && m_edgeCollapsed) {
+        m_edgeCollapsed = false;
+        setEdgeCollapsed(true);
+    }
     if (settings.enabled) showOverlay(); else hideOverlayOnly();
     refreshSnapshot();
 }
 
-void SysInfoUiBridge::setEdgeCollapsed(bool collapsed)
+bool SysInfoUiBridge::setEdgeCollapsed(bool collapsed)
 {
-    if (!m_settings.edgeHide) collapsed = false;
-    if (m_edgeCollapsed == collapsed) return;
-    if (m_overlay) {
-        const QRect rect = m_overlay->geometry();
-        const MonitorWork work = monitorWork(rect);
-        const QRect area = work.area.isValid() ? work.area : availableArea();
-        const int left=std::abs(rect.left()-area.left()), right=std::abs(rect.right()-area.right());
-        const int top=std::abs(rect.top()-area.top()), bottom=std::abs(rect.bottom()-area.bottom());
-        int nearest = left;
-        QString side = QStringLiteral("left");
-        if (right < nearest) { nearest = right; side = QStringLiteral("right"); }
-        if (top < nearest) { nearest = top; side = QStringLiteral("top"); }
-        if (bottom < nearest) { nearest = bottom; side = QStringLiteral("bottom"); }
-        if (collapsed && nearest > qRound(12 * m_settings.scale / 100.0))
-            return;
-        m_edgeSide = side;
-        m_edgeCollapsed = collapsed;
-        m_overlay->setEdgeCollapsed(collapsed, m_edgeSide);
-    } else {
-        m_edgeCollapsed = collapsed;
+    if (!m_overlay || (collapsed && !m_settings.edgeHide)) return false;
+    if (m_edgeCollapsed == collapsed) return collapsed;
+
+    QRect rect = m_overlay->geometry();
+    const MonitorWork work = monitorWork(rect);
+    const QRect area = work.area.isValid() ? work.area : availableArea();
+    if (!collapsed) {
+        m_edgeCollapsed = false;
+        m_overlay->setCollapsed(false);
+        return false;
     }
+
+    const int left = std::abs(rect.left() - area.left());
+    const int right = std::abs(rect.right() - area.right());
+    const int top = std::abs(rect.top() - area.top());
+    const int bottom = std::abs(rect.bottom() - area.bottom());
+    const int nearest = std::min({left, right, top, bottom});
+    if (nearest > qRound(12 * m_settings.scale / 100.0)) return false;
+    if (nearest == top) {
+        m_edgeSide = QStringLiteral("top");
+        rect.moveTop(area.top());
+    } else if (nearest == bottom) {
+        m_edgeSide = QStringLiteral("bottom");
+        rect.moveBottom(area.bottom());
+    } else if (nearest == left) {
+        m_edgeSide = QStringLiteral("left");
+        rect.moveLeft(area.left());
+    } else {
+        m_edgeSide = QStringLiteral("right");
+        rect.moveRight(area.right());
+    }
+    const bool vertical = nearest != top && nearest != bottom;
+    const int anchor = vertical ? rect.top() + rect.height() / 2
+        : std::clamp(m_releaseX.value_or(rect.center().x()), rect.left(), rect.right());
+    if (rect != m_overlay->geometry()) {
+        m_overlay->setGeometry(rect);
+        m_windowPos = rect;
+        saveWindowState();
+    }
+    m_edgeCollapsed = true;
+    m_overlay->setEdgeCollapsed(true, m_edgeSide, anchor, area);
+    return true;
 }
 
-void SysInfoUiBridge::handleMoved(const QPoint& position)
+void SysInfoUiBridge::handleMoved(const QPoint& position, const QPoint& cursor)
 {
     if (!m_overlay) return;
+    m_releaseX = cursor.x();
     QRect rect=m_overlay->geometry(); rect.moveTopLeft(position);
     const MonitorWork work = monitorWork(rect);
     rect = clampToWork(rect, work.area.isValid() ? work.area : availableArea());
@@ -209,6 +283,7 @@ void SysInfoUiBridge::handleMoved(const QPoint& position)
         else if(std::abs(rect.bottom()-area.bottom())<=threshold) rect.moveBottom(area.bottom());
     }
     m_overlay->setGeometry(rect); m_windowPos=rect; updateSavedScreen(); saveWindowState();
+    if (m_settings.edgeHide) setEdgeCollapsed(true);
     if (m_settings.position != QStringLiteral("free")) {
         const QJsonObject changed=m_store->patch({{QStringLiteral("position"),QStringLiteral("free")}});
         if (!changed.isEmpty()) { m_settings=m_store->get(); emit settingsEdited(changed); }
@@ -220,6 +295,8 @@ void SysInfoUiBridge::refreshSnapshot()
     if (!m_overlay || !m_sampler) return;
     const Sample sample=m_sampler->get(); const bool zh=m_locale!=QStringLiteral("en");
     NativeOverlayModel model; model.dark=m_dark; model.tiny=m_settings.tiny; model.edgeHide=m_settings.edgeHide;
+    model.freeHideEnabled=m_settings.freeHide; model.freeHideDelayMs=m_settings.freeHideDelayMs;
+    model.animations=m_settings.animations; model.radius=m_settings.radius; model.scale=m_settings.scale/100.f;
     model.waveBackground=m_settings.wavePlacement==QStringLiteral("background") ||
         (m_settings.wavePlacement==QStringLiteral("auto") && m_settings.sparklines==QStringLiteral("wash"));
     model.waveHeight=m_settings.waveHeight;

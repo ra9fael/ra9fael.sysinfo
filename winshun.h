@@ -918,7 +918,7 @@ public:
     // shows it, Win顺 asks again now instead of when `rerun` is up. Call it
     // after the state the next query reads is written. Otherwise nothing.
     void refresh() { notify("winshun/refresh", Json::Object {}); }
-    void updateHostSettings(Json values)
+    void updateSettings(Json values)
     {
         notify("winshun/settings/update", Json::Object {{"settings", std::move(values)}});
     }
@@ -953,6 +953,7 @@ protected:
         return {effect::copy(text), effect::notify(chinese() ? "已复制" : "Copied"), effect::hide()};
     }
     virtual void settingsChanged(const Json& settings) { (void)settings; }
+    virtual void showSettings() {}
     // An item made withDetails() shown in the content pane or the preview
     // (GitHub #202): Json::Object {{"text", …}} or {{"file", a file in
     // dataDir()}}. Without it (nullopt): "method not found", and the pane
@@ -1098,6 +1099,9 @@ private:
         } else if (method == "settingsChanged") {
             m_settings = params["settings"];
             settingsChanged(m_settings);
+        } else if (method == "showSettings") {
+            showSettings();
+            answer(Json::Object {});
         } else if (method == "hotkey") {
             hotkey(params["key"].toString());
         } else if (method == "appearance") {

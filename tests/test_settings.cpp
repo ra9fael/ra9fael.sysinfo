@@ -2,10 +2,10 @@
 #include "../glass_engine.h"
 #include "../sysinfo_core.h"
 #include "../sysinfo_settings.h"
-
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QTemporaryDir>
 
 #include <cassert>
 #include <cmath>
@@ -45,18 +45,29 @@ static void testSettings()
 {
     // 清单里的键和设置模型一一对应
     const QStringList keys = settingKeys();
-    assert(keys.size() == 42);
-    assert(keys.contains("waveColors") && keys.contains("glassStyle") && keys.contains("tileSize"));
-    assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("blur")
-            && keys.contains("fontFamily") && keys.contains("refraction") && keys.contains("dispersion")
-            && keys.contains("rimLight") && keys.contains("surfaceMotion") && keys.contains("captureVisible"));
+    assert(keys.size() == 9);
+    const QStringList advanced = advancedSettingKeys();
+    assert(advanced.size() == 35);
+    assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
+    assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
+            && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
+            && keys.contains("freeHide") && keys.contains("freeHideDelayMs") && keys.contains("clickThrough"));
     QFile manifest(QStringLiteral(SYSINFO_SOURCE_DIR "/plugin.json"));
     assert(manifest.open(QIODevice::ReadOnly));
     const QJsonArray declared = QJsonDocument::fromJson(manifest.readAll()).object().value("settings").toArray();
     QStringList declaredKeys;
-    for (const QJsonValue& setting : declared)
-        declaredKeys.append(setting.toObject().value("key").toString());
+    QJsonObject freeHideDelay;
+    for (const QJsonValue& setting : declared) {
+        const QJsonObject object = setting.toObject();
+        declaredKeys.append(object.value("key").toString());
+        if (object.value("key").toString() == "freeHideDelayMs")
+            freeHideDelay = object;
+        assert(!object.value("title").toObject().value("zh").toString().startsWith("基本"));
+        assert(!object.value("title").toObject().value("en").toString().startsWith("General"));
+    }
     assert(declaredKeys == keys);
+    assert(freeHideDelay.value("min").toInt() == 500 && freeHideDelay.value("max").toInt() == 30000);
+    assert(Settings::fromJson({{"freeHideDelayMs", 50000}}).freeHideDelayMs == 30000);
 
     // 默认值
     SettingsStore store;
@@ -82,7 +93,7 @@ static void testSettings()
     assert(slotList[3] == "memory" && slotList[4] == "gpu" && slotList[5] == "netDown");
 
     // 宿主的合并结果
-    store.reset(defaults.toJson());
+    store.resetHostSettings(defaults.toJson());
     assert(store.get().sparklines == "inline");
 
     // 改动：值收敛、返回变化子集
@@ -117,10 +128,16 @@ static void testSettings()
     assert(store.patch({{"nope", true}}).isEmpty());
     assert(store.patch({{"scale", "wide"}}).isEmpty());
 
+    // 波形颜色只接受一个或六个 #RRGGBB
+    assert(validWaveColors("#123456"));
+    assert(validWaveColors("#123456,#654321,#abcdef,#fedcba,#012345,#6789ab"));
+    assert(!validWaveColors("#123456,#654321"));
+    assert(!validWaveColors("red"));
+    assert(Settings::fromJson({{"waveColors", "#GGGGGG"}}).waveColors == Settings().waveColors);
+
     // metrics：忽略未知项，空项保持为空格且不再补齐。
     {
         SettingsStore probe;
-        probe.reset(Settings().toJson());
         const QJsonObject r = probe.patch({{"metrics", "gpu,, netDown;nope"}});
         assert(r.contains("metrics"));
         const QStringList slots2 = probe.get().slotList();
@@ -142,8 +159,8 @@ static void testSettings()
     {
         Settings probe;
         probe.metrics = "cpu,disk,netUp,memory,gpu,netDown";
-        const QStringList slotList = probe.slotList();
-        assert(slotList.join(',') == "cpu,disk,netUp,memory,gpu,netDown");
+        const QStringList slotNames = probe.slotList();
+        assert(slotNames.join(',') == "cpu,disk,netUp,memory,gpu,netDown");
     }
 
     {
@@ -154,6 +171,94 @@ static void testSettings()
         assert(rows.size() == 2);
         assert(rows[0].size() == 3 && rows[0][0] == "cpu" && rows[0][1].isEmpty() && rows[0][2] == "netUp");
         assert(rows[1].join(',') == "memory,gpu,netDown");
+    }
+}
+
+static void testSettingsStorage()
+{
+    QTemporaryDir dir;
+    assert(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("advanced-settings.json"));
+
+    // 首次运行：宿主发来的旧字符串值换成正确类型，高级值落到本地文件
+    {
+        SettingsStore store;
+        store.initialize({{"fontSize", "150"}, {"edgeSnap", "false"}, {"sparklines", "wash"},
+                          {"theme", "dark"}, {"enabled", true}}, path);
+        const Settings s = store.get();
+        assert(s.fontSize == 150 && !s.edgeSnap && s.sparklines == "wash" && s.theme == "dark");
+        assert(s.enabled);
+        QFile file(path);
+        assert(file.open(QIODevice::ReadOnly));
+        const QJsonObject saved = QJsonDocument::fromJson(file.readAll()).object();
+        assert(saved.value("sparklines").toString() == "wash");
+        assert(!saved.contains("enabled"));
+    }
+
+    // 再次启动：本地文件优先，宿主键仍来自宿主
+    {
+        SettingsStore store;
+        store.initialize({{"sparklines", "bars"}, {"enabled", false}}, path);
+        assert(store.get().sparklines == "wash");
+        assert(!store.get().enabled);
+    }
+
+    // 高级值改动立即写盘；宿主键改动只留在内存
+    {
+        SettingsStore store;
+        store.initialize({}, path);
+        store.patch({{"blur", 12}, {"enabled", true}});
+        QFile file(path);
+        assert(file.open(QIODevice::ReadOnly));
+        const QJsonObject saved = QJsonDocument::fromJson(file.readAll()).object();
+        assert(saved.value("blur").toInt() == 12);
+
+        store.resetHostSettings({{"enabled", true}, {"scale", 150}, {"locked", true}});
+        assert(store.get().enabled && store.get().scale == 150 && store.get().locked);
+        assert(store.get().blur == 12);
+    }
+
+    // 拖动预览只在提交时落盘
+    {
+        SettingsStore store;
+        store.initialize({}, path);
+        auto savedBlur = [&]() {
+            QFile file(path);
+            assert(file.open(QIODevice::ReadOnly));
+            return QJsonDocument::fromJson(file.readAll()).object().value("blur").toInt();
+        };
+        store.preview({{"blur", 30}});
+        assert(store.get().blur == 30);
+        assert(savedBlur() == 12);
+        const QJsonObject committed = store.commitPreview();
+        assert(committed.contains("blur") && committed.value("blur").toInt() == 30);
+        assert(!store.commitPreview().contains("blur"));
+        assert(savedBlur() == 30);
+    }
+
+    // 取消预览回到原值
+    {
+        SettingsStore store;
+        store.initialize({}, path);
+        store.preview({{"blur", 70}});
+        assert(store.get().blur == 70);
+        store.cancelPreview();
+        assert(store.get().blur == 30);
+    }
+
+    // 无法解析的文件按缺失处理并重写
+    {
+        const QString broken = dir.filePath(QStringLiteral("broken.json"));
+        QFile file(broken);
+        assert(file.open(QIODevice::WriteOnly));
+        file.write("{");
+        file.close();
+        SettingsStore store;
+        store.initialize({{"sparklines", "bars"}}, broken);
+        assert(store.get().sparklines == "bars");
+        QFile check(broken);
+        assert(check.open(QIODevice::ReadOnly));
+        assert(QJsonDocument::fromJson(check.readAll()).object().value("sparklines").toString() == "bars");
     }
 }
 
@@ -171,6 +276,7 @@ int main()
 {
     testCore();
     testSettings();
+    testSettingsStorage();
     testGlassMath();
     std::cout << "sysinfo tests: all passed\n";
     return 0;

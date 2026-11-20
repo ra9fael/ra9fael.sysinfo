@@ -27,7 +27,7 @@ ApplicationWindow {
         "general": "常用", "layout": "布局", "text": "文字", "charts": "波形",
         "material": "材质", "interaction": "交互与录屏", "close": "关闭",
         "showMonitor": "显示监视窗", "interval": "采样间隔（毫秒）", "tiny": "Tiny 紧凑模式",
-        "scale": "整体缩放（%）", "lock": "锁定位置", "edgeHide": "贴边自动隐藏",
+        "scale": "整体缩放（%）", "lock": "锁定位置", "edgeHide": "贴边自动隐藏", "freeHide": "非贴边自动隐藏", "freeHideDelay": "非贴边收起延时（毫秒）",
         "clickThrough": "鼠标穿透", "cellOrder": "单元格顺序", "blank": "空格",
         "columns": "每行列数", "cellWidth": "单元格宽度（px）", "cellHeight": "单元格高度（px）",
         "padding": "面板内边距（px）", "dividers": "显示分隔线", "dividerOpacity": "分隔线不透明度（%）",
@@ -57,7 +57,7 @@ ApplicationWindow {
         "general": "General", "layout": "Layout", "text": "Text", "charts": "Charts",
         "material": "Material", "interaction": "Interaction & capture", "close": "Close",
         "showMonitor": "Show monitor", "interval": "Sampling interval (ms)", "tiny": "Tiny mode",
-        "scale": "Overall scale (%)", "lock": "Lock position", "edgeHide": "Auto-hide at edge",
+        "scale": "Overall scale (%)", "lock": "Lock position", "edgeHide": "Auto-hide at edge", "freeHide": "Auto-hide away from edges", "freeHideDelay": "Free-position delay (ms)",
         "clickThrough": "Click-through", "cellOrder": "Cell order", "blank": "Blank",
         "columns": "Columns per row", "cellWidth": "Cell width (px)", "cellHeight": "Cell height (px)",
         "padding": "Panel padding (px)", "dividers": "Show dividers", "dividerOpacity": "Divider opacity (%)",
@@ -180,6 +180,8 @@ ApplicationWindow {
         scaleRow.value = v.scale
         lockBox.checked = v.locked === true
         edgeHideBox.checked = v.edgeHide === true
+        freeHideBox.checked = v.freeHide === true
+        freeHideDelayRow.value = v.freeHideDelayMs || 3000
         clickThroughBox.checked = v.clickThrough === true
 
         cells = splitMetrics(v.metrics)
@@ -241,6 +243,7 @@ ApplicationWindow {
         id: comboItem
         required property int index
         text: typeof modelData === "string" ? modelData : modelData.text
+        required property var modelData
         width: ListView.view.width
         highlighted: ListView.isCurrentItem
         contentItem: Label {
@@ -558,6 +561,7 @@ ApplicationWindow {
 
         TabBar {
             id: tabs
+            objectName: "tabs"
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             spacing: 0
@@ -648,6 +652,12 @@ ApplicationWindow {
                         CheckRow { id: edgeHideBox; labelText: root.t.edgeHide
                             onChanged: if (!root.loading) sysinfo.edit("edgeHide", checked) }
                         SettingDivider {}
+                        CheckRow { id: freeHideBox; labelText: root.t.freeHide
+                            onChanged: if (!root.loading) sysinfo.edit("freeHide", checked) }
+                        SettingDivider {}
+                        NumberRow { id: freeHideDelayRow; labelText: root.t.freeHideDelay; from: 500; to: 30000; stepSize: 100
+                            onEdited: sysinfo.edit("freeHideDelayMs", value); onPreviewed: sysinfo.preview("freeHideDelayMs", value); onCommitted: sysinfo.commitPreview() }
+                        SettingDivider {}
                         CheckRow { id: clickThroughBox; labelText: root.t.clickThrough
                             onChanged: if (!root.loading) sysinfo.edit("clickThrough", checked) }
                     }
@@ -678,6 +688,7 @@ ApplicationWindow {
                             columnSpacing: 8
                             rowSpacing: 4
                             Repeater {
+                                objectName: "metricCombos"
                                 model: 6
                                 ComboBox {
                                     id: cellCombo

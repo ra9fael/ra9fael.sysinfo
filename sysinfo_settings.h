@@ -1,8 +1,9 @@
-// 用户设置：清单里声明的那些项，由宿主插件卡保存并通过 settingsChanged 下发。
+// 用户设置：常用项仍由宿主插件卡保存并通过 settingsChanged 下发；布局、文字、
+// 波形、材质与交互等高级项写在插件数据目录的 advanced-settings.json。
 //
-// 宿主是唯一的存储方：插件改值时发 winshun/settings/update，宿主写 INI 再回
-// settingsChanged（默认值 + 用户值合并后的对象）。这里只是那份对象的本地副本，
-// 顺便做类型校验和取值范围的收敛。
+// 宿主是常用项的存储方：插件改值时发 winshun/settings/update，宿主写 INI 再回
+// settingsChanged（默认值 + 用户值合并后的对象）。高级项只在本地保存，首次运行
+// 从宿主已有的旧值迁移。
 #pragma once
 
 #include <QMutex>
@@ -47,6 +48,8 @@ struct Settings {
     QString fontFamily = QStringLiteral("Segoe UI Variable Text");
     bool tiny = false;
     bool edgeHide = false;
+    bool freeHide = false;
+    int freeHideDelayMs = 3000;
     bool edgeSnap = true;
     bool animations = true;
     bool showLabels = true;
@@ -64,20 +67,33 @@ struct Settings {
     static Settings fromJson(const QJsonObject& values);
 };
 
-// 清单里的键（和 plugin.json 的 settings[] 一一对应，测试会核对）。
+// 宿主卡片声明的键（和 plugin.json 的 settings[] 一一对应，测试会核对）。
 QStringList settingKeys();
+QStringList hostSettingKeys();
+QStringList advancedSettingKeys();
+bool validWaveColors(const QString& value);
 
 class SettingsStore {
 public:
     Settings get() const;
-    // 宿主的合并结果（initialize / settingsChanged）。
-    void reset(const QJsonObject& merged);
+    // 首次运行迁移宿主中已有的高级项，之后以本地文件为准。
+    void initialize(const QJsonObject& merged, const QString& advancedPath);
+    // 只接收宿主拥有的常用项；高级项留在本地。
+    void resetHostSettings(const QJsonObject& merged);
     // 本地改动：校验、收敛，返回真正变了的键（用来发给宿主）；没变返回空对象。
     QJsonObject patch(const QJsonObject& changes);
+    void preview(const QJsonObject& changes);
+    QJsonObject commitPreview();
+    void cancelPreview();
 
 private:
+    void saveAdvancedSettings(const Settings& settings) const;
+
     mutable QMutex m_mutex;
     Settings m_settings;
+    QString m_advancedPath;
+    Settings m_previewBase;
+    bool m_previewActive = false;
 };
 
 } // namespace sysinfo

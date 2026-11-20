@@ -1,4 +1,5 @@
 #include "native_overlay.h"
+
 #include <liquid_glass/window.h>
 #include <d2d1_3.h>
 #include <dwrite.h>
@@ -7,6 +8,7 @@
 #include <QColor>
 #include <cstdio>
 #include <chrono>
+#include <optional>
 
 namespace sysinfo {
 namespace {
@@ -15,6 +17,7 @@ liquid_glass::Edge edge(const QString& s) {
     if (s == QStringLiteral("left")) return liquid_glass::Edge::Left;
     if (s == QStringLiteral("top")) return liquid_glass::Edge::Top;
     if (s == QStringLiteral("bottom")) return liquid_glass::Edge::Bottom;
+    if (s == QStringLiteral("center")) return liquid_glass::Edge::Center;
     return liquid_glass::Edge::Right;
 }
 QImage image(const liquid_glass::Image& v) {
@@ -162,8 +165,8 @@ NativeOverlay::NativeOverlay():m(std::make_unique<Impl>()) {
         const auto now=std::chrono::steady_clock::now();
         std::fprintf(stderr,"FRAME %.3f %.3f %.3f %.3f\n",frame,capture,gpu,std::chrono::duration<double,std::milli>(now-last).count());last=now;
     };
-    m->window.moved=[this](liquid_glass::Point p){if(moved)moved(QPoint(p.x,p.y));};
-    m->window.edgeCollapsedChanged=[this](bool v){if(edgeCollapsedChanged)edgeCollapsedChanged(v);};
+    m->window.moved=[this](liquid_glass::Point p, liquid_glass::Point cursor){if(moved)moved(QPoint(p.x,p.y),QPoint(cursor.x,cursor.y));};
+    m->window.edgeCollapsedChanged=[this](bool v){return edgeCollapsedChanged?edgeCollapsedChanged(v):false;};
     m->window.paintContent=[this](const liquid_glass::ContentFrame& f){m->paint(f);};
 }
 NativeOverlay::~NativeOverlay()=default;
@@ -181,14 +184,20 @@ void NativeOverlay::setLocked(bool v){m->window.setLocked(v);}
 void NativeOverlay::setModel(NativeOverlayModel model){
     m->model=std::move(model); const auto& v=m->model;
     liquid_glass::Material material;
-    material.dark=v.dark; material.edgeHide=v.edgeHide; material.debugPattern=v.debugPattern;
+    material.dark=v.dark; material.edgeHide=v.edgeHide; material.freeHideEnabled=v.freeHideEnabled; material.freeHideDelayMs=v.freeHideDelayMs; material.debugPattern=v.debugPattern;
     material.animations=v.animations;
     material.style=v.glassStyle; material.tileSize=static_cast<float>(v.tileSize);
     material.radius=v.radius; material.blur=v.blur; material.glass=v.glass; material.refraction=v.refraction;
     material.dispersion=v.dispersion; material.rimLight=v.rimLight; material.surfaceMotion=v.surfaceMotion; material.scale=v.scale;
     m->window.setMaterial(material);
 }
-void NativeOverlay::setEdgeCollapsed(bool v,const QString& side){m->window.setEdgeCollapsed(v,edge(side));}
+void NativeOverlay::setEdgeCollapsed(bool v,const QString& side,int anchor,const QRect& workArea){
+    const bool vertical=side==QStringLiteral("left")||side==QStringLiteral("right");
+    m->window.setEdgeCollapsed(v,edge(side),anchor<0?std::optional<int>{}:std::optional<int>{anchor},
+        vertical?workArea.top():workArea.left(),vertical?workArea.bottom()+1:workArea.left()+workArea.width());
+}
+void NativeOverlay::setFreeCollapsed(bool v){m->window.setFreeCollapsed(v);}
+void NativeOverlay::setCollapsed(bool v){m->window.setCollapsed(v);}
 bool NativeOverlay::edgeCollapsed() const{return m->window.edgeCollapsed();}
 void NativeOverlay::render(){m->window.render();}
 QImage NativeOverlay::snapshot() const{return image(m->window.snapshot());}

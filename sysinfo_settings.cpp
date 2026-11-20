@@ -1,6 +1,11 @@
 #include "sysinfo_settings.h"
 
-#include <QSet>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QSaveFile>
+#include <QColor>
 #include <QRegularExpression>
 
 #include <algorithm>
@@ -117,6 +122,8 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("fontFamily"), fontFamily},
                         {QStringLiteral("tiny"), tiny},
                          {QStringLiteral("edgeHide"), edgeHide},
+                         {QStringLiteral("freeHide"), freeHide},
+                         {QStringLiteral("freeHideDelayMs"), freeHideDelayMs},
                          {QStringLiteral("edgeSnap"), edgeSnap},
                         {QStringLiteral("animations"), animations},
                         {QStringLiteral("showLabels"), showLabels},
@@ -137,7 +144,8 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.enabled = v.value(QStringLiteral("enabled")).toBool(s.enabled);
     s.sparklines = choice(v.value(QStringLiteral("sparklines")),
                           {QStringLiteral("off"), QStringLiteral("inline"), QStringLiteral("wash"), QStringLiteral("dotted"), QStringLiteral("bars")}, s.sparklines);
-    if(v.value(QStringLiteral("waveColors")).isString()) s.waveColors=v.value(QStringLiteral("waveColors")).toString();
+    if (v.value(QStringLiteral("waveColors")).isString() && validWaveColors(v.value(QStringLiteral("waveColors")).toString()))
+        s.waveColors = v.value(QStringLiteral("waveColors")).toString();
     s.wavePlacement = choice(v.value(QStringLiteral("wavePlacement")),
         {QStringLiteral("auto"), QStringLiteral("below"), QStringLiteral("background")}, s.wavePlacement);
     s.waveHeight = clampInt(v.value(QStringLiteral("waveHeight")), s.waveHeight, 0, 136);
@@ -193,6 +201,10 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.tiny = v.value(QStringLiteral("tiny")).toBool(s.tiny);
     if (v.contains(QStringLiteral("edgeHide")))
         s.edgeHide = v.value(QStringLiteral("edgeHide")).toBool(s.edgeHide);
+    if (v.contains(QStringLiteral("freeHide")))
+        s.freeHide = v.value(QStringLiteral("freeHide")).toBool(s.freeHide);
+    if (v.contains(QStringLiteral("freeHideDelayMs")))
+        s.freeHideDelayMs = clampInt(v.value(QStringLiteral("freeHideDelayMs")),s.freeHideDelayMs,500,30000);
     s.edgeSnap = v.value(QStringLiteral("edgeSnap")).toBool(s.edgeSnap);
     if (v.contains(QStringLiteral("animations")))
         s.animations = v.value(QStringLiteral("animations")).toBool(s.animations);
@@ -215,22 +227,44 @@ Settings Settings::fromJson(const QJsonObject& v)
 
 QStringList settingKeys()
 {
+    return hostSettingKeys();
+}
+
+QStringList hostSettingKeys()
+{
+    return {QStringLiteral("enabled"), QStringLiteral("intervalMs"), QStringLiteral("tiny"),
+            QStringLiteral("scale"), QStringLiteral("locked"), QStringLiteral("edgeHide"),
+            QStringLiteral("freeHide"), QStringLiteral("freeHideDelayMs"),
+            QStringLiteral("clickThrough")};
+}
+
+QStringList advancedSettingKeys()
+{
     static const QStringList keys = {
-        QStringLiteral("enabled"), QStringLiteral("intervalMs"),
-        QStringLiteral("metrics"), QStringLiteral("columns"), QStringLiteral("tiny"),
-        QStringLiteral("cellWidth"), QStringLiteral("cellHeight"), QStringLiteral("padding"),
-        QStringLiteral("scale"), QStringLiteral("dividers"), QStringLiteral("dividerOpacity"),
-        QStringLiteral("fontFamily"), QStringLiteral("fontSize"), QStringLiteral("showLabels"),
-        QStringLiteral("showValues"), QStringLiteral("showUnits"),
+        QStringLiteral("metrics"), QStringLiteral("columns"), QStringLiteral("cellWidth"),
+        QStringLiteral("cellHeight"), QStringLiteral("padding"), QStringLiteral("dividers"),
+        QStringLiteral("dividerOpacity"), QStringLiteral("fontFamily"), QStringLiteral("fontSize"),
+        QStringLiteral("showLabels"), QStringLiteral("showValues"), QStringLiteral("showUnits"),
         QStringLiteral("sparklines"), QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"),
-        QStringLiteral("waveDots"), QStringLiteral("waveColors"), QStringLiteral("waveOpacity"), QStringLiteral("waveBelowOpacity"),
-        QStringLiteral("theme"), QStringLiteral("glassStyle"), QStringLiteral("glass"), QStringLiteral("blur"),
-        QStringLiteral("refraction"), QStringLiteral("dispersion"), QStringLiteral("rimLight"),
-        QStringLiteral("tileSize"), QStringLiteral("radius"), QStringLiteral("shadow"),
-        QStringLiteral("displayTarget"), QStringLiteral("position"), QStringLiteral("locked"),
-        QStringLiteral("edgeSnap"), QStringLiteral("edgeHide"), QStringLiteral("clickThrough"),
-        QStringLiteral("animations"), QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
+        QStringLiteral("waveDots"), QStringLiteral("waveColors"), QStringLiteral("waveOpacity"),
+        QStringLiteral("waveBelowOpacity"), QStringLiteral("theme"), QStringLiteral("glassStyle"),
+        QStringLiteral("glass"), QStringLiteral("blur"), QStringLiteral("refraction"),
+        QStringLiteral("dispersion"), QStringLiteral("rimLight"), QStringLiteral("tileSize"),
+        QStringLiteral("radius"), QStringLiteral("shadow"), QStringLiteral("displayTarget"),
+        QStringLiteral("position"), QStringLiteral("edgeSnap"), QStringLiteral("animations"),
+        QStringLiteral("surfaceMotion"), QStringLiteral("captureVisible")};
     return keys;
+}
+
+bool validWaveColors(const QString& value)
+{
+    const QStringList colors = value.split(QLatin1Char(','), Qt::KeepEmptyParts);
+    if (colors.size() != 1 && colors.size() != 6)
+        return false;
+    static const QRegularExpression hex(QStringLiteral("^#[0-9A-Fa-f]{6}$"));
+    return std::all_of(colors.cbegin(), colors.cend(), [&](const QString& color) {
+        return hex.match(color.trimmed()).hasMatch() && QColor(color.trimmed()).isValid();
+    });
 }
 
 Settings SettingsStore::get() const
@@ -239,16 +273,10 @@ Settings SettingsStore::get() const
     return m_settings;
 }
 
-void SettingsStore::reset(const QJsonObject& merged)
-{
-    const Settings parsed = Settings::fromJson(merged);
-    const QMutexLocker lock(&m_mutex);
-    m_settings = parsed;
-}
-
 QJsonObject SettingsStore::patch(const QJsonObject& changes)
 {
-    const Settings before = get();
+    const QMutexLocker lock(&m_mutex);
+    const Settings before = m_settings;
     QJsonObject merged = before.toJson();
     for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
         if (merged.contains(it.key()) && merged.value(it.key()).type() == it.value().type())
@@ -264,10 +292,129 @@ QJsonObject SettingsStore::patch(const QJsonObject& changes)
             changed.insert(it.key(), it.value());
     }
     if (!changed.isEmpty()) {
-        const QMutexLocker lock(&m_mutex);
         m_settings = after;
+        bool advancedChanged = false;
+        for (auto it = changed.constBegin(); it != changed.constEnd() && !advancedChanged; ++it)
+            advancedChanged = advancedSettingKeys().contains(it.key());
+        if (advancedChanged && !m_previewActive)
+            saveAdvancedSettings(m_settings);
     }
     return changed;
+}
+
+void SettingsStore::initialize(const QJsonObject& merged, const QString& advancedPath)
+{
+    m_advancedPath = advancedPath;
+    QJsonObject migrated = merged;
+    const QJsonObject defaults = Settings().toJson();
+    for (const QString& key : advancedSettingKeys()) {
+        const QJsonValue value = migrated.value(key);
+        if (value.isString() && defaults.value(key).isDouble()) {
+            bool ok = false;
+            const double number = value.toString().toDouble(&ok);
+            if (ok)
+                migrated.insert(key, number);
+        } else if (value.isString() && defaults.value(key).isBool()) {
+            const QString text = value.toString();
+            migrated.insert(key, text.compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0 || text == QStringLiteral("1"));
+        }
+    }
+    Settings initial = Settings::fromJson(migrated);
+    QFile file(m_advancedPath);
+    bool loaded = false;
+    if (file.open(QIODevice::ReadOnly)) {
+        QJsonParseError error{};
+        const QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &error);
+        if (error.error == QJsonParseError::NoError && document.isObject()) {
+            const QJsonObject saved = document.object();
+            QJsonObject combined = initial.toJson();
+            for (const QString& key : advancedSettingKeys()) {
+                if (saved.contains(key))
+                    combined.insert(key, saved.value(key));
+            }
+            initial = Settings::fromJson(combined);
+            loaded = true;
+        }
+        file.close();
+    }
+    if (!loaded)
+        saveAdvancedSettings(initial);
+    const QMutexLocker lock(&m_mutex);
+    m_settings = initial;
+    m_previewActive = false;
+}
+
+void SettingsStore::resetHostSettings(const QJsonObject& merged)
+{
+    const QMutexLocker lock(&m_mutex);
+    QJsonObject combined = m_settings.toJson();
+    for (const QString& key : hostSettingKeys()) {
+        if (merged.contains(key))
+            combined.insert(key, merged.value(key));
+    }
+    m_settings = Settings::fromJson(combined);
+}
+
+void SettingsStore::preview(const QJsonObject& changes)
+{
+    const QMutexLocker lock(&m_mutex);
+    if (!m_previewActive) {
+        m_previewBase = m_settings;
+        m_previewActive = true;
+    }
+    QJsonObject merged = m_settings.toJson();
+    for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
+        if (merged.contains(it.key()) && merged.value(it.key()).type() == it.value().type())
+            merged.insert(it.key(), it.value());
+    }
+    m_settings = Settings::fromJson(merged);
+}
+
+QJsonObject SettingsStore::commitPreview()
+{
+    const QMutexLocker lock(&m_mutex);
+    if (!m_previewActive)
+        return {};
+    const QJsonObject before = m_previewBase.toJson();
+    const QJsonObject after = m_settings.toJson();
+    QJsonObject changed;
+    for (auto it = after.constBegin(); it != after.constEnd(); ++it) {
+        if (it.value() != before.value(it.key()))
+            changed.insert(it.key(), it.value());
+    }
+    bool advancedChanged = false;
+    for (auto it = changed.constBegin(); it != changed.constEnd() && !advancedChanged; ++it)
+        advancedChanged = advancedSettingKeys().contains(it.key());
+    if (advancedChanged)
+        saveAdvancedSettings(m_settings);
+    m_previewActive = false;
+    return changed;
+}
+
+void SettingsStore::cancelPreview()
+{
+    const QMutexLocker lock(&m_mutex);
+    if (!m_previewActive)
+        return;
+    m_settings = m_previewBase;
+    m_previewActive = false;
+}
+
+void SettingsStore::saveAdvancedSettings(const Settings& settings) const
+{
+    if (m_advancedPath.isEmpty())
+        return;
+    const QFileInfo info(m_advancedPath);
+    QDir().mkpath(info.absolutePath());
+    QJsonObject advanced;
+    const QJsonObject all = settings.toJson();
+    for (const QString& key : advancedSettingKeys())
+        advanced.insert(key, all.value(key));
+    QSaveFile file(m_advancedPath);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(QJsonDocument(advanced).toJson(QJsonDocument::Compact));
+        file.commit();
+    }
 }
 
 } // namespace sysinfo

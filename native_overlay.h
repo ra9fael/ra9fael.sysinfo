@@ -5,6 +5,7 @@
 #include <QString>
 #include <QRect>
 #include <QImage>
+#include <QRect>
 
 #include <functional>
 #include <memory>
@@ -41,6 +42,8 @@ struct NativeOverlayModel {
     bool sparklines = true;
     bool animations = true;
     bool edgeHide = false;
+    int freeHideDelayMs = 0;
+    bool freeHideEnabled = false;
     bool showLabels = true;
     bool showValues = true;
     bool showUnits = true;
@@ -85,15 +88,17 @@ public:
     void setCaptureVisible(bool enabled);
     void setLocked(bool enabled);
     void setModel(NativeOverlayModel model);
-    void setEdgeCollapsed(bool collapsed, const QString& side);
+    void setEdgeCollapsed(bool collapsed, const QString& side, int anchor = -1, const QRect& workArea = {});
+    void setFreeCollapsed(bool collapsed);
+    void setCollapsed(bool collapsed);
     bool edgeCollapsed() const;
     void render();
     QImage snapshot() const;
     QImage backdropSnapshot() const;
     QImage capsuleSnapshot() const;
 
-    std::function<void(const QPoint&)> moved;
-    std::function<void(bool)> edgeCollapsedChanged;
+    std::function<void(const QPoint&, const QPoint&)> moved;
+    std::function<bool(bool)> edgeCollapsedChanged;
 
 private:
     struct Impl;
