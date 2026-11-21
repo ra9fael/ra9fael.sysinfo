@@ -3,7 +3,7 @@
   "manifest": 1,
   "id": "ra9fael.sysinfo",
   "name": {"zh": "系统信息", "en": "System Information"},
-  "version": "1.6.2",
+  "version": "1.6.5",
   "minWinShun": "0.30.0",
   "settingsWindow": true,
   "description": {

@@ -14,18 +14,18 @@ Sampling, settings, protocol, persistence and monitor placement stay in sysinfo.
 
 ## Independent commands
 
-Use a Visual Studio developer shell. From the workspace root:
+Use a Visual Studio developer shell from the `ra9fael.sysinfo` directory:
 
 ```powershell
-cmake -S liquid-glass-cpp -B build/liquid-glass-cpp -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -S third_party/liquid-glass-cpp -B build/liquid-glass-cpp -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build/liquid-glass-cpp
 ctest --test-dir build/liquid-glass-cpp --output-on-failure
 
-cmake -S ra9fael.sysinfo -B build/sysinfo-logic -G Ninja -DCMAKE_BUILD_TYPE=Release -DSYSINFO_BUILD_PLUGIN=OFF -DCMAKE_PREFIX_PATH=D:/tools/Qt/6.12.0/msvc2022_64
-cmake --build build/sysinfo-logic
-ctest --test-dir build/sysinfo-logic -L logic --output-on-failure
+cmake -S . -B ../build/sysinfo-logic -G Ninja -DCMAKE_BUILD_TYPE=Release -DSYSINFO_BUILD_PLUGIN=OFF -DCMAKE_PREFIX_PATH=D:/tools/Qt/6.12.0/msvc2022_64
+cmake --build ../build/sysinfo-logic
+ctest --test-dir ../build/sysinfo-logic -L logic --output-on-failure
 
-qmltestrunner -platform offscreen -input ra9fael.sysinfo/tests -o qml-junit.xml,junitxml
+qmltestrunner -platform offscreen -input tests -o qml-junit.xml,junitxml
 ```
 
 The plugin-only configuration does not configure hwinfo or liquid-glass-cpp.
@@ -35,13 +35,29 @@ tree against a stub bridge, so it runs without the plugin host.
 
 ## Test cases
 
-| ID | Layer | Input and expected result | Automation |
+| Case | Layer | Input and expected result | CTest label |
 |---|---|---|---|
-| UI-01 | Library GPU | Asymmetric gradient retains top/bottom and left/right orientation | render_tests |
-| UI-02 | Library GPU | Interior samples align with source coordinates, without a second desktop blend | render_tests |
-| UI-03 | Library GPU | All four rounded corners have zero alpha; center has full coverage | render_tests |
-| UI-04 | Library GPU | Resize 240→360→300→240 preserves output dimensions and sampling | render_tests |
-| UI-05 | Library GPU | Neutral checker blur stays neutral and smooths spatial contrast | render_tests |
+| `render-geometry-reveal` | Library GPU | Reveal geometry, anchors, work-area clipping and animation curves | `synthetic` |
+| `render-fixed-resize` | Library GPU | Asymmetric gradient keeps orientation and sampling through resize | `synthetic` |
+| `render-fixed-blur` | Library GPU | Neutral checker blur stays neutral and smooths spatial contrast | `synthetic` |
+| `render-edge-capsule-short` | Library GPU | Short panels constrain edge capsules to a semicircle | `synthetic` |
+| `render-edge-capsule-sides` | Library GPU | Collapsed capsules render and restore on all four edges | `synthetic` |
+| `render-click-through-edges` | Library GPU | Hover expands and pointer exit collapses click-through edges | `synthetic` |
+| `render-hit-testing` | Library GPU | Click-through and collapsed panels expose the underlying window | `synthetic` |
+| `render-capture-mapping-remote-scale` | Capture mapping | Half-resolution desktop textures preserve crop scale and coverage | `synthetic` |
+| `render-capture-mapping-monitor-change` | Capture mapping | Changed monitor origin and dimensions keep crops within the frame | `synthetic` |
+| `render-desktop-capture-visible` | Desktop capture | Visible and excluded capture modes omit panel content | `desktop` |
+| `render-desktop-capture-resize` | Desktop capture | Resizing recaptures the desktop and keeps corners transparent | `desktop` |
+| `render-capture-geometry-live` | Desktop capture | Capture geometry follows the current monitor rectangle | `desktop` |
+| `render-capture-lock` | Session | Lock preserves the last backdrop and releases capture | `desktop` |
+| `render-capture-unlock` | Session | Unlock recreates duplication and samples the current desktop | `desktop` |
+| `render-capture-disconnect-reconnect` | Session | Remote disconnect/connect rebuilds capture for the current output | `desktop` |
+| `render-capture-loss` | Capture recovery | `DXGI_ERROR_ACCESS_LOST` recreates duplication | `desktop` |
+| `render-capture-invalid-call` | Capture recovery | `DXGI_ERROR_INVALID_CALL` recreates duplication | `desktop` |
+| `render-capture-not-found` | Capture recovery | `DXGI_ERROR_NOT_FOUND` recreates duplication | `desktop` |
+| `render-capture-backoff` | Capture recovery | Unavailable capture waits between attempts | `desktop` |
+| `render-capture-display-change` | Session | Display changes recreate duplication and sample current pixels | `desktop` |
+| `render-capture-session-repeat` | Session | Repeated lock/unlock cycles recreate capture once per unlock | `desktop` |
 | LOGIC-01 | Plugin | Counter first sample/reset returns Sampling, normal delta yields rate | test_settings |
 | LOGIC-02 | Plugin | Stale transition occurs at the configured age boundary | test_settings |
 | LOGIC-03 | Plugin | Percent formatting and compact byte rates (K/M/G carry, one decimal below 100) | test_settings |
@@ -59,10 +75,22 @@ tree against a stub bridge, so it runs without the plugin host.
 | INT-04 | Capture | captureVisible on/off and moving background do not introduce self text | Desktop integration |
 | INT-05 | Composition | Desktop corners reveal the actual underlying window after resize | Desktop integration |
 
+## Which cases to run
+
+Each library case is registered as a separate `render-<case>` CTest test. CI
+runs the complete suite; labels allow focused local runs and a desktop-only
+escape hatch.
+
+| Change | Command |
+|---|---|
+| Capture crop mapping or monitor geometry | `ctest --test-dir build/liquid-glass-cpp -R 'render-capture-(mapping|geometry-live)' --output-on-failure` |
+| Session and duplication recovery | `ctest --test-dir build/liquid-glass-cpp -R 'render-capture-(lock|unlock|disconnect-reconnect|loss|invalid-call|not-found|backoff|display-change|session-repeat)' --output-on-failure` |
+| Synthetic GPU cases | `ctest --test-dir build/liquid-glass-cpp -L synthetic --output-on-failure` |
+| Skip desktop-dependent cases | `ctest --test-dir build/liquid-glass-cpp -LE desktop --output-on-failure` |
+| Full gate | `ctest --test-dir build/liquid-glass-cpp --output-on-failure` |
+
 ## Repository setup
 
 The submodule URL is `../liquid-glass-cpp`, a sibling repository relative to
-the parent's remote (or local clone origin). In this workspace the sibling
-repository is local. No GitHub remote or public repository has been created.
-For distribution, host both repositories at sibling remote URLs and retain
-the pinned submodule commit.
+the plugin repository. Commit library changes in the submodule first, then
+update the parent repository's pinned submodule commit.

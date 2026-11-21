@@ -266,6 +266,36 @@ NativeOverlay::NativeOverlay():m(std::make_unique<Impl>()) {
         const auto now=std::chrono::steady_clock::now();
         std::fprintf(stderr,"FRAME %.3f %.3f %.3f %.3f\n",frame,capture,gpu,std::chrono::duration<double,std::milli>(now-last).count());last=now;
     };
+    if(qEnvironmentVariableIntValue("SYSINFO_LOG_CAPTURE")) m->window.captureReported=[start=std::chrono::steady_clock::now(),lastFailure=HRESULT(S_OK),lastFailureStage=liquid_glass::CaptureStage::None](const liquid_glass::CaptureReport& r) mutable {
+        static const char* const names[]={"created","lost","failed","geometry","session"};
+        static const char* const stages[]={"none","device","output","duplication","frame"};
+        const auto at=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
+        if(r.event==liquid_glass::CaptureEvent::Geometry) {
+            lastFailure=S_OK;
+            lastFailureStage=liquid_glass::CaptureStage::None;
+            const float scaleX=r.textureWidth/static_cast<float>(std::max(1L,r.desktop.right-r.desktop.left));
+            const float scaleY=r.textureHeight/static_cast<float>(std::max(1L,r.desktop.bottom-r.desktop.top));
+            std::fprintf(stderr,"CAPTURE geometry monitor=%ld,%ld,%ld,%ld texture=%ldx%ld crop=%ld,%ld,%ld,%ld scale=%.3f,%.3f at %.1fms\n",
+                r.desktop.left,r.desktop.top,r.desktop.right,r.desktop.bottom,r.textureWidth,r.textureHeight,
+                r.crop.left,r.crop.top,r.crop.right,r.crop.bottom,scaleX,scaleY,at);
+        } else if(r.event==liquid_glass::CaptureEvent::Session) {
+            lastFailure=S_OK;
+            lastFailureStage=liquid_glass::CaptureStage::None;
+            std::fprintf(stderr,"CAPTURE session change=0x%08lx at %.1fms\n",
+                static_cast<unsigned long>(r.sessionChange),at);
+        } else if(r.event==liquid_glass::CaptureEvent::Failed || r.event==liquid_glass::CaptureEvent::Lost) {
+            if(lastFailure==r.result && lastFailureStage==r.stage) return;
+            lastFailure=r.result;
+            lastFailureStage=r.stage;
+            std::fprintf(stderr,"CAPTURE %s stage=%s 0x%08lx at %.1fms\n",names[static_cast<int>(r.event)],
+                stages[static_cast<int>(r.stage)],static_cast<unsigned long>(r.result),at);
+        } else {
+            lastFailure=S_OK;
+            lastFailureStage=liquid_glass::CaptureStage::None;
+            std::fprintf(stderr,"CAPTURE %s stage=%s 0x%08lx at %.1fms\n",names[static_cast<int>(r.event)],
+                stages[static_cast<int>(r.stage)],static_cast<unsigned long>(r.result),at);
+        }
+    };
     m->window.moved=[this](liquid_glass::Point p, liquid_glass::Point cursor){if(moved)moved(QPoint(p.x,p.y),QPoint(cursor.x,cursor.y));};
     m->window.edgeCollapsedChanged=[this](bool v){return edgeCollapsedChanged?edgeCollapsedChanged(v):false;};
     m->window.paintContent=[this](const liquid_glass::ContentFrame& f){m->paint(f);};
