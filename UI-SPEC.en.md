@@ -35,6 +35,10 @@ scale, lock, edge auto-hide, click-through); the plugin window holds General,
 Layout, Text, Charts, Material and Interaction & capture. The Layout page holds
 columns, cell width, cell height and padding, plus three presets (compact bar,
 standard grid, tall stack) that combine those values with a metric arrangement.
+All presets use 80×28 cells, zero padding and 80% scale; only the column count,
+arrangement and Tiny mode differ. The settings window uses WinShun's bundled
+Alibaba PuHuiTi 3.0 by default. Selected metric icons use the embedded Phosphor
+font in both the closed selector and its popup, preserving metric IDs and order.
 Clicking a preset previews the full layout immediately — cell controls, metric
 arrangement, preview frame and a persistent selected state; size edits and
 Restore default stay drafts too, and only Apply layout saves. Closing the
@@ -47,8 +51,8 @@ and Latin glyph heights can be levelled. A separate label mode switches those
 names for Phosphor glyphs (CPU/memory/graphics-card/hard-drives/arrow-up/
 arrow-down) while values and units remain; the embedded regular face keeps the
 icon mapping identical in the settings window and the native overlay. Network
-rates use B/KBps/M/G units, carry at 1024, keep one decimal below 100 and
-switch to integers at 100.
+rates use B/s, KB/s, MB/s and GB/s units, carry at 1024 and always retain one
+decimal, including a trailing `.0`.
 `edgeSnap` snaps within 12px on drag release;
 `edgeHide` independently controls collapse and hover expansion. Glass
 transparency controls backdrop/tint mixing without changing content opacity.

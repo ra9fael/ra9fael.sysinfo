@@ -32,23 +32,27 @@ static void testCore()
     assert(formatPercent(11.4).number == "11");
     assert(formatPercent(9.84).number == "9.8");
     assert(formatPercent(9.84).unit == "%");
-    // 网速单位 B / KBps / M / G，按 1024 进位，<100 一位小数，>=100 取整。
-    assert(formatRate(299110.0).number == "292");
-    assert(formatRate(299110.0).unit == "KBps");
+    // Network rates retain one decimal in every binary-scaled unit.
+    assert(formatRate(299110.0).number == "292.1");
+    assert(formatRate(299110.0).unit == "KB/s");
     assert(formatRate(99.9 * 1024).number == "99.9");
-    assert(formatRate(99.9 * 1024).unit == "KBps");
-    assert(formatRate(100 * 1024).number == "100");
-    assert(formatRate(1023 * 1024).number == "1023");
-    assert(formatRate(1024.1 * 1024).number == "1");
-    assert(formatRate(1024.1 * 1024).unit == "M");
-    assert(formatRate(2.0 * 1024 * 1024).number == "2");
-    assert(formatRate(2.0 * 1024 * 1024).unit == "M");
+    assert(formatRate(99.9 * 1024).unit == "KB/s");
+    assert(formatRate(100 * 1024).number == "100.0");
+    assert(formatRate(1023 * 1024).number == "1023.0");
+    assert(formatRate(1024.1 * 1024).number == "1.0");
+    assert(formatRate(1024.1 * 1024).unit == "MB/s");
+    assert(formatRate(2.0 * 1024 * 1024).number == "2.0");
+    assert(formatRate(2.0 * 1024 * 1024).unit == "MB/s");
     assert(formatRate(1.5 * 1024 * 1024 * 1024).number == "1.5");
-    assert(formatRate(1.5 * 1024 * 1024 * 1024).unit == "G");
-    assert(formatRate(512.0).number == "512");
-    assert(formatRate(512.0).unit == "B");
+    assert(formatRate(1.5 * 1024 * 1024 * 1024).unit == "GB/s");
+    assert(formatRate(512.0).number == "512.0");
+    assert(formatRate(512.0).unit == "B/s");
+    assert(formatRate(0).number == "0.0");
+    assert(formatRate(1024).number == "1.0");
+    assert(formatRate(1024).unit == "KB/s");
+    assert(formatRate(1099511627776.0).unit == "TB/s");
     assert(formatRate(-1).number == "—");
-    assert(metricText(formatRate(299110.0)) == "292 KBps");
+    assert(metricText(formatRate(299110.0)) == "292.1 KB/s");
     assert(metricText(formatPercent(11)) == "11 %");
 
     std::cout << "sysinfo_core: all checks passed\n";

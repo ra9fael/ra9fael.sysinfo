@@ -12,6 +12,7 @@ ApplicationWindow {
     minimumWidth: 600
     minimumHeight: 460
     visible: false
+    font.family: "Alibaba PuHuiTi 3.0"
     title: root.zh ? "系统监控设置" : "System Monitor Settings"
     color: root.c("page", root.dark ? "#202020" : "#F3F3F3")
 
@@ -221,12 +222,12 @@ ApplicationWindow {
 
     // 预设同时切换尺寸与指标排列，点击即完整预览，按“应用布局”才保存。
     readonly property var layoutPresets: [
-        { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 76, cellHeight: 28, padding: 4, tiny: true,
-          scale: 100, metrics: "cpu,memory,gpu,disk,netUp,netDown" },
-        { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 120, cellHeight: 40, padding: 4, tiny: false,
-          scale: 100, metrics: "cpu,disk,netUp;memory,gpu,netDown" },
-        { id: "tallStack", title: t.tallStack, columns: 1, cellWidth: 220, cellHeight: 48, padding: 6, tiny: false,
-          scale: 100, metrics: "cpu,memory,gpu,disk,netUp,netDown" }
+        { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 80, cellHeight: 28, padding: 0, tiny: true,
+          scale: 80, metrics: "cpu,memory,gpu,disk,netUp,netDown" },
+        { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 80, cellHeight: 28, padding: 0, tiny: false,
+          scale: 80, metrics: "cpu,disk,netUp;memory,gpu,netDown" },
+        { id: "tallStack", title: t.tallStack, columns: 1, cellWidth: 80, cellHeight: 28, padding: 0, tiny: false,
+          scale: 80, metrics: "cpu,memory,gpu,disk,netUp,netDown" }
     ]
 
     function activePreset() {
@@ -258,9 +259,9 @@ ApplicationWindow {
     function restoreLayout() { applyPreset(layoutPresets[1]) }
 
     function reload() {
+        loading = true
         v = sysinfo.values
         draft = ({})
-        loading = true
         enabledBox.checked = v.enabled === true
         intervalRow.value = v.intervalMs
         scaleRow.value = v.scale
@@ -638,21 +639,24 @@ ApplicationWindow {
         }
         contentItem: ColumnLayout {
             spacing: 6
-            Grid {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.preferredHeight: 40
-                columns: presetCard.preset.columns
-                columnSpacing: 3
-                rowSpacing: 3
-                Repeater {
-                    model: 6
-                    Rectangle {
-                        required property int index
-                        width: presetCard.cellWidth
-                        height: 8
-                        radius: 2
-                        color: root.accentColor
-                        opacity: presetCard.selected ? 0.85 : 0.45
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 63
+                Grid {
+                    anchors.centerIn: parent
+                    columns: presetCard.preset.columns
+                    columnSpacing: 3
+                    rowSpacing: 3
+                    Repeater {
+                        model: 6
+                        Rectangle {
+                            required property int index
+                            width: presetCard.cellWidth
+                            height: 8
+                            radius: 2
+                            color: root.accentColor
+                            opacity: presetCard.selected ? 0.85 : 0.45
+                        }
                     }
                 }
             }
@@ -874,13 +878,25 @@ ApplicationWindow {
                                     delegate: ComboItem { glyphFamily: root.iconMode() ? "Phosphor" : "" }
                                     currentIndex: 0
                                     font.pixelSize: 14
+                                    contentItem: Label {
+                                        leftPadding: 12
+                                        rightPadding: cellCombo.indicator.width + 12
+                                        text: cellCombo.displayText
+                                        font.pixelSize: 14
+                                        font.family: root.iconMode() && cellCombo.currentIndex > 0 ? "Phosphor" : root.font.family
+                                        color: root.textColor
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
                                     palette.text: root.textColor
                                     palette.button: root.controlColor
                                     property int wantedIndex: root.indexOf(root.metricValues(), root.cells[index] || "")
                                     Binding { target: cellCombo; property: "currentIndex"; value: cellCombo.wantedIndex }
                                     onActivated: function(itemIndex) {
                                         if (root.loading) return
-                                        root.cells[cellCombo.index] = root.metricValues()[itemIndex]
+                                        const next = root.cells.slice()
+                                        next[cellCombo.index] = root.metricValues()[itemIndex]
+                                        root.cells = next
                                         layoutPreview.text = root.previewText()
                                     }
                                     onModelChanged: currentIndex = root.indexOf(root.metricValues(), root.cells[cellCombo.index] || "")

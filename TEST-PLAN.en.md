@@ -2,7 +2,7 @@
 
 [中文](TEST-PLAN.md) · [Requirements](plugin-design.en.md) · [UI](UI-SPEC.en.md)
 
-2026-11-21, version 1.6.0. Full build, plugin logic, independent rendering and dual-monitor integration pass. Installation reports enabled/running. Sampling cadence, four-edge click-through hover, font/material/chart visuals and short CPU/GPU probes have been measured. Complete product acceptance remains tracked below.
+2026-11-21, version 1.6.1. Full build, plugin logic, independent rendering and dual-monitor integration pass. Installation reports enabled/running. Sampling cadence, four-edge click-through hover, font/material/chart visuals and short CPU/GPU probes have been measured. Complete product acceptance remains tracked below.
 
 ## Environment and evidence
 

@@ -19,6 +19,7 @@ Item {
         property var previews: []
         property var layouts: []
         property int cancels: 0
+        property bool echoPreviews: false
 
         signal appearanceChanged()
         onLookChanged: appearanceChanged()
@@ -28,9 +29,18 @@ Item {
             previews = []
             layouts = []
             cancels = 0
+            echoPreviews = false
         }
         function edit(key, value) { edits = edits.concat([{ key: key, value: value }]) }
-        function previewLayout(changes) { previews = previews.concat([changes]) }
+        function previewLayout(changes) {
+            previews = previews.concat([changes])
+            if (echoPreviews) {
+                const next = Object.assign({}, values, changes)
+                next.cellWidth = Math.max(80, Math.min(320, next.cellWidth))
+                next.cellHeight = Math.max(28, Math.min(160, next.cellHeight))
+                values = next
+            }
+        }
         function applyLayout(changes) { layouts = layouts.concat([changes]) }
         function cancelPreview() { cancels += 1 }
         function closeWindow() {}
@@ -301,12 +311,12 @@ Item {
                 compare(sysinfo.previews.length, 1)
                 const preview = sysinfo.previews[0]
                 compare(preview.columns, 6)
-                compare(preview.cellWidth, 76)
+                compare(preview.cellWidth, 80)
                 compare(preview.cellHeight, 28)
-                compare(preview.padding, 4)
+                compare(preview.padding, 0)
                 verify(preview.tiny === true)
                 compare(preview.metrics, "cpu,memory,gpu,disk,netUp,netDown")
-                compare(preview.scale, 100)
+                compare(preview.scale, 80)
             } finally {
                 window.destroy()
             }
@@ -326,10 +336,10 @@ Item {
                 compare(sysinfo.previews.length, 1)
                 const preview = sysinfo.previews[0]
                 compare(preview.columns, 3)
-                compare(preview.cellWidth, 120)
-                compare(preview.cellHeight, 40)
-                compare(preview.padding, 4)
-                compare(preview.scale, 100)
+                compare(preview.cellWidth, 80)
+                compare(preview.cellHeight, 28)
+                compare(preview.padding, 0)
+                compare(preview.scale, 80)
                 compare(preview.metrics, "cpu,disk,netUp;memory,gpu,netDown")
                 verify(preview.tiny === false)
             } finally {
@@ -362,7 +372,7 @@ Item {
 
         // 预设不只改尺寸：指标排列、控件与预览框一起切换，选中态随之更新。
         function test_presetPreviewSwitchesArrangementAndSelection() {
-            const window = openWindow()
+            const window = openWindow({ values: { cellWidth: 80, cellHeight: 28, padding: 0, scale: 80 } })
             try {
                 selectTab(window, 1)
                 const cards = collect(window.contentItem, []).filter(o => o.preset !== undefined)
@@ -405,10 +415,10 @@ Item {
                 const draft = sysinfo.layouts[0]
                 compare(draft.metrics, "cpu,memory,gpu,disk,netUp,netDown")
                 compare(draft.columns, 6)
-                compare(draft.cellWidth, 76)
+                compare(draft.cellWidth, 80)
                 compare(draft.cellHeight, 28)
-                compare(draft.padding, 4)
-                compare(draft.scale, 100)
+                compare(draft.padding, 0)
+                compare(draft.scale, 80)
                 verify(draft.tiny === true)
             } finally {
                 window.destroy()
@@ -447,6 +457,11 @@ Item {
                 const repeater = findChild(window, "metricCombos")
                 for (let i = 0; i < 6; ++i)
                     compare(repeater.itemAt(i).model[i + 1], iconLabels[i + 1])
+                for (let i = 0; i < 6; ++i) {
+                    const combo = repeater.itemAt(i)
+                    compare(combo.contentItem.text, combo.currentText)
+                    compare(combo.contentItem.font.family, "Phosphor")
+                }
                 const preview = findChild(window, "layoutPreview")
                 verify(preview.text.indexOf(iconLabels[1]) >= 0, "preview shows a glyph")
                 compare(preview.font.family, "Phosphor")
@@ -468,6 +483,56 @@ Item {
             } finally {
                 window.destroy()
             }
+        }
+
+        function test_repeatedPresetsWithBackendFeedback() {
+            const window = openWindow({ locale: "en" })
+            try {
+                selectTab(window, 1)
+                sysinfo.echoPreviews = true
+                const cards = collect(window.contentItem, []).filter(o => o.preset !== undefined)
+                const repeater = findChild(window, "metricCombos")
+                for (let cycle = 0; cycle < 20; ++cycle) {
+                    for (let i = 0; i < cards.length; ++i) {
+                        const card = cards[i]
+                        mouseClick(card)
+                        tryCompare(card, "selected", true)
+                        compare(window.activePreset(), card.preset.id)
+                        compare(sysinfo.values.cellWidth, 80)
+                        compare(sysinfo.values.cellHeight, 28)
+                        compare(sysinfo.values.padding, 0)
+                        compare(sysinfo.values.scale, 80)
+                        compare(spinOf(byLabel(window, window.t.cellWidth)).value, 80)
+                        compare(window.draftColumns, card.preset.columns)
+                        for (let j = 0; j < 6; ++j)
+                            compare(repeater.itemAt(j).currentIndex, window.metricValues().indexOf(window.cells[j]))
+                        wait(1)
+                    }
+                }
+                compare(sysinfo.previews.length, 60)
+                compare(sysinfo.edits.length, 0)
+                compare(sysinfo.layouts.length, 0)
+            } finally { window.destroy() }
+        }
+
+        function test_toggleIconModeKeepsOrder() {
+            const window = openWindow({ locale: "en" })
+            try {
+                const original = JSON.stringify(window.cells)
+                const repeater = findChild(window, "metricCombos")
+                for (let i = 0; i < 12; ++i) {
+                    const icons = i % 2 === 0
+                    sysinfo.values = Object.assign({}, sysinfo.values, { labelMode: icons ? "icon" : "text" })
+                    compare(JSON.stringify(window.cells), original)
+                    for (let j = 0; j < 6; ++j) {
+                        const combo = repeater.itemAt(j)
+                        compare(combo.currentIndex, window.metricValues().indexOf(window.cells[j]))
+                        compare(combo.contentItem.font.family, icons ? "Phosphor" : window.font.family)
+                    }
+                    wait(1)
+                }
+                compare(window.font.family, "Alibaba PuHuiTi 3.0")
+            } finally { window.destroy() }
         }
 
         function test_closeDropsDraft() {

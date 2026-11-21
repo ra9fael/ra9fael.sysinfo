@@ -2,7 +2,7 @@
 
 [中文](plugin-design.md) · [UI](UI-SPEC.en.md) · [Tests](TEST-PLAN.en.md)
 
-Date: 2026-11-21. Version: 1.6.0. The native monitor is
+Date: 2026-11-21. Version: 1.6.1. The native monitor is
 installed and running. Build, logic, independent rendering and dual-monitor
 interaction tests pass. Requirements below retain their individual acceptance
 status in the test plan.

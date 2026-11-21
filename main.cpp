@@ -80,7 +80,9 @@ void loadUiFont(const QString& appDir)
     QFile source(file);
     if (!source.open(QIODevice::ReadOnly))
         return;
-    QFontDatabase::addApplicationFontFromData(source.readAll());
+    const int fontId = QFontDatabase::addApplicationFontFromData(source.readAll());
+    if (fontId >= 0)
+        QGuiApplication::setFont(QFont(kDefaultFontFamily));
     setOverlayFontFile(file);
 }
 

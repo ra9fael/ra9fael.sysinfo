@@ -3,12 +3,12 @@
 [中文](README.md)
 
 Windows system queries and a native liquid-glass desktop monitor. Version
-`1.5.1-dev` is in development.
+`1.6.1`.
 
 ## Desktop monitor
 
 CPU, memory, GPU, disk activity, upload and download share a configurable grid.
-Both normal and compact modes support centered text and history charts.
+Both normal and compact modes support split-aligned readings and history charts.
 
 - Cell order: `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns.
   Semicolons or newlines separate rows; commas separate columns; `cpu,,memory`
@@ -76,9 +76,12 @@ Interaction & capture.
   only Apply layout saves, and closing discards the draft.
 - Each cell pins the metric name to the left edge and the value with its unit to
   the right, with the whitespace between them absorbing changes in value length.
-  Network rates read `UP 5.2 KBps`, `DN 11.4 KBps`, carrying at 1024 with B/KBps/M/G
-  units. The Text page can swap metric names for Phosphor icons while values and
-  units stay shown.
+  Network rates read `UP 5.2 KB/s`, `DN 128.0 MB/s`, carrying at 1024 with
+  B/s, KB/s, MB/s and GB/s units and one decimal in every range. The Text page
+  can swap metric names for Phosphor icons without changing cell order.
+- All three presets start at the supported minimum: 80×28 cells, zero padding
+  and 80% scale, with 6, 3 or 1 columns. Settings and monitor windows default
+  to the Alibaba PuHuiTi 3.0 font bundled with WinShun.
 - Search rows offer show/hide, lock, click-through, edge auto-hide and open
   settings. `shadow` keeps its stored value, but the native renderer draws no
   outer shadow and the settings window has no control for it.

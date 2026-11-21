@@ -108,13 +108,12 @@ inline MetricText formatPercent(double value)
     return {buffer, "%"};
 }
 
-// 输入是字节/秒。UP/DN 已表明方向，单位用 B / KBps / M / G，按 1024 进位；
-// 小于 100 保留一位小数，之后取整，末尾的 .0 省略。
+// Format bytes per second with binary scaling and one decimal place.
 inline MetricText formatRate(double bytesPerSecond)
 {
     if (!std::isfinite(bytesPerSecond) || bytesPerSecond < 0)
         return {"—", ""};
-    static const char* units[] = {"B", "KBps", "M", "G", "T"};
+    static const char* units[] = {"B/s", "KB/s", "MB/s", "GB/s", "TB/s"};
     double value = bytesPerSecond;
     int unit = 0;
     while (value >= 1024.0 && unit < 4) {
@@ -122,14 +121,8 @@ inline MetricText formatRate(double bytesPerSecond)
         ++unit;
     }
     char buffer[32] {};
-    if (value < 100.0)
-        std::snprintf(buffer, sizeof(buffer), "%.1f", value);
-    else
-        std::snprintf(buffer, sizeof(buffer), "%.0f", value);
-    std::string number(buffer);
-    if (number.size() >= 2 && number.compare(number.size() - 2, 2, ".0") == 0)
-        number.erase(number.size() - 2);
-    return {number, units[unit]};
+    std::snprintf(buffer, sizeof(buffer), "%.1f", value);
+    return {buffer, units[unit]};
 }
 
 inline std::string metricText(const MetricText& text)

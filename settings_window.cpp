@@ -59,6 +59,8 @@ SettingsWindow::~SettingsWindow()
 
 void SettingsWindow::setSettings(const Settings& settings)
 {
+    if (m_hasSettings && m_settings.toJson() == settings.toJson())
+        return;
     m_settings = settings;
     m_hasSettings = true;
     rebuildValues();

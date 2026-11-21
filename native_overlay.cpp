@@ -120,15 +120,18 @@ struct NativeOverlay::Impl {
             if (val.isEmpty() && unit.isEmpty()) return;
             QString full=val;
             if (!unit.isEmpty()) full+=(val.isEmpty()?QString():QStringLiteral(" "))+unit;
-            const UINT32 unitStart=static_cast<UINT32>(val.size());
+            const UINT32 unitStart=static_cast<UINT32>(val.size() + (val.isEmpty() || unit.isEmpty() ? 0 : 1));
             IDWriteTextLayout* layout=nullptr;
             if (FAILED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(full.utf16()),static_cast<UINT32>(full.size()),format,w,h,&layout))) return;
-            layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
             if (!unit.isEmpty()) layout->SetFontSize(unitFontSize,{unitStart,static_cast<UINT32>(unit.size())});
             DWRITE_TEXT_METRICS measured{}; layout->GetMetrics(&measured);
             const float fit=std::min({1.f,w/std::max(1.f,measured.widthIncludingTrailingWhitespace),h/std::max(1.f,measured.height)});
-            if (fit<1) layout->SetFontSize(format->GetFontSize()*fit,{0,static_cast<UINT32>(full.size())});
-            dc->DrawTextLayout(D2D1::Point2F(right-std::min(measured.widthIncludingTrailingWhitespace,w),y),layout,text,D2D1_DRAW_TEXT_OPTIONS_CLIP);
+            if (fit<1) {
+                layout->SetFontSize(format->GetFontSize()*fit,{0,static_cast<UINT32>(full.size())});
+                if (!unit.isEmpty()) layout->SetFontSize(unitFontSize*fit,{unitStart,static_cast<UINT32>(unit.size())});
+            }
+            dc->DrawTextLayout(D2D1::Point2F(right-w,y),layout,text,D2D1_DRAW_TEXT_OPTIONS_CLIP);
             release(layout);
         };
         IDWriteTextFormat* iconFormat = nullptr;
@@ -238,9 +241,11 @@ struct NativeOverlay::Impl {
                     drawText(metric.icon,left,textY,iconW,textHeight,iconFormat);
                     left+=iconW+2.f;
                 } else if (model.showLabels) {
-                    const float avail=std::max(4.f,right-left-6.f-textWidth(reading,format,right-left,textHeight));
+                    const float avail=std::max(4.f,(right-left)*.4f);
                     const float labelW=textWidth(metric.label,format,avail,textHeight);
-                    drawText(metric.label,left,textY,std::min(labelW,avail),textHeight);
+                    const float labelSpace=std::min(labelW,avail);
+                    drawText(metric.label,left,textY,labelSpace,textHeight);
+                    left+=labelSpace+4.f;
                 }
                 drawReading(value,unit,right,textY,std::max(4.f,right-left),textHeight);
             }
