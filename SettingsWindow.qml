@@ -21,6 +21,10 @@ ApplicationWindow {
     property var v: ({})
     property var cells: []
     property int draftColumns: 3
+    property var draft: ({})   // 尚未落盘的布局改动；只在这里 accumulate，按“应用布局”一次提交
+
+    // 与 sysinfo_settings.cpp 的 metricIconGlyph 一一对应（Phosphor 码位）。
+    readonly property var metricIcons: ["", "\uE610", "\uE9C4", "\uE612", "\uE2A0", "\uE08E", "\uE03E"]
 
     readonly property var t: zh ? zhText : enText
     readonly property var tabLabels: [t.general, t.layout, t.text, t.charts, t.material, t.interaction]
@@ -40,6 +44,7 @@ ApplicationWindow {
         "custom": "自定义", "labelLanguage": "指标标签语言", "followHost": "跟随 WinShun",
         "font": "字体", "fontSize": "字号（%）", "showLabels": "显示指标名称",
         "showValues": "显示数值", "showUnits": "显示单位",
+        "labelMode": "指标标签样式", "textLabels": "文字", "iconLabels": "图标",
         "shape": "波形形状", "placement": "波形位置", "height": "波形高度",
         "dots": "点阵样式", "bgOpacity": "背景波形不透明度（%）",
         "belowOpacity": "下方波形不透明度（%）", "colors": "波形颜色",
@@ -74,6 +79,7 @@ ApplicationWindow {
         "custom": "Custom", "labelLanguage": "Metric label language", "followHost": "Follow WinShun",
         "font": "Font family", "fontSize": "Font size (%)", "showLabels": "Show metric labels",
         "showValues": "Show values", "showUnits": "Show units",
+        "labelMode": "Metric label style", "textLabels": "Text", "iconLabels": "Icons",
         "shape": "Chart shape", "placement": "Chart placement", "height": "Chart height",
         "dots": "Dot style", "bgOpacity": "Background chart opacity (%)",
         "belowOpacity": "Below-text chart opacity (%)", "colors": "Chart colours",
@@ -148,8 +154,11 @@ ApplicationWindow {
             zh ? "显卡" : "GPU",
             zh ? "磁盘" : "DISK",
             zh ? "上行" : "UP",
-            zh ? "下行" : "DOWN"]
+            zh ? "下行" : "DN"]
     }
+
+    function iconMode() { return v.labelMode === "icon" }
+    function metricNames() { return iconMode() ? metricIcons : metricLabels() }
 
     function indexOf(list, value) {
         for (var i = 0; i < list.length; i++)
@@ -165,9 +174,9 @@ ApplicationWindow {
 
     function metricLabel(id) {
         var values = metricValues()
-        var labels = metricLabels()
+        var names = metricNames()
         for (var i = 0; i < values.length; i++)
-            if (values[i] === id) return labels[i]
+            if (values[i] === id) return names[i]
         return id
     }
 
@@ -179,7 +188,7 @@ ApplicationWindow {
             for (var i = start; i < Math.min(start + columns, cells.length); i++)
                 names.push(metricLabel(cells[i]))
             var blank = labelZh() ? root.zhText.blank : root.enText.blank
-            while (names.length && names[names.length - 1] === blank) names.pop()
+            while (names.length && (names[names.length - 1] === blank || names[names.length - 1] === "")) names.pop()
             if (names.length) rows.push(names.join(" · "))
         }
         return rows.join("   /   ")
@@ -196,52 +205,61 @@ ApplicationWindow {
         return rows.join(";")
     }
 
-    // 布局预设只预览，不落盘：点击后监视窗立即按该布局的自然尺寸变化，
-    // 指标、材质与自动隐藏保持原样，按“应用布局”才真正保存。
+    // 预览是草稿：所有尺寸/指标改动先合并进 draft，再交给宿主实时套用；
+    // 只有“应用布局”才写盘，关窗或取消由宿主回滚到已保存状态。
+    function preview(changes) {
+        var next = {}
+        for (var key in draft) next[key] = draft[key]
+        for (var key in changes) next[key] = changes[key]
+        draft = next
+        sysinfo.previewLayout(changes)
+    }
+
+    function draftValue(key, fallback) {
+        return Object.prototype.hasOwnProperty.call(draft, key) ? draft[key] : fallback
+    }
+
+    // 预设同时切换尺寸与指标排列，点击即完整预览，按“应用布局”才保存。
     readonly property var layoutPresets: [
-        { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 76, cellHeight: 28, padding: 4, tiny: true },
-        { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 120, cellHeight: 40, padding: 4, tiny: false },
-        { id: "tallStack", title: t.tallStack, columns: 1, cellWidth: 220, cellHeight: 48, padding: 6, tiny: false }
+        { id: "compactBar", title: t.compactBar, columns: 6, cellWidth: 76, cellHeight: 28, padding: 4, tiny: true,
+          scale: 100, metrics: "cpu,memory,gpu,disk,netUp,netDown" },
+        { id: "standardGrid", title: t.standardGrid, columns: 3, cellWidth: 120, cellHeight: 40, padding: 4, tiny: false,
+          scale: 100, metrics: "cpu,disk,netUp;memory,gpu,netDown" },
+        { id: "tallStack", title: t.tallStack, columns: 1, cellWidth: 220, cellHeight: 48, padding: 6, tiny: false,
+          scale: 100, metrics: "cpu,memory,gpu,disk,netUp,netDown" }
     ]
 
     function activePreset() {
         for (var i = 0; i < layoutPresets.length; i++) {
-            const preset = layoutPresets[i]
-            if (v.columns === preset.columns && v.cellWidth === preset.cellWidth &&
-                v.cellHeight === preset.cellHeight && v.padding === preset.padding && (v.tiny === true) === preset.tiny)
-                return preset.id
+            const p = layoutPresets[i]
+            if (draftValue("columns", v.columns) === p.columns && draftValue("cellWidth", v.cellWidth) === p.cellWidth &&
+                draftValue("cellHeight", v.cellHeight) === p.cellHeight && draftValue("padding", v.padding) === p.padding &&
+                draftValue("scale", v.scale) === p.scale && (draftValue("tiny", v.tiny) === true) === p.tiny)
+                return p.id
         }
         return ""
     }
 
     function applyPreset(preset) {
         draftColumns = preset.columns
+        cells = splitMetrics(preset.metrics)
         layoutPreview.text = previewText()
-        sysinfo.previewLayout({
-            "columns": preset.columns,
-            "cellWidth": preset.cellWidth,
-            "cellHeight": preset.cellHeight,
-            "padding": preset.padding,
-            "tiny": preset.tiny
-        })
-    }
-
-    function restoreLayout() {
-        const preset = layoutPresets[1]
-        draftColumns = preset.columns
-        layoutPreview.text = previewText()
-        sysinfo.previewLayout({
+        preview({
+            "metrics": preset.metrics,
             "columns": preset.columns,
             "cellWidth": preset.cellWidth,
             "cellHeight": preset.cellHeight,
             "padding": preset.padding,
             "tiny": preset.tiny,
-            "scale": 100
+            "scale": preset.scale
         })
     }
 
+    function restoreLayout() { applyPreset(layoutPresets[1]) }
+
     function reload() {
         v = sysinfo.values
+        draft = ({})
         loading = true
         enabledBox.checked = v.enabled === true
         intervalRow.value = v.intervalMs
@@ -274,6 +292,7 @@ ApplicationWindow {
         valuesBox.checked = v.showValues === true
         unitsBox.checked = v.showUnits === true
         labelLanguageRow.value = v.labelLanguage || "follow"
+        labelModeRow.value = v.labelMode || "text"
 
         shapeRow.value = v.sparklines
         placementRow.value = v.wavePlacement
@@ -316,6 +335,7 @@ ApplicationWindow {
     component ComboItem: ItemDelegate {
         id: comboItem
         required property int index
+        property string glyphFamily: ""
         text: typeof modelData === "string" ? modelData : modelData.text
         required property var modelData
         width: ListView.view.width
@@ -324,6 +344,7 @@ ApplicationWindow {
             text: comboItem.text
             color: comboItem.highlighted ? root.highlightedTextColor : root.textColor
             font.pixelSize: 14
+            font.family: comboItem.glyphFamily.length ? comboItem.glyphFamily : root.font.family
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
         }
@@ -600,21 +621,20 @@ ApplicationWindow {
     component PresetCard: Button {
         id: presetCard
         required property var preset
-        checkable: true
-        checked: activePreset() === presetCard.preset.id
-        Accessible.name: presetCard.preset.title
+        readonly property bool selected: root.activePreset() === presetCard.preset.id
+        Accessible.name: presetCard.preset.title + (presetCard.selected ? (root.zh ? "（已选中）" : " (selected)") : "")
         Layout.fillWidth: true
         Layout.minimumWidth: 120
         Layout.preferredHeight: 132
         padding: 10
-        onClicked: applyPreset(presetCard.preset)
+        onClicked: root.applyPreset(presetCard.preset)
         readonly property real cellWidth: Math.max(14, Math.min(120,
             (presetCard.width - 2 * presetCard.padding - (presetCard.preset.columns - 1) * 3) / presetCard.preset.columns))
         background: Rectangle {
             radius: 8
-            color: presetCard.checked ? root.c("accentSoft", root.dark ? "#1B3A57" : "#EDF3FA") : root.controlColor
-            border.color: presetCard.checked ? root.accentColor : root.controlBorderColor
-            border.width: presetCard.checked ? 2 : 1
+            color: presetCard.selected ? root.c("accentSoft", root.dark ? "#1B3A57" : "#EDF3FA") : root.controlColor
+            border.color: presetCard.selected ? root.accentColor : root.controlBorderColor
+            border.width: presetCard.selected ? 2 : 1
         }
         contentItem: ColumnLayout {
             spacing: 6
@@ -632,7 +652,7 @@ ApplicationWindow {
                         height: 8
                         radius: 2
                         color: root.accentColor
-                        opacity: presetCard.checked ? 0.85 : 0.45
+                        opacity: presetCard.selected ? 0.85 : 0.45
                     }
                 }
             }
@@ -646,7 +666,7 @@ ApplicationWindow {
             }
             Label {
                 text: presetCard.preset.columns + " × " + presetCard.preset.cellWidth + " × " + presetCard.preset.cellHeight + " px"
-                color: presetCard.checked ? root.accentColor : root.subColor
+                color: presetCard.selected ? root.accentColor : root.subColor
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
@@ -850,8 +870,8 @@ ApplicationWindow {
                                     required property int index
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 32
-                                    model: root.metricLabels()
-                                    delegate: ComboItem {}
+                                    model: root.metricNames()
+                                    delegate: ComboItem { glyphFamily: root.iconMode() ? "Phosphor" : "" }
                                     currentIndex: 0
                                     font.pixelSize: 14
                                     palette.text: root.textColor
@@ -907,7 +927,7 @@ ApplicationWindow {
                                 Layout.preferredHeight: 30
                                 palette.button: root.controlColor
                                 palette.buttonText: root.textColor
-                                onClicked: restoreLayout()
+                                onClicked: root.restoreLayout()
                                 background: Rectangle {
                                     radius: 6
                                     color: restoreButton.down ? root.c("controlHover", root.dark ? "#3C3C3C" : "#F6F6F6") : root.controlColor
@@ -934,7 +954,7 @@ ApplicationWindow {
                     }
                     SettingsCard { titleText: root.t.sizeTitle
                         NumberRow { id: scaleRow; labelText: root.t.scale; from: 80; to: 200
-                            onEdited: sysinfo.previewLayout({ "scale": value }) }
+                            onEdited: root.preview({ "scale": value }) }
                         SettingDivider {}
                         RowLayout {
                             Layout.fillWidth: true
@@ -952,20 +972,20 @@ ApplicationWindow {
                         }
                         SettingDivider {}
                         NumberRow { id: cellWidthRow; labelText: root.t.cellWidth; from: 80; to: 320
-                            onEdited: sysinfo.previewLayout({ "cellWidth": value }) }
+                            onEdited: root.preview({ "cellWidth": value }) }
                         SettingDivider {}
                         NumberRow { id: cellHeightRow; labelText: root.t.cellHeight; from: 28; to: 160
-                            onEdited: sysinfo.previewLayout({ "cellHeight": value }) }
+                            onEdited: root.preview({ "cellHeight": value }) }
                         SettingDivider {}
                         NumberRow { id: paddingRow; labelText: root.t.padding; from: 0; to: 40
-                            onEdited: sysinfo.previewLayout({ "padding": value }) }
+                            onEdited: root.preview({ "padding": value }) }
                     }
                     SettingsCard { titleText: root.zh ? "分隔线" : "Dividers"
                         CheckRow { id: dividersBox; labelText: root.t.dividers
-                            onChanged: if (!root.loading) sysinfo.previewLayout({ "dividers": checked }) }
+                            onChanged: if (!root.loading) root.preview({ "dividers": checked }) }
                         SettingDivider {}
                         NumberRow { id: dividerOpacityRow; labelText: root.t.dividerOpacity; from: 0; to: 100
-                            onEdited: sysinfo.previewLayout({ "dividerOpacity": value }) }
+                            onEdited: root.preview({ "dividerOpacity": value }) }
                     }
                     RowLayout {
                         Layout.fillWidth: true
@@ -975,8 +995,10 @@ ApplicationWindow {
                         spacing: 10
                         Label {
                             id: layoutPreview
+                            objectName: "layoutPreview"
                             color: root.textColor
                             text: root.previewText()
+                            font.family: root.iconMode() ? "Phosphor" : root.font.family
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
                         }
@@ -989,11 +1011,13 @@ ApplicationWindow {
                             onClicked: sysinfo.applyLayout({
                                 "metrics": root.draftMetrics(),
                                 "columns": root.draftColumns,
-                                "cellWidth": v.cellWidth,
-                                "cellHeight": v.cellHeight,
-                                "padding": v.padding,
-                                "scale": v.scale,
-                                "tiny": v.tiny
+                                "cellWidth": root.draftValue("cellWidth", root.v.cellWidth),
+                                "cellHeight": root.draftValue("cellHeight", root.v.cellHeight),
+                                "padding": root.draftValue("padding", root.v.padding),
+                                "scale": root.draftValue("scale", root.v.scale),
+                                "tiny": root.draftValue("tiny", root.v.tiny),
+                                "dividers": root.draftValue("dividers", root.v.dividers),
+                                "dividerOpacity": root.draftValue("dividerOpacity", root.v.dividerOpacity)
                             })
                         }
                     }
@@ -1018,6 +1042,11 @@ ApplicationWindow {
                             values: ["follow", "zh", "en"]
                             labels: [root.t.followHost, "中文", "English"]
                             onChosen: sysinfo.edit("labelLanguage", value) }
+                        SettingDivider {}
+                        ChoiceRow { id: labelModeRow; labelText: root.t.labelMode
+                            values: ["text", "icon"]
+                            labels: [root.t.textLabels, root.t.iconLabels]
+                            onChosen: root.sysinfo.edit("labelMode", value) }
                         SettingDivider {}
                         RowLayout {
                             Layout.fillWidth: true

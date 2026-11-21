@@ -44,13 +44,15 @@ tree against a stub bridge, so it runs without the plugin host.
 | UI-05 | Library GPU | Neutral checker blur stays neutral and smooths spatial contrast | render_tests |
 | LOGIC-01 | Plugin | Counter first sample/reset returns Sampling, normal delta yields rate | test_settings |
 | LOGIC-02 | Plugin | Stale transition occurs at the configured age boundary | test_settings |
-| LOGIC-03 | Plugin | Percent and byte-rate values preserve number/unit formatting | test_settings |
-| LOGIC-04 | Plugin | Manifest's 9 setting keys and the model's 42 advanced keys define the settings surface | test_settings |
+| LOGIC-03 | Plugin | Percent formatting and compact byte rates (K/M/G carry, one decimal below 100) | test_settings |
+| LOGIC-04 | Plugin | Manifest's 9 setting keys and the model's 43 advanced keys define the settings surface | test_settings |
 | LOGIC-05 | Plugin | Settings clamp invalid ranges and emit only changed fields | test_settings |
 | LOGIC-06 | Plugin | Fresh settings default to the host's Alibaba PuHuiTi 3.0, preserved when a family is saved | test_settings |
+| LOGIC-07 | Plugin | Label mode accepts text/icon; each metric id maps to a fixed Phosphor glyph | test_settings |
 | QML-01 | Plugin UI | Slider drags commit on release only; interval floors at 100 ms | tst_SettingsWindow.qml |
-| QML-02 | Plugin UI | Layout presets/scale/cell/padding/divider edits preview without saving; Apply sends the draft, closing discards it | tst_SettingsWindow.qml |
-| QML-03 | Plugin UI | Metric labels read CPU/GPU/UP/DOWN/MEM/DISK in English and 处理器/显卡/上行/下行/内存/磁盘 in Chinese | tst_SettingsWindow.qml |
+| QML-02 | Plugin UI | A preset previews the full layout including metric order and selected state; Apply saves the draft, closing discards it | tst_SettingsWindow.qml |
+| QML-03 | Plugin UI | Metric labels read CPU/GPU/UP/DN/MEM/DISK in English and 处理器/显卡/上行/下行/内存/磁盘 in Chinese | tst_SettingsWindow.qml |
+| QML-04 | Plugin UI | Icon mode maps all six metrics to Phosphor glyphs in combos and the preview frame | tst_SettingsWindow.qml |
 | INT-01 | Adapter | Labels/values/units/tiny/wash remain readable at 100/125/150/200% | Desktop visual verification |
 | INT-02 | Window | Two-monitor drag persists the destination screen and position | Desktop integration |
 | INT-03 | Window | Edge collapse/reveal works on each monitor and after resizing | Desktop integration |

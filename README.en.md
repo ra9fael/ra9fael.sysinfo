@@ -71,8 +71,12 @@ Interaction & capture.
   existing values from the host, after which the file wins.
 - Dragging a numeric slider follows the pointer and writes once on release.
   Switches, choices, fonts and colours apply immediately. On the Layout page,
-  presets, size and padding only preview the glass frame; Apply layout commits
-  metric ordering together with every layout value.
+  clicking a preset previews the whole layout — size, metric arrangement,
+  preview frame and selected state — while size and padding edits stay drafts;
+  only Apply layout saves, and closing discards the draft.
+- Network rates use a compact form (`UP 5.2K`, `DN 11.4K`) that carries at 1024
+  and keeps only K/M/G. The Text page can swap metric names for Phosphor icons
+  while values and units stay shown.
 - Search rows offer show/hide, lock, click-through, edge auto-hide and open
   settings. `shadow` keeps its stored value, but the native renderer draws no
   outer shadow and the settings window has no control for it.
@@ -93,6 +97,8 @@ Dependencies are pinned Git submodules:
 - [hwinfo](https://github.com/lfreist/hwinfo) 2.0.0, commit
   `acdc2eb4a9109b4ea6bbe207e03d9da33bc16fab`, MIT. Its license is retained at
   `third_party/hwinfo/LICENSE`.
+- [Phosphor Icons](https://phosphoricons.com/), MIT. The regular face is
+  embedded for icon mode; its license ships as `licenses/phosphor.txt`.
 
 Run in a Visual Studio developer terminal with the local Qt 6.12 MSVC prefix:
 

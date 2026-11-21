@@ -63,6 +63,7 @@ struct Settings {
     bool showValues = true;
     bool showUnits = true;
     QString labelLanguage = QStringLiteral("follow"); // follow | zh | en
+    QString labelMode = QStringLiteral("text");       // text | icon
     bool captureVisible = true;
     bool clickThrough = false;
     bool locked = false;
@@ -80,6 +81,8 @@ QStringList settingKeys();
 QStringList hostSettingKeys();
 QStringList advancedSettingKeys();
 bool validWaveColors(const QString& value);
+// 稳定映射：指标 id → Phosphor 字形（单个字符）。
+QString metricIconGlyph(const QString& metricId);
 
 class SettingsStore {
 public:

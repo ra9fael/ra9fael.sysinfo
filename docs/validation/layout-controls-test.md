@@ -2,37 +2,44 @@
 
 ## Package
 
-`dist/manual-test-20261121-0843/ra9fael.sysinfo-1.6.0.wsplugin`, 881013
-bytes, containing `plugin.json`, the two READMEs and `sysinfo.exe`.
+`dist/manual-test-20261121-icons/ra9fael.sysinfo-1.6.0.wsplugin`, 1085550 bytes,
+containing `plugin.json`, the two READMEs, `sysinfo.exe` and
+`licenses/phosphor.txt` (Phosphor's MIT license, required by the embedded font).
 
-Installed over the running copy by replacing `plugin.json`, the two READMEs and
-`sysinfo.exe` in `%LOCALAPPDATA%\WinShun\plugins\ra9fael.sysinfo`. Superseded
-executables are renamed to `sysinfo.exe.old-<timestamp>` instead of deleted, so
-a running plugin process keeps its image. `WinShun.exe` was not restarted.
-`plugins/ra9fael.sysinfo.data/advanced-settings.json` and `window.json` were
-not modified by this install, so the saved position, material, font and metric
-choices survived. The four installed files hash-match the staged package.
+Installed over the running copy by replacing `plugin.json`, the two READMEs,
+`sysinfo.exe` and the new `licenses/phosphor.txt` in
+`%LOCALAPPDATA%\WinShun\plugins\ra9fael.sysinfo`. The previous executable was
+renamed to `sysinfo.exe.old-20261121-092518` instead of deleted, so the running
+process kept its image. `WinShun.exe` was not restarted; the host relaunched the
+plugin at 09:25:20. `plugins/ra9fael.sysinfo.data/advanced-settings.json` and
+`window.json` were untouched by the install, so saved layout, font and metric
+choices survived. Every installed file hash-matches the staged package.
 
 ## Build
 
 - `sysinfo.exe` and `sysinfo_tests` built in Release with Qt 6.12.0 MSVC 2022 x64.
-- `sysinfo_core` passed; `sysinfo tests: all passed`.
-- `qmllint SettingsWindow.qml` reports no errors and no warnings beyond the
-  file's pre-existing unqualified-access ones.
+- `sysinfo tests: all passed`; `qmllint SettingsWindow.qml` reports no errors and
+  no warnings beyond the file's pre-existing unqualified-access ones.
 
 ## Probe run
 
-The installed executable was also launched standalone against a scratch data
-directory, so the live plugin data was untouched:
+The installed executable was also launched standalone against scratch data
+directories, so live plugin data was untouched:
 
 ```
-sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --dump-native <tmp>\overlay.png
+sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --probe-app-dir <host app> --dump-native <tmp>\overlay.png
 ```
 
-It exited 0 and wrote the overlay snapshot. With `"labelLanguage": "zh"` and
-three columns the rows read 处理器 磁盘 上行 and 内存 显卡 下行; with `"en"` they
-read CPU DISK UP and MEM GPU DOWN, each followed by its value and unit.
-Snapshots: `%TEMP%\opencode\probe-20261121\overlay.png` and `overlay-en.png`.
+With text labels and `"labelLanguage": "en"`, the overlay reads `CPU 15 %` /
+`MEM 24 %`, `DISK 24 %` / `GPU 31 %`, and `UP 41.4B` / `DN 45B`: the download
+label is `DN` and network rates no longer carry `/s`. With `"labelMode": "icon"`
+the same six cells show the Phosphor glyphs for CPU, hard drives, memory,
+graphics card, arrow up and arrow down, with values and units unchanged. The
+six-column compact-bar variant renders the same glyphs at 76 x 28 px without
+clipping.
+
+Snapshots: `%TEMP%\opencode\probe-icons\text-grid-4x.png`,
+`icon-grid-4x.png` and `icon-compact-4x.png`.
 
 ## Host font
 
@@ -41,20 +48,9 @@ The font family remains editable. A fresh `Settings` and a JSON with an empty
 The plugin loads `<host app>/fonts/AlibabaPuHuiTi-3-55-Regular.ttf` into Qt and,
 because the native overlay draws with DirectWrite, builds a font collection from
 the same file. The host app folder comes from the parent process image, since
-plugins are installed outside it.
-
-For a rendering check the probe takes `--probe-app-dir C:\Program Files\WinShun`:
-
-```
-sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --probe-app-dir <host app> --dump-native <tmp>\with-collection.png
-```
-
-Over the 248×64 overlay, the snapshot with the host font differs from the same
-run without it in 7295 pixels, while a run before the change differed in 14
-pixels (only the changing sample digits). A `fontFamily: Consolas` override
-changes 2532 pixels, so the measurement detects a real font change. The Chinese
-snapshot reads 处理器 磁盘 上行 / 内存 显卡 下行 in PuHuiTi. Snapshots:
-`%TEMP%\opencode\font-probe-20261121\with-collection.png` and `zh-puhuiti.png`.
+plugins are installed outside it. Phosphor ships inside the executable as a Qt
+resource, is extracted once to a temporary directory and is registered with
+both Qt and DirectWrite, so icon mode needs no host-side file.
 
 ## Settings window suite
 
@@ -65,7 +61,7 @@ stub bridge that records edits, previews and layout applies. It runs headless:
 qmltestrunner -platform offscreen -input <repo>/tests -o <log>,junitxml
 ```
 
-15 test functions, 16 cases, 0 failures.
+21 cases, 0 failures.
 
 ### Sampling interval
 
@@ -85,43 +81,47 @@ The floor is enforced in the manifest (`min: 100`), in `fromJson` (clamp to
 
 ### Layout preview and apply
 
+- `test_presetPreviewSwitchesArrangementAndSelection` clicks compact bar: one
+  preview carries the six-metric arrangement as well as the size values, the
+  cell-order combos and preview frame switch to that arrangement, and the
+  selected state moves from standard grid to compact bar.
+- `test_applyPersistsPreviewedPreset` clicks compact bar and then Apply: the
+  single `applyLayout` carries the previewed metrics, columns, width, height,
+  padding, scale and tiny flag, not the values the window opened with.
+- `test_closeAfterPreviewDropsDraft` previews tall stack and closes: one
+  `cancelPreview`, no layout apply.
 - `test_layoutRowPreviewsWithoutSaving` types a cell width on the layout page:
   one preview, no edit and no layout apply, and the preview carries only
   `cellWidth`.
-- `test_presetPreviewsWithoutSaving` clicks the compact bar preset: one
-  preview, no edit, no apply.
 - `test_restorePreviewsStandardGrid` clicks restore: the preview drafts the
-  standard grid with scale back at 100.
+  standard grid with its metric arrangement and scale back at 100.
 - `test_applySendsWholeDraft` clicks Apply layout: one `applyLayout` carrying
   metric order, columns, cell width and height, padding, scale and tiny
   together, so the store commits a single revision.
-- `test_closeDropsDraft` closes the window: one `cancelPreview`, and the
-  window hides instead of closing so the host can reopen it.
+- `test_closeDropsDraft` closes the window: one `cancelPreview`, and the window
+  hides instead of closing so the host can reopen it.
 
-### Metric labels
+### Metric labels and icon mode
 
-`test_metricLabels` runs the cell-order combos under all four locale and
-label-language combinations, and `test_metricOptions` checks the colour target
-combo in light and dark:
-
-- Chinese uses 处理器, 内存, 显卡, 磁盘, 上行, 下行; English uses CPU, MEM,
-  GPU, DISK, UP, DOWN.
-- The blank slot follows the label language rather than the window locale, so
-  it never mixes languages with the metric entries, and the trailing-blank
-  trim in the layout preview compares against the same string the combo
-  shows.
+- `test_metricLabels` runs the cell-order combos under all four locale and
+  label-language combinations; `test_metricOptions` checks the colour target
+  combo in light and dark. Chinese uses 处理器, 内存, 显卡, 磁盘, 上行, 下行;
+  English uses CPU, MEM, GPU, DISK, UP, DN.
+- `test_iconModeMappingAndDisplay` opens with `labelMode: icon` and checks the
+  exact six-glyph mapping, the combos' model and the Phosphor family on the
+  preview frame.
+- `test_labelModeChoiceEdits` selects Icons in the Text page and records one
+  `labelMode` edit.
 
 ## Settings behaviour
 
-- `advanced-settings.json` carries 42 advanced keys.
+- `advanced-settings.json` carries 43 advanced keys.
 - `labelLanguage` accepts `follow`, `zh` and `en`, defaults to `follow`,
   rejects other values and round-trips through JSON.
+- `labelMode` accepts `text` and `icon`, defaults to `text`, rejects other
+  values and round-trips through JSON.
+- Network rates carry at 1024, keep one decimal below 100, switch to integers
+  at 100 and drop a trailing `.0`, so `1024.1K` becomes `1M`.
 - `tiny` no longer overrides the cell height, so the height slider works in
   every layout; the plugin window's layout page applies scale to text, cells,
   padding and the glass frame together.
-
-## Pending
-
-- Rendering evidence for the new layout page in an installed host: preset
-  selection, the actual size readout and the label language switch still need a
-  screenshot from a real desktop session.

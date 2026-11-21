@@ -108,26 +108,28 @@ inline MetricText formatPercent(double value)
     return {buffer, "%"};
 }
 
-// 输入是字节/秒；KB/s 保留一位小数，MB/s 以上一位，B/s 取整。
+// 输入是字节/秒。监视窗里 UP/DN 已表明方向，单位只留 K/M/G 缩写；
+// 小于 100 保留一位小数，之后取整，末尾的 .0 省略。按 1024 进位。
 inline MetricText formatRate(double bytesPerSecond)
 {
-    char buffer[32] {};
     if (!std::isfinite(bytesPerSecond) || bytesPerSecond < 0)
         return {"—", ""};
-    if (bytesPerSecond >= 1024.0 * 1024 * 1024) {
-        std::snprintf(buffer, sizeof(buffer), "%.1f", bytesPerSecond / (1024.0 * 1024 * 1024));
-        return {buffer, "GB/s"};
+    static const char* units[] = {"B", "K", "M", "G", "T"};
+    double value = bytesPerSecond;
+    int unit = 0;
+    while (value >= 1024.0 && unit < 4) {
+        value /= 1024.0;
+        ++unit;
     }
-    if (bytesPerSecond >= 1024.0 * 1024) {
-        std::snprintf(buffer, sizeof(buffer), "%.1f", bytesPerSecond / (1024.0 * 1024));
-        return {buffer, "MB/s"};
-    }
-    if (bytesPerSecond >= 1024.0) {
-        std::snprintf(buffer, sizeof(buffer), "%.1f", bytesPerSecond / 1024.0);
-        return {buffer, "KB/s"};
-    }
-    std::snprintf(buffer, sizeof(buffer), "%.0f", bytesPerSecond);
-    return {buffer, "B/s"};
+    char buffer[32] {};
+    if (value < 100.0)
+        std::snprintf(buffer, sizeof(buffer), "%.1f", value);
+    else
+        std::snprintf(buffer, sizeof(buffer), "%.0f", value);
+    std::string number(buffer);
+    if (number.size() >= 2 && number.compare(number.size() - 2, 2, ".0") == 0)
+        number.erase(number.size() - 2);
+    return {number + units[unit], ""};
 }
 
 inline std::string metricText(const MetricText& text)

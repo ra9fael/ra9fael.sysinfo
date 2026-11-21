@@ -32,10 +32,17 @@ static void testCore()
     assert(formatPercent(11.4).number == "11");
     assert(formatPercent(9.84).number == "9.8");
     assert(formatPercent(9.84).unit == "%");
-    assert(formatRate(299110.0).unit == "KB/s");
-    assert(std::abs(std::stod(formatRate(299110.0).number) - 292.1) < 0.05);
-    assert(formatRate(2.0 * 1024 * 1024).unit == "MB/s");
-    assert(formatRate(512.0).unit == "B/s");
+    // 紧凑网速：单位并进数字，K/M/G 进位，<100 一位小数，>=100 取整。
+    assert(formatRate(299110.0).number == "292K");
+    assert(formatRate(99.9 * 1024).number == "99.9K");
+    assert(formatRate(100 * 1024).number == "100K");
+    assert(formatRate(1023 * 1024).number == "1023K");
+    assert(formatRate(1024.1 * 1024).number == "1M");
+    assert(formatRate(2.0 * 1024 * 1024).number == "2M");
+    assert(formatRate(1.5 * 1024 * 1024 * 1024).number == "1.5G");
+    assert(formatRate(512.0).number == "512B");
+    assert(formatRate(-1).number == "—");
+    assert(metricText(formatRate(299110.0)) == "292K");
     assert(metricText(formatPercent(11)) == "11 %");
 
     std::cout << "sysinfo_core: all checks passed\n";
@@ -47,7 +54,8 @@ static void testSettings()
     const QStringList keys = settingKeys();
     assert(keys.size() == 9);
     const QStringList advanced = advancedSettingKeys();
-    assert(advanced.size() == 42);
+    assert(advanced.size() == 43);
+    assert(advanced.contains("labelMode"));
     assert(advanced.contains("waveColors") && advanced.contains("glassStyle") && advanced.contains("tileSize"));
     assert(keys.contains("enabled") && keys.contains("intervalMs") && keys.contains("tiny")
             && keys.contains("scale") && keys.contains("locked") && keys.contains("edgeHide")
@@ -103,6 +111,17 @@ static void testSettings()
     assert(Settings::fromJson({{"labelLanguage", "zh"}}).labelLanguage == "zh");
     assert(Settings::fromJson({{"labelLanguage", "fr"}}).labelLanguage == "follow");
     assert(Settings::fromJson({{"labelLanguage", "en"}}).toJson().value(QStringLiteral("labelLanguage")).toString() == "en");
+    assert(Settings{}.labelMode == "text");
+    assert(Settings::fromJson({{"labelMode", "icon"}}).labelMode == "icon");
+    assert(Settings::fromJson({{"labelMode", "fr"}}).labelMode == "text");
+    assert(Settings::fromJson({{"labelMode", "icon"}}).toJson().value(QStringLiteral("labelMode")).toString() == "icon");
+    assert(metricIconGlyph("cpu") == QString(QChar(0xE610)));
+    assert(metricIconGlyph("memory") == QString(QChar(0xE9C4)));
+    assert(metricIconGlyph("gpu") == QString(QChar(0xE612)));
+    assert(metricIconGlyph("disk") == QString(QChar(0xE2A0)));
+    assert(metricIconGlyph("netUp") == QString(QChar(0xE08E)));
+    assert(metricIconGlyph("netDown") == QString(QChar(0xE03E)));
+    assert(metricIconGlyph("bogus").isEmpty());
     const Settings independentEdges=Settings::fromJson({{"edgeSnap", false}, {"edgeHide", true}});
     assert(!independentEdges.edgeSnap && independentEdges.edgeHide);
     assert(defaults.radius == 20);

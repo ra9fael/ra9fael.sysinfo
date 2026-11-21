@@ -133,6 +133,7 @@ QJsonObject Settings::toJson() const
                         {QStringLiteral("showValues"), showValues},
                         {QStringLiteral("showUnits"), showUnits},
                         {QStringLiteral("labelLanguage"), labelLanguage},
+                        {QStringLiteral("labelMode"), labelMode},
                         {QStringLiteral("captureVisible"), captureVisible},
                        {QStringLiteral("clickThrough"), clickThrough},
                        {QStringLiteral("locked"), locked},
@@ -226,6 +227,8 @@ Settings Settings::fromJson(const QJsonObject& v)
         s.showUnits = v.value(QStringLiteral("showUnits")).toBool(s.showUnits);
     s.labelLanguage = choice(v.value(QStringLiteral("labelLanguage")),
                              {QStringLiteral("follow"), QStringLiteral("zh"), QStringLiteral("en")}, s.labelLanguage);
+    s.labelMode = choice(v.value(QStringLiteral("labelMode")),
+                         {QStringLiteral("text"), QStringLiteral("icon")}, s.labelMode);
     if (v.contains(QStringLiteral("captureVisible")))
         s.captureVisible = v.value(QStringLiteral("captureVisible")).toBool(s.captureVisible);
     if (v.contains(QStringLiteral("clickThrough")))
@@ -257,7 +260,7 @@ QStringList advancedSettingKeys()
         QStringLiteral("cellHeight"), QStringLiteral("padding"), QStringLiteral("dividers"),
         QStringLiteral("dividerOpacity"), QStringLiteral("fontFamily"), QStringLiteral("fontSize"),
         QStringLiteral("showLabels"), QStringLiteral("showValues"), QStringLiteral("showUnits"),
-        QStringLiteral("labelLanguage"),
+        QStringLiteral("labelLanguage"), QStringLiteral("labelMode"),
         QStringLiteral("sparklines"), QStringLiteral("wavePlacement"), QStringLiteral("waveHeight"),
         QStringLiteral("waveDots"), QStringLiteral("waveColors"), QStringLiteral("waveOpacity"),
         QStringLiteral("waveBelowOpacity"), QStringLiteral("theme"), QStringLiteral("glassStyle"),
@@ -269,6 +272,18 @@ QStringList advancedSettingKeys()
         QStringLiteral("animationCurve"), QStringLiteral("animationDurationMs"),
         QStringLiteral("surfaceMotion"), QStringLiteral("mouseDistortion"), QStringLiteral("captureVisible")};
     return keys;
+}
+
+QString metricIconGlyph(const QString& metricId)
+{
+    // Phosphor 1.x/2.x 的固定码位；CPU 的 E610 也是插件图标采用的字形。
+    if (metricId == QStringLiteral("cpu")) return QString(QChar(0xE610));
+    if (metricId == QStringLiteral("memory")) return QString(QChar(0xE9C4));
+    if (metricId == QStringLiteral("gpu")) return QString(QChar(0xE612));
+    if (metricId == QStringLiteral("disk")) return QString(QChar(0xE2A0));
+    if (metricId == QStringLiteral("netUp")) return QString(QChar(0xE08E));
+    if (metricId == QStringLiteral("netDown")) return QString(QChar(0xE03E));
+    return {};
 }
 
 bool validWaveColors(const QString& value)

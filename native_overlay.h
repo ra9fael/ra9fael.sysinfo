@@ -19,6 +19,7 @@ namespace sysinfo {
 struct NativeMetric {
     QString color;
     QString label;
+    QString icon;
     QString value;
     QString unit;
     std::vector<double> history;
@@ -31,6 +32,8 @@ struct NativeMetric {
 // The host's PuHuiTi file; the native overlay builds a DirectWrite font
 // collection from it so text matches WinShun even when the face is not installed.
 void setOverlayFontFile(const QString& path);
+// Phosphor ships inside the plugin; icon mode draws its glyphs from this file.
+void setOverlayIconFontFile(const QString& path);
 
 struct NativeOverlayModel {
     int glassStyle=0;
@@ -53,6 +56,7 @@ struct NativeOverlayModel {
     bool showLabels = true;
     bool showValues = true;
     bool showUnits = true;
+    bool iconMode = false;
     bool edgeHidden = false;
     bool debugPattern = false;
     QString edgeSide = QStringLiteral("right");

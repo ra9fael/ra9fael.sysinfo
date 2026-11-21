@@ -16,6 +16,7 @@
 namespace sysinfo {
 namespace {
 QString overlayFontFile;
+QString overlayIconFontFile;
 
 template<class T> void release(T*& p) { if (p) { p->Release(); p = nullptr; } }
 liquid_glass::Edge edge(const QString& s) {
@@ -33,12 +34,14 @@ QImage image(const liquid_glass::Image& v) {
 }
 
 void setOverlayFontFile(const QString& path) { overlayFontFile = path; }
+void setOverlayIconFontFile(const QString& path) { overlayIconFontFile = path; }
 
 struct NativeOverlay::Impl {
     liquid_glass::Window window;
     NativeOverlayModel model;
     IDWriteFactory* factory = nullptr;
     IDWriteFontCollection* uiFont = nullptr;
+    IDWriteFontCollection* iconFont = nullptr;
     std::unordered_map<std::wstring, float> rateRanges;
 
     Impl()
@@ -46,22 +49,28 @@ struct NativeOverlay::Impl {
         if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
                                       reinterpret_cast<IUnknown**>(&factory))))
             return;
-        using namespace Microsoft::WRL;
-        ComPtr<IDWriteFactory5> factory5;
-        ComPtr<IDWriteFontFile> file;
-        ComPtr<IDWriteFontSetBuilder1> builder;
-        ComPtr<IDWriteFontSet> set;
-        ComPtr<IDWriteFontCollection1> collection;
-        if (overlayFontFile.isEmpty() || FAILED(factory->QueryInterface(IID_PPV_ARGS(&factory5)))
-            || FAILED(factory->CreateFontFileReference(reinterpret_cast<const wchar_t*>(overlayFontFile.utf16()),
-                                                       nullptr, &file))
-            || FAILED(factory5->CreateFontSetBuilder(&builder)) || FAILED(builder->AddFontFile(file.Get()))
-            || FAILED(builder->CreateFontSet(&set))
-            || FAILED(factory5->CreateFontCollectionFromFontSet(set.Get(), &collection)))
-            return;
-        collection.CopyTo(&uiFont);
+        auto loadCollection = [&](const QString& path, IDWriteFontCollection** out) {
+            if (path.isEmpty())
+                return;
+            using namespace Microsoft::WRL;
+            ComPtr<IDWriteFactory5> factory5;
+            ComPtr<IDWriteFontFile> file;
+            ComPtr<IDWriteFontSetBuilder1> builder;
+            ComPtr<IDWriteFontSet> set;
+            ComPtr<IDWriteFontCollection1> collection;
+            if (FAILED(factory->QueryInterface(IID_PPV_ARGS(&factory5)))
+                || FAILED(factory->CreateFontFileReference(reinterpret_cast<const wchar_t*>(path.utf16()),
+                                                           nullptr, &file))
+                || FAILED(factory5->CreateFontSetBuilder(&builder)) || FAILED(builder->AddFontFile(file.Get()))
+                || FAILED(builder->CreateFontSet(&set))
+                || FAILED(factory5->CreateFontCollectionFromFontSet(set.Get(), &collection)))
+                return;
+            collection.CopyTo(out);
+        };
+        loadCollection(overlayFontFile, &uiFont);
+        loadCollection(overlayIconFontFile, &iconFont);
     }
-    ~Impl() { release(uiFont); release(factory); }
+    ~Impl() { release(iconFont); release(uiFont); release(factory); }
     void paint(const liquid_glass::ContentFrame& frame) {
         if (!factory) return;
         auto* dc = frame.context;
@@ -83,16 +92,30 @@ struct NativeOverlay::Impl {
         format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
         format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
         format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-        auto drawText = [&](const QString& value, float x, float y, float w, float h) {
+        auto drawText = [&](const QString& value, float x, float y, float w, float h, IDWriteTextFormat* fmt = nullptr) {
+            if (value.isEmpty())
+                return;
+            IDWriteTextFormat* useFormat = fmt ? fmt : format;
             IDWriteTextLayout* layout=nullptr;
-            if(SUCCEEDED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(value.utf16()),static_cast<UINT32>(value.size()),format,w,h,&layout))) {
+            if(SUCCEEDED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(value.utf16()),static_cast<UINT32>(value.size()),useFormat,w,h,&layout))) {
                 DWRITE_TEXT_METRICS measured{};layout->GetMetrics(&measured);
                 const float fit=std::min({1.f,w/std::max(1.f,measured.widthIncludingTrailingWhitespace),h/std::max(1.f,measured.height)});
-                if(fit<1) layout->SetFontSize(format->GetFontSize()*fit,{0,static_cast<UINT32>(value.size())});
+                if(fit<1) layout->SetFontSize(useFormat->GetFontSize()*fit,{0,static_cast<UINT32>(value.size())});
                 dc->DrawTextLayout(D2D1::Point2F(x,y),layout,text,D2D1_DRAW_TEXT_OPTIONS_CLIP);
                 release(layout);
             }
         };
+        IDWriteTextFormat* iconFormat = nullptr;
+        if (model.iconMode && iconFont) {
+            factory->CreateTextFormat(L"Phosphor", iconFont, DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                (model.tiny ? 15.f : 19.f) * model.fontPercent / 100.f, L"", &iconFormat);
+            if (iconFormat) {
+                iconFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+                iconFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+                iconFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+            }
+        }
         const float pad = model.padding;
         const float cellW = model.cellWidth;
         const float cellH = model.cellHeight;
@@ -172,12 +195,25 @@ struct NativeOverlay::Impl {
             const bool below=model.sparklines&&!model.waveBackground;
             const float textHeight=below?labelHeight:cellH;
             const bool stacked=!model.sparklines && !model.tiny && textHeight>=lineHeight*2;
-            QString line=(model.showLabels?metric.label:QString());
-            if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;
-            if(stacked && model.showLabels && model.showValues) {
-                drawText(metric.label,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight);
-                drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
-            } else drawText(line,x+4,y+(below?2.f:0.f),cellW-8,textHeight);
+            const bool useIcon=model.iconMode && model.showLabels && iconFormat && !metric.icon.isEmpty();
+            if (useIcon) {
+                if (stacked) {
+                    drawText(metric.icon,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight,iconFormat);
+                    drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
+                } else {
+                    const float iconW=std::min(cellW*.45f,lineHeight*1.45f);
+                    const float textY=y+(below?2.f:0.f);
+                    drawText(metric.icon,x+2,textY,iconW,textHeight,iconFormat);
+                    drawText(value,x+2+iconW,textY,cellW-4-iconW,textHeight);
+                }
+            } else {
+                QString line=(model.showLabels?metric.label:QString());
+                if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;
+                if(stacked && model.showLabels && model.showValues) {
+                    drawText(metric.label,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight);
+                    drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
+                } else drawText(line,x+4,y+(below?2.f:0.f),cellW-8,textHeight);
+            }
         }
         if(model.dividers) {
             text->SetOpacity(model.dividerOpacity/100.f);
@@ -185,7 +221,7 @@ struct NativeOverlay::Impl {
                 dc->DrawLine(D2D1::Point2F(pad+column*cellW,pad+2),
                     D2D1::Point2F(pad+column*cellW,pad+model.rows*cellH-2),text,1.f);
         }
-        release(format); release(text); release(wave);
+        release(iconFormat); release(format); release(text); release(wave);
         dc->SetTransform(D2D1::Matrix3x2F::Identity());
     }
 };

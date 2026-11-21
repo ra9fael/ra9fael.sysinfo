@@ -34,16 +34,21 @@ Settings are split: the host card keeps General (show, sampling interval, Tiny,
 scale, lock, edge auto-hide, click-through); the plugin window holds General,
 Layout, Text, Charts, Material and Interaction & capture. The Layout page holds
 columns, cell width, cell height and padding, plus three presets (compact bar,
-standard grid, tall stack) that combine those five values. Presets, size
-changes and Restore default preview the glass frame only; Apply layout commits
-metric ordering together with every layout value, and Restore default drafts
-the standard grid with scale reset to 100. Scale applies to
-text, cells, padding and the glass frame together, and the page reports the
-resulting pixel size. Value sliders follow the pointer while dragged and
-commit once on release. The Text page exposes metric label language
-(`follow`/`zh`/`en`), using the short names CPU, MEM, GPU, DISK, UP and DOWN or
-处理器, 内存, 显卡, 磁盘, 上行 and 下行 so mixed CJK and Latin glyph heights can
-be levelled.
+standard grid, tall stack) that combine those values with a metric arrangement.
+Clicking a preset previews the full layout immediately — cell controls, metric
+arrangement, preview frame and a persistent selected state; size edits and
+Restore default stay drafts too, and only Apply layout saves. Closing the
+window cancels the draft. Scale applies to text, cells, padding and the glass
+frame together, and the page reports the resulting pixel size. Value sliders
+follow the pointer while dragged and commit once on release. The Text page
+exposes metric label language (`follow`/`zh`/`en`), using the short names CPU,
+MEM, GPU, DISK, UP and DN or 处理器, 内存, 显卡, 磁盘, 上行 and 下行 so mixed CJK
+and Latin glyph heights can be levelled. A separate label mode switches those
+names for Phosphor glyphs (CPU/memory/graphics-card/hard-drives/arrow-up/
+arrow-down) while values and units remain; the embedded regular face keeps the
+icon mapping identical in the settings window and the native overlay. Network
+rates drop the redundant `/s`, carry at 1024, keep one decimal below 100 and
+switch to integers at 100.
 `edgeSnap` snaps within 12px on drag release;
 `edgeHide` independently controls collapse and hover expansion. Glass
 transparency controls backdrop/tint mixing without changing content opacity.
@@ -56,7 +61,7 @@ below-text or background placement; background charts reserve no extra height.
 
 ```text
 ┌ CPU 12%    RAM 8.1/32 GiB  ┐
-│ LAN ↑ 1.2 MiB/s ↓ 4 MiB/s  │
+│ UP 1.2M       DN 4M        │
 └────────────────────────────┘
 ```
 

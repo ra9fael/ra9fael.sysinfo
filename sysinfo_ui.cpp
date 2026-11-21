@@ -334,6 +334,7 @@ void SysInfoUiBridge::refreshSnapshot()
     model.padding=static_cast<float>(m_margin/model.scale);
     model.dividers=m_settings.dividers; model.dividerOpacity=m_settings.dividerOpacity;
     model.showLabels=m_settings.showLabels; model.showValues=m_settings.showValues; model.showUnits=m_settings.showUnits;
+    model.iconMode=m_settings.labelMode==QStringLiteral("icon");
     model.debugPattern=qEnvironmentVariableIntValue("SYSINFO_DEBUG_PATTERN") != 0;
     int row=0;
     for(const QStringList& sourceRow:m_settings.slotRows()) { for(int col=0;col<sourceRow.size();++col) {
@@ -346,7 +347,8 @@ void SysInfoUiBridge::refreshSnapshot()
             else if(id==QStringLiteral("memory"))metric.label=zh?QStringLiteral("内存"):QStringLiteral("MEM");
             else if(id==QStringLiteral("disk"))metric.label=zh?QStringLiteral("磁盘"):QStringLiteral("DISK");
             else if(id==QStringLiteral("netUp"))metric.label=zh?QStringLiteral("上行"):QStringLiteral("UP");
-            else metric.label=zh?QStringLiteral("下行"):QStringLiteral("DOWN");
+            else metric.label=zh?QStringLiteral("下行"):QStringLiteral("DN");
+            metric.icon=metricIconGlyph(id);
             if(reading.status==Status::Fresh){const MetricText text=metric.rate?formatRate(reading.value):formatPercent(reading.value);metric.value=QString::fromStdString(text.number);metric.unit=QString::fromStdString(text.unit);}
             else metric.value=reading.status==Status::Sampling?(zh?QStringLiteral("采样中"):QStringLiteral("Sampling")):QStringLiteral("—");
             metric.history=sample.history[static_cast<size_t>(key)];

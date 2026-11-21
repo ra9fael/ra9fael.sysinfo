@@ -45,7 +45,7 @@ Item {
             intervalMs: 1000, scale: 100, freeHideDelayMs: 3000,
             metrics: "cpu,disk,netUp;memory,gpu,netDown", columns: 3,
             cellWidth: 120, cellHeight: 40, padding: 4, dividers: true, dividerOpacity: 12,
-            tiny: false, labelLanguage: "follow",
+            tiny: false, labelLanguage: "follow", labelMode: "text",
             showLabels: true, showValues: true, showUnits: true,
             fontSize: 100, fontFamily: "Segoe UI", waveHeight: 0,
             sparklines: "inline", wavePlacement: "auto", waveDots: "filled",
@@ -59,7 +59,8 @@ Item {
         })
 
         readonly property var zhLabels: ["空格", "处理器", "内存", "显卡", "磁盘", "上行", "下行"]
-        readonly property var enLabels: ["Blank", "CPU", "MEM", "GPU", "DISK", "UP", "DOWN"]
+        readonly property var enLabels: ["Blank", "CPU", "MEM", "GPU", "DISK", "UP", "DN"]
+        readonly property var iconLabels: ["", "\uE610", "\uE9C4", "\uE612", "\uE2A0", "\uE08E", "\uE03E"]
 
         function openWindow(extra) {
             sysinfo.reset()
@@ -304,8 +305,8 @@ Item {
                 compare(preview.cellHeight, 28)
                 compare(preview.padding, 4)
                 verify(preview.tiny === true)
-                verify(preview.metrics === undefined)
-                verify(preview.scale === undefined)
+                compare(preview.metrics, "cpu,memory,gpu,disk,netUp,netDown")
+                compare(preview.scale, 100)
             } finally {
                 window.destroy()
             }
@@ -329,6 +330,7 @@ Item {
                 compare(preview.cellHeight, 40)
                 compare(preview.padding, 4)
                 compare(preview.scale, 100)
+                compare(preview.metrics, "cpu,disk,netUp;memory,gpu,netDown")
                 verify(preview.tiny === false)
             } finally {
                 window.destroy()
@@ -353,6 +355,116 @@ Item {
                 compare(draft.padding, 4)
                 compare(draft.scale, 100)
                 verify(draft.tiny === false)
+            } finally {
+                window.destroy()
+            }
+        }
+
+        // 预设不只改尺寸：指标排列、控件与预览框一起切换，选中态随之更新。
+        function test_presetPreviewSwitchesArrangementAndSelection() {
+            const window = openWindow()
+            try {
+                selectTab(window, 1)
+                const cards = collect(window.contentItem, []).filter(o => o.preset !== undefined)
+                const standard = cards.filter(c => c.preset.id === "standardGrid")[0]
+                const compact = cards.filter(c => c.preset.id === "compactBar")[0]
+                verify(standard && compact, "preset cards found")
+                tryCompare(standard, "selected", true)
+                tryCompare(compact, "selected", false)
+
+                mouseClick(compact)
+
+                compare(sysinfo.previews.length, 1)
+                compare(sysinfo.previews[0].metrics, "cpu,memory,gpu,disk,netUp,netDown")
+                compare(compact.selected, true)
+                compare(standard.selected, false)
+                const repeater = findChild(window, "metricCombos")
+                const zhNames = ["处理器", "内存", "显卡", "磁盘", "上行", "下行"]
+                for (let i = 0; i < 6; ++i)
+                    compare(repeater.itemAt(i).currentText, zhNames[i])
+                const preview = findChild(window, "layoutPreview")
+                compare(preview.text, zhNames.join(" · "))
+            } finally {
+                window.destroy()
+            }
+        }
+
+        // Apply 保存的是预览后的草稿，不是打开窗口时的旧值。
+        function test_applyPersistsPreviewedPreset() {
+            const window = openWindow()
+            try {
+                selectTab(window, 1)
+                const cards = collect(window.contentItem, []).filter(o => o.preset !== undefined)
+                const compact = cards.filter(c => c.preset.id === "compactBar")[0]
+                mouseClick(compact)
+                const apply = byText(window, "应用布局")
+                mouseClick(apply)
+
+                compare(sysinfo.edits.length, 0)
+                compare(sysinfo.layouts.length, 1)
+                const draft = sysinfo.layouts[0]
+                compare(draft.metrics, "cpu,memory,gpu,disk,netUp,netDown")
+                compare(draft.columns, 6)
+                compare(draft.cellWidth, 76)
+                compare(draft.cellHeight, 28)
+                compare(draft.padding, 4)
+                compare(draft.scale, 100)
+                verify(draft.tiny === true)
+            } finally {
+                window.destroy()
+            }
+        }
+
+        function test_closeAfterPreviewDropsDraft() {
+            const window = openWindow()
+            try {
+                selectTab(window, 1)
+                const cards = collect(window.contentItem, []).filter(o => o.preset !== undefined)
+                mouseClick(cards.filter(c => c.preset.id === "tallStack")[0])
+                compare(sysinfo.previews.length, 1)
+                window.close()
+                compare(sysinfo.cancels, 1)
+                compare(sysinfo.layouts.length, 0)
+                compare(window.visible, false)
+            } finally {
+                window.destroy()
+            }
+        }
+
+        function test_iconModeMappingAndDisplay() {
+            const window = openWindow({ locale: "en", values: { labelMode: "icon" } })
+            try {
+                compare(JSON.stringify(window.metricIcons), JSON.stringify(iconLabels))
+                compare(JSON.stringify(window.metricNames()), JSON.stringify(iconLabels))
+                compare(window.metricLabel("cpu"), iconLabels[1])
+                compare(window.metricLabel("memory"), iconLabels[2])
+                compare(window.metricLabel("gpu"), iconLabels[3])
+                compare(window.metricLabel("disk"), iconLabels[4])
+                compare(window.metricLabel("netUp"), iconLabels[5])
+                compare(window.metricLabel("netDown"), iconLabels[6])
+
+                selectTab(window, 1)
+                const repeater = findChild(window, "metricCombos")
+                for (let i = 0; i < 6; ++i)
+                    compare(repeater.itemAt(i).model[i + 1], iconLabels[i + 1])
+                const preview = findChild(window, "layoutPreview")
+                verify(preview.text.indexOf(iconLabels[1]) >= 0, "preview shows a glyph")
+                compare(preview.font.family, "Phosphor")
+            } finally {
+                window.destroy()
+            }
+        }
+
+        function test_labelModeChoiceEdits() {
+            const window = openWindow({ locale: "en" })
+            try {
+                selectTab(window, 2)
+                const row = byLabel(window, "Metric label style")
+                verify(row, "label mode row found")
+                row.chosen("icon")
+                compare(sysinfo.edits.length, 1)
+                compare(sysinfo.edits[0].key, "labelMode")
+                compare(sysinfo.edits[0].value, "icon")
             } finally {
                 window.destroy()
             }

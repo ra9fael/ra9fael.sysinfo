@@ -31,7 +31,8 @@ Windows 系统信息查询与原生液态玻璃桌面监视窗。当前版本 `1
 
 - 打开方式：插件卡上的“设置”按钮，或在搜索中输入 `sys` 后选择“系统信息设置 / 打开设置”。重复打开只聚焦已有窗口，不会启用监视窗。
 - 保存：常用项仍由宿主保存；高级项写入插件数据目录的 `advanced-settings.json`。首次运行把宿主中已有的旧值迁移到该文件，之后以文件为准。
-- 数值滑块拖动时只跟手，松开后写入；开关、选项、字体和颜色单项改动立即生效；布局页的预设、尺寸与内边距只预览玻璃外框，指标顺序与全部布局值按“应用布局”一并提交。
+- 数值滑块拖动时只跟手，松开后写入；开关、选项、字体和颜色单项改动立即生效；布局页的预设立即预览完整布局（尺寸、指标排列、预览框与选中态），尺寸与内边距也只做预览，只有“应用布局”才落盘，关窗或取消回到已保存状态。
+- 网速用紧凑格式（`UP 5.2K`、`DN 11.4K`），按 1024 进位，单位只留 K/M/G；文字页可把指标名称切成 Phosphor 图标，数值与单位照常显示。
 - 搜索行提供显示/隐藏、锁定位置、鼠标穿透、贴边隐藏和打开设置。`shadow` 的旧存储值保留，但原生渲染器不绘制外阴影，设置窗口不提供该项。
 
 ## 架构与构建
@@ -42,6 +43,7 @@ Windows 系统信息查询与原生液态玻璃桌面监视窗。当前版本 `1
 
 - [liquid-glass-cpp](https://github.com/ra9fael/liquid-glass-cpp)：独立渲染库，负责窗口、背景采集、材质和贴边动画；不依赖 Qt 或 WinShun。来源声明见其 `THIRD-PARTY-NOTICES.md`。
 - [hwinfo](https://github.com/lfreist/hwinfo)：2.0.0，提交 `acdc2eb4a9109b4ea6bbe207e03d9da33bc16fab`，MIT；许可证位于 `third_party/hwinfo/LICENSE`。
+- [Phosphor Icons](https://phosphoricons.com/)：MIT；图标模式内嵌常规字重，许可证随包提供于 `licenses/phosphor.txt`。
 
 在 Visual Studio 开发者终端中运行，`CMAKE_PREFIX_PATH` 指向本机 Qt 6.12 MSVC 安装目录：
 

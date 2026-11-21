@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QTemporaryDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -81,6 +82,25 @@ void loadUiFont(const QString& appDir)
         return;
     QFontDatabase::addApplicationFontFromData(source.readAll());
     setOverlayFontFile(file);
+}
+
+// Phosphor 随插件编进 exe；释放到临时目录，Qt 控件与原生 overlay 共用同一份文件。
+void loadIconFont()
+{
+    static QTemporaryDir dir;
+    if (!dir.isValid())
+        return;
+    QFile source(QStringLiteral(":/sysinfo/fonts/Phosphor.ttf"));
+    if (!source.open(QIODevice::ReadOnly))
+        return;
+    const QString path = dir.filePath(QStringLiteral("Phosphor.ttf"));
+    QFile target(path);
+    if (!target.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return;
+    target.write(source.readAll());
+    target.close();
+    QFontDatabase::addApplicationFont(path);
+    setOverlayIconFontFile(path);
 }
 
 LRESULT CALLBACK probeBackdropProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -419,10 +439,8 @@ private:
             return zh ? "采样中" : "Sampling";
         if (r.status != Status::Fresh)
             return "—";
-        if (rate) {
-            const MetricText text = formatRate(r.value);
-            return QString("%1 %2").arg(QString::fromStdString(text.number), QString::fromStdString(text.unit));
-        }
+        if (rate)
+            return QString::fromStdString(metricText(formatRate(r.value)));
         return QString::fromStdString(formatPercent(r.value).number) + "%";
     }
 
@@ -598,6 +616,7 @@ int main(int argc, char* argv[])
     const QString appDir = fontDirAt >= 0 && fontDirAt + 1 < fontArgs.size()
         ? fontArgs.at(fontDirAt + 1) : hostAppDir();
     loadUiFont(appDir);
+    loadIconFont();
 
     if (probe)
         return runProbe(app);

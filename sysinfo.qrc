@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/sysinfo">
         <file>SettingsWindow.qml</file>
+        <file>fonts/Phosphor.ttf</file>
     </qresource>
 </RCC>
