@@ -60,6 +60,10 @@ jobs:
         run: cmake -S . -B build/ci -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_KIT"
       - name: Build
         run: cmake --build build/ci --config Release --parallel 2
+      # The hosted runner's virtual screen is 1024x768; the desktop render test
+      # works on a real-sized desktop, reading pixels out to x=1059.
+      - name: Set the desktop resolution the render test expects
+        run: Set-DisplayResolution -Width 1920 -Height 1080 -Force
       - name: Run CTest
         run: ctest --test-dir build/ci -C Release --output-on-failure --no-tests=error
       - name: Run the QML suite
