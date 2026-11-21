@@ -28,6 +28,10 @@ struct NativeMetric {
     int column = 0;
 };
 
+// The host's PuHuiTi file; the native overlay builds a DirectWrite font
+// collection from it so text matches WinShun even when the face is not installed.
+void setOverlayFontFile(const QString& path);
+
 struct NativeOverlayModel {
     int glassStyle=0;
     int tileSize=24;

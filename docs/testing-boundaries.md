@@ -47,6 +47,7 @@ tree against a stub bridge, so it runs without the plugin host.
 | LOGIC-03 | Plugin | Percent and byte-rate values preserve number/unit formatting | test_settings |
 | LOGIC-04 | Plugin | Manifest's 9 setting keys and the model's 42 advanced keys define the settings surface | test_settings |
 | LOGIC-05 | Plugin | Settings clamp invalid ranges and emit only changed fields | test_settings |
+| LOGIC-06 | Plugin | Fresh settings default to the host's Alibaba PuHuiTi 3.0, preserved when a family is saved | test_settings |
 | QML-01 | Plugin UI | Slider drags commit on release only; interval floors at 100 ms | tst_SettingsWindow.qml |
 | QML-02 | Plugin UI | Layout presets/scale/cell/padding/divider edits preview without saving; Apply sends the draft, closing discards it | tst_SettingsWindow.qml |
 | QML-03 | Plugin UI | Metric labels read CPU/GPU/UP/DOWN/MEM/DISK in English and 处理器/显卡/上行/下行/内存/磁盘 in Chinese | tst_SettingsWindow.qml |

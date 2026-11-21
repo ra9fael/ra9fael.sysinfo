@@ -60,7 +60,7 @@ below-text or background placement; background charts reserve no extra height.
 └────────────────────────────┘
 ```
 
-The native grid honors explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. Measured long text shrinks to fit. Labels, values and units have separate switches.
+The native grid honors explicit rows and columns with centered text. `cpu,memory,gpu;disk,netUp,netDown` creates two rows and three columns; empty cells are allowed. Family, 70–180% font size and cell dimensions are configurable. The default family is the host's Alibaba PuHuiTi 3.0 from its `fonts` folder, matching WinShun's own UI; any other family uses the system fonts. Measured long text shrinks to fit. Labels, values and units have separate switches.
 
 Shapes are `inline` lines, `wash` areas, `dotted` dots, `bars` columns and `off`.
 `wavePlacement` selects `below`, `background` or `auto` (wash behind text, others

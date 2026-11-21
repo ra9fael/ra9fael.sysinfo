@@ -2,7 +2,7 @@
 
 ## Package
 
-`dist/manual-test-20261121-070100/ra9fael.sysinfo-1.6.0.wsplugin`, 879088
+`dist/manual-test-20261121-0843/ra9fael.sysinfo-1.6.0.wsplugin`, 881013
 bytes, containing `plugin.json`, the two READMEs and `sysinfo.exe`.
 
 Installed over the running copy by replacing `plugin.json`, the two READMEs and
@@ -10,8 +10,8 @@ Installed over the running copy by replacing `plugin.json`, the two READMEs and
 executables are renamed to `sysinfo.exe.old-<timestamp>` instead of deleted, so
 a running plugin process keeps its image. `WinShun.exe` was not restarted.
 `plugins/ra9fael.sysinfo.data/advanced-settings.json` and `window.json` were
-not modified by this install, so the saved position, material and metric
-choices survived.
+not modified by this install, so the saved position, material, font and metric
+choices survived. The four installed files hash-match the staged package.
 
 ## Build
 
@@ -33,6 +33,28 @@ It exited 0 and wrote the overlay snapshot. With `"labelLanguage": "zh"` and
 three columns the rows read 处理器 磁盘 上行 and 内存 显卡 下行; with `"en"` they
 read CPU DISK UP and MEM GPU DOWN, each followed by its value and unit.
 Snapshots: `%TEMP%\opencode\probe-20261121\overlay.png` and `overlay-en.png`.
+
+## Host font
+
+The font family remains editable. A fresh `Settings` and a JSON with an empty
+`fontFamily` both resolve to `Alibaba PuHuiTi 3.0`; a saved family is preserved.
+The plugin loads `<host app>/fonts/AlibabaPuHuiTi-3-55-Regular.ttf` into Qt and,
+because the native overlay draws with DirectWrite, builds a font collection from
+the same file. The host app folder comes from the parent process image, since
+plugins are installed outside it.
+
+For a rendering check the probe takes `--probe-app-dir C:\Program Files\WinShun`:
+
+```
+sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --probe-app-dir <host app> --dump-native <tmp>\with-collection.png
+```
+
+Over the 248×64 overlay, the snapshot with the host font differs from the same
+run without it in 7295 pixels, while a run before the change differed in 14
+pixels (only the changing sample digits). A `fontFamily: Consolas` override
+changes 2532 pixels, so the measurement detects a real font change. The Chinese
+snapshot reads 处理器 磁盘 上行 / 内存 显卡 下行 in PuHuiTi. Snapshots:
+`%TEMP%\opencode\font-probe-20261121\with-collection.png` and `zh-puhuiti.png`.
 
 ## Settings window suite
 

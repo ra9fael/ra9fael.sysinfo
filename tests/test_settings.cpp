@@ -71,6 +71,9 @@ static void testSettings()
     assert(declaredKeys == keys);
     assert(freeHideDelay.value("min").toInt() == 500 && freeHideDelay.value("max").toInt() == 30000);
     assert(Settings::fromJson({{"freeHideDelayMs", 50000}}).freeHideDelayMs == 30000);
+    assert(Settings().fontFamily == kDefaultFontFamily);
+    assert(Settings::fromJson({{"fontFamily", ""}}).fontFamily == kDefaultFontFamily);
+    assert(Settings::fromJson({{"fontFamily", "Malgun Gothic"}}).fontFamily == "Malgun Gothic");
     assert(intervalDeclared.value("min").toInt() == 100 && intervalDeclared.value("max").toInt() == 5000);
     assert(Settings::fromJson({{"intervalMs", 10}}).intervalMs == 100);
     assert(Settings::fromJson({{"intervalMs", 9000}}).intervalMs == 5000);

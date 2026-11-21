@@ -7,6 +7,8 @@
 #include <QGuiApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QFontDatabase>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -22,7 +24,9 @@
 #include <thread>
 
 #include <windows.h>
+#include <tlhelp32.h>
 
+#include "native_overlay.h"
 #include "sysinfo_sampler.h"
 #include "sysinfo_settings.h"
 #include "sysinfo_ui.h"
@@ -33,6 +37,51 @@ namespace {
 using namespace sysinfo;
 
 constexpr wchar_t kProbeBackdropClass[] = L"SysInfoLiquidProbeBackdrop";
+
+// Plugins are installed outside the host directory, so the host is found
+// through the process that started this one.
+QString hostAppDir()
+{
+    const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+        return {};
+    DWORD parent = 0;
+    PROCESSENTRY32W entry {};
+    entry.dwSize = sizeof(entry);
+    if (Process32FirstW(snapshot, &entry)) {
+        do {
+            if (entry.th32ProcessID == GetCurrentProcessId()) {
+                parent = entry.th32ParentProcessID;
+                break;
+            }
+        } while (Process32NextW(snapshot, &entry));
+    }
+    CloseHandle(snapshot);
+    if (!parent)
+        return {};
+    const HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, parent);
+    if (!process)
+        return {};
+    wchar_t image[MAX_PATH] {};
+    DWORD length = MAX_PATH;
+    const BOOL ok = QueryFullProcessImageNameW(process, 0, image, &length);
+    CloseHandle(process);
+    return ok ? QFileInfo(QString::fromWCharArray(image, int(length))).absolutePath() : QString();
+}
+
+// Win顺's UI font: QML windows register it with Qt's font engine, and the
+// native overlay builds its DirectWrite collection from the same file.
+void loadUiFont(const QString& appDir)
+{
+    if (appDir.isEmpty())
+        return;
+    const QString file = QDir(appDir).filePath(QStringLiteral("fonts/AlibabaPuHuiTi-3-55-Regular.ttf"));
+    QFile source(file);
+    if (!source.open(QIODevice::ReadOnly))
+        return;
+    QFontDatabase::addApplicationFontFromData(source.readAll());
+    setOverlayFontFile(file);
+}
 
 LRESULT CALLBACK probeBackdropProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -543,6 +592,12 @@ int main(int argc, char* argv[])
     app.setQuitOnLastWindowClosed(false);
     app.setOrganizationName(QStringLiteral("WinShun"));
     app.setApplicationName(QStringLiteral("ra9fael.sysinfo"));
+
+    const QStringList fontArgs = app.arguments();
+    const int fontDirAt = fontArgs.indexOf(QStringLiteral("--probe-app-dir"));
+    const QString appDir = fontDirAt >= 0 && fontDirAt + 1 < fontArgs.size()
+        ? fontArgs.at(fontDirAt + 1) : hostAppDir();
+    loadUiFont(appDir);
 
     if (probe)
         return runProbe(app);

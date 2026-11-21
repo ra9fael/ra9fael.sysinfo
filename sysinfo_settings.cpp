@@ -202,7 +202,7 @@ Settings Settings::fromJson(const QJsonObject& v)
     if (v.contains(QStringLiteral("fontFamily")) && v.value(QStringLiteral("fontFamily")).isString())
         s.fontFamily = v.value(QStringLiteral("fontFamily")).toString().trimmed();
     if (s.fontFamily.isEmpty())
-        s.fontFamily = QStringLiteral("Segoe UI Variable Text");
+        s.fontFamily = kDefaultFontFamily;
     if (v.contains(QStringLiteral("tiny")))
         s.tiny = v.value(QStringLiteral("tiny")).toBool(s.tiny);
     if (v.contains(QStringLiteral("edgeHide")))

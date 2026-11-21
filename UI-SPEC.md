@@ -35,7 +35,7 @@
 └────────────────────────────┘
 ```
 
-原生监视窗按 `metrics` 指定行列，文字居中。`cpu,memory,gpu;disk,netUp,netDown` 为两行三列；允许空格子。字体 family、70–180% 字号及单元格大小可调，过长文字缩小适配。名称、数值、单位可独立开关。
+原生监视窗按 `metrics` 指定行列，文字居中。`cpu,memory,gpu;disk,netUp,netDown` 为两行三列；允许空格子。字体 family、70–180% 字号及单元格大小可调，过长文字缩小适配；默认字体为宿主 fonts 目录的阿里巴巴普惠体（Alibaba PuHuiTi 3.0），与 Win顺 界面一致，设置为其它 family 时走系统字体。名称、数值、单位可独立开关。
 
 波形形状为 `inline` 折线、`wash` 面积、`dotted` 点阵、`bars` 细柱或 `off` 关闭。`wavePlacement` 为 `below`、`background` 或 `auto`（wash 背景，其余下方）。开启波形时文字单行居中，下方布局中文字靠上。28px 行高文字区为 16px，其余为 18px，上下各留 2px，自动图高与文字间隔 2px：28/36/40/56px 行高对应 6/12/16/32px 波形。`waveHeight=0` 自动，4–136px 自定义并限制在可用高度内；缩小自定义图高会增加中间留白，设回 0 恢复自动。背景图高为行高减 4px。
 

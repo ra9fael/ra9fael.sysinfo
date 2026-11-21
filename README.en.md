@@ -30,7 +30,9 @@ Both normal and compact modes support centered text and history charts.
   values without changing text or chart opacity.
 - Wave colors: one `#RRGGBB` for all metrics, or six comma-separated colors in
   CPU, memory, GPU, disk, upload, download order, independent of cell order.
-- Fonts: configurable family and 70–180% size. Measured long text shrinks to fit.
+- Fonts: configurable family and 70–180% size. The default is the host's
+  Alibaba PuHuiTi 3.0, loaded from its `fonts` folder like WinShun's own UI.
+  Measured long text shrinks to fit.
 - `tiny`: single-line text, 28px rows, 4px outer padding and automatic 6px bottom charts.
   Background charts need no extra height. Cell width, blank cells and label/value/unit switches
   are preserved. Large text shrinks to the fixed row height. Corner radius is capped

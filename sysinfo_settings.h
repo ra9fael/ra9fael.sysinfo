@@ -14,6 +14,10 @@
 
 namespace sysinfo {
 
+// Win顺 draws its own UI with the copy in <app>/fonts/; the same family is the
+// default here so a fresh install looks the same as the host.
+inline const QString kDefaultFontFamily = QStringLiteral("Alibaba PuHuiTi 3.0");
+
 struct Settings {
     QString glassStyle = QStringLiteral("liquid");
     int tileSize = 24;
@@ -46,7 +50,7 @@ struct Settings {
     int dividerOpacity = 12;
     int columns = 3;                               // 1 – 6
     int fontSize = 100;                            // 70 – 180
-    QString fontFamily = QStringLiteral("Segoe UI Variable Text");
+    QString fontFamily = kDefaultFontFamily;
     bool tiny = false;
     bool edgeHide = false;
     bool freeHide = false;

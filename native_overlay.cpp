@@ -1,8 +1,11 @@
 #include "native_overlay.h"
+#include "sysinfo_settings.h"
 
 #include <liquid_glass/window.h>
 #include <d2d1_3.h>
 #include <dwrite.h>
+#include <dwrite_3.h>
+#include <wrl/client.h>
 #include <algorithm>
 #include <unordered_map>
 #include <QColor>
@@ -12,6 +15,8 @@
 
 namespace sysinfo {
 namespace {
+QString overlayFontFile;
+
 template<class T> void release(T*& p) { if (p) { p->Release(); p = nullptr; } }
 liquid_glass::Edge edge(const QString& s) {
     if (s == QStringLiteral("left")) return liquid_glass::Edge::Left;
@@ -27,13 +32,36 @@ QImage image(const liquid_glass::Image& v) {
 }
 }
 
+void setOverlayFontFile(const QString& path) { overlayFontFile = path; }
+
 struct NativeOverlay::Impl {
     liquid_glass::Window window;
     NativeOverlayModel model;
     IDWriteFactory* factory = nullptr;
+    IDWriteFontCollection* uiFont = nullptr;
     std::unordered_map<std::wstring, float> rateRanges;
-    Impl() { DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&factory)); }
-    ~Impl() { release(factory); }
+
+    Impl()
+    {
+        if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+                                      reinterpret_cast<IUnknown**>(&factory))))
+            return;
+        using namespace Microsoft::WRL;
+        ComPtr<IDWriteFactory5> factory5;
+        ComPtr<IDWriteFontFile> file;
+        ComPtr<IDWriteFontSetBuilder1> builder;
+        ComPtr<IDWriteFontSet> set;
+        ComPtr<IDWriteFontCollection1> collection;
+        if (overlayFontFile.isEmpty() || FAILED(factory->QueryInterface(IID_PPV_ARGS(&factory5)))
+            || FAILED(factory->CreateFontFileReference(reinterpret_cast<const wchar_t*>(overlayFontFile.utf16()),
+                                                       nullptr, &file))
+            || FAILED(factory5->CreateFontSetBuilder(&builder)) || FAILED(builder->AddFontFile(file.Get()))
+            || FAILED(builder->CreateFontSet(&set))
+            || FAILED(factory5->CreateFontCollectionFromFontSet(set.Get(), &collection)))
+            return;
+        collection.CopyTo(&uiFont);
+    }
+    ~Impl() { release(uiFont); release(factory); }
     void paint(const liquid_glass::ContentFrame& frame) {
         if (!factory) return;
         auto* dc = frame.context;
@@ -45,8 +73,10 @@ struct NativeOverlay::Impl {
         dc->CreateSolidColorBrush(D2D1::ColorF(ink, ink, ink, 1), &text);
         dc->CreateSolidColorBrush(D2D1::ColorF(.10f, .62f, .80f, .90f), &wave);
         IDWriteTextFormat* format = nullptr;
-        const auto family = (model.fontFamily.isEmpty() ? QStringLiteral("Segoe UI") : model.fontFamily).toStdWString();
-        factory->CreateTextFormat(family.c_str(), nullptr, DWRITE_FONT_WEIGHT_SEMI_BOLD,
+        const QString font = model.fontFamily.isEmpty() ? kDefaultFontFamily : model.fontFamily;
+        const std::wstring family = font.toStdWString();
+        IDWriteFontCollection* collection = uiFont && font == kDefaultFontFamily ? uiFont : nullptr;
+        factory->CreateTextFormat(family.c_str(), collection, DWRITE_FONT_WEIGHT_SEMI_BOLD,
             DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
             (model.tiny ? 13.f : 14.f) * model.fontPercent / 100.f, L"", &format);
         if (!format || !text || !wave) { release(format); release(text); release(wave); dc->SetTransform(D2D1::Matrix3x2F::Identity()); return; }
