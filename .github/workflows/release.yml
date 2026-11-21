@@ -126,5 +126,7 @@ jobs:
           sleep $((3 + RANDOM % 3))
           gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --latest=true --generate-notes \
             dist/ci/*.wsplugin dist/ci/*.sha256
-          gh release view "$RELEASE_TAG" --json tagName,commit --jq '"tag=\(.tagName) commit=\(.commit.oid)"'
-          gh release view "$RELEASE_TAG" --json assets --jq '.assets[] | "asset=\(.name) bytes=\(.size)"'
+          sleep $((3 + RANDOM % 3))
+          gh release view "$RELEASE_TAG" --json tagName,assets --jq '"tag=\(.tagName)", (.assets[] | "asset=\(.name) bytes=\(.size)")'
+          printf 'commit=%s\n' "$(git rev-parse HEAD)"
+          sha256sum dist/ci/*.wsplugin
