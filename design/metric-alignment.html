@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sysinfo · 标签与读数对齐交互稿</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink:#eef4fb; --muted:#99a7ba; --line:rgba(214,231,255,.14);
+      --panel:#141b27; --panel-hi:#1d2737; --page:#0a0f17;
+      --blue:#8ac7ff; --mint:#66e0c3; --amber:#ffc879; --rose:#ff9fb7;
+      --radius:26px; --blur:18px; --glass:.40;
+    }
+    * { box-sizing:border-box }
+    html,body { margin:0; min-height:100% }
+    body { color:var(--ink); background:var(--page); font-family:"Segoe UI Variable Text","Microsoft YaHei UI",sans-serif; font-size:14px; }
+    button,input { font:inherit }
+    button { color:inherit; cursor:pointer }
+    .shell { min-height:100vh; display:grid; grid-template-columns:minmax(0,1fr) 372px }
+
+    /* ---- stage ---- */
+    .stage-wrap { position:relative; min-width:0; min-height:100vh; padding:26px 28px 22px; overflow:hidden;
+      background:radial-gradient(circle at 74% 16%,#1b6b82 0 1%,transparent 23%),linear-gradient(145deg,#101a29 0%,#090d15 54%,#182331 100%) }
+    .stage-wrap::before,.stage-wrap::after { content:""; position:absolute; border-radius:50%; filter:blur(34px); opacity:.72; pointer-events:none }
+    .stage-wrap::before { width:440px;height:440px;left:5%;bottom:-190px;background:#553c89 }
+    .stage-wrap::after { width:360px;height:360px;right:-70px;top:22%;background:#166d62 }
+    .scene-bar { position:relative; z-index:1; display:flex; align-items:center; gap:10px; color:#c7d5e8; font-size:13px; flex-wrap:wrap }
+    .scene-bar .dot { width:9px;height:9px;border-radius:50%;background:#8df0bd;box-shadow:0 0 18px #8df0bd }
+    .scene-bar .grow { flex:1 }
+    .scene-note { padding:7px 11px;border:1px solid var(--line);background:rgba(8,13,21,.4);border-radius:999px;color:var(--muted);font-size:12px }
+
+    .desktop { position:relative; z-index:1; height:clamp(430px,62vh,620px); margin-top:16px; overflow:hidden;
+      border:1px solid rgba(198,226,255,.18); border-radius:22px;
+      background:linear-gradient(120deg,transparent 12%,rgba(255,255,255,.08) 12.2%,transparent 30%),
+        radial-gradient(circle at 23% 78%,rgba(91,128,255,.22),transparent 25%),
+        linear-gradient(136deg,#263047 0%,#15263b 42%,#1b3d48 100%);
+      box-shadow:inset 0 1px rgba(255,255,255,.08),0 28px 90px rgba(0,0,0,.25) }
+    .fake-window { position:absolute; left:9%; top:14%; width:52%; height:38%; padding:18px; border:1px solid rgba(229,241,255,.12); border-radius:14px; background:rgba(10,17,29,.43); box-shadow:0 22px 48px rgba(0,0,0,.28) }
+    .fake-top { display:flex;gap:7px;align-items:center;color:#dbe7f9;font-size:12px }
+    .fake-top i{width:8px;height:8px;border-radius:50%;background:#fb728d}.fake-top i+i{background:#f7c65d}.fake-top i+i+i{background:#62d99a}
+    .fake-lines{display:grid;gap:11px;margin-top:28px}.fake-lines b{display:block;height:9px;border-radius:999px;background:rgba(220,239,255,.12)}.fake-lines b:nth-child(2){width:78%}.fake-lines b:nth-child(3){width:63%}.fake-lines b:nth-child(4){width:87%}.fake-lines b:nth-child(5){width:46%}
+    .desktop-taskbar { position:absolute; left:0;right:0;bottom:0;height:41px;display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(8,12,20,.5);backdrop-filter:blur(18px) }
+    .desktop-taskbar span{width:27px;height:27px;border-radius:8px;background:rgba(255,255,255,.11)}
+
+    /* ---- overlay ---- */
+    .overlay {
+      --ov-ink:#eef4fb; --ov-muted:#9aa7ba; --ov-line:rgba(220,238,255,.13);
+      --ov-glass:rgba(10,21,34,.46); --ov-fill:rgba(3,9,16,.12); --ov-border:rgba(226,247,255,.30);
+      position:absolute; left:50%; top:52%; translate:-50% -50%;
+      width:440px; max-width:calc(100% - 24px); padding:13px; border-radius:var(--radius);
+      isolation:isolate; user-select:none; box-shadow:0 22px 52px rgba(0,0,0,.27),0 1px 0 rgba(255,255,255,.26) inset;
+      transition:width .22s cubic-bezier(.2,.9,.22,1);
+    }
+    .overlay.light {
+      --ov-ink:#16202e; --ov-muted:#5d6a7c; --ov-line:rgba(18,36,60,.13);
+      --ov-glass:rgba(246,249,253,.82); --ov-fill:rgba(255,255,255,.42); --ov-border:rgba(255,255,255,.85);
+      box-shadow:0 22px 52px rgba(7,18,32,.22),0 1px 0 rgba(255,255,255,.7) inset;
+    }
+    .overlay::before { content:""; position:absolute; inset:0; z-index:-2; border-radius:inherit;
+      background:var(--ov-glass); backdrop-filter:blur(var(--blur)) saturate(145%); -webkit-backdrop-filter:blur(var(--blur)) saturate(145%);
+      border:1px solid var(--ov-border) }
+    .overlay::after { content:""; position:absolute; z-index:-1; inset:1px; border-radius:calc(var(--radius) - 1px); pointer-events:none;
+      background:radial-gradient(90% 42% at 18% -12%,rgba(255,255,255,.42),transparent 50%),linear-gradient(116deg,rgba(255,255,255,.12),transparent 22% 76%,rgba(142,222,255,.14));
+      mix-blend-mode:screen; opacity:.72 }
+    .overlay-head { display:flex; align-items:center; justify-content:space-between; min-height:26px; padding:0 4px 9px; font-size:12px; color:var(--ov-ink) }
+    .overlay-head span{color:var(--ov-muted);font-size:11px}.overlay-head b{letter-spacing:.02em;font-weight:600}
+
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:hidden; border-radius:calc(var(--radius) - 8px);
+      border:1px solid var(--ov-line); background:var(--ov-fill) }
+    .overlay.bar .grid { grid-template-columns:repeat(6,minmax(0,1fr)) }
+    .overlay.bar { width:560px }
+
+    .metric { position:relative; min-width:0; min-height:70px; padding:11px 12px; overflow:hidden;
+      border-right:1px solid var(--ov-line); border-bottom:1px solid var(--ov-line);
+      display:flex; align-items:baseline; gap:7px; color:var(--ov-ink) }
+    .metric:nth-child(3n){border-right:0}.metric:nth-child(n+4){border-bottom:0}
+    .overlay.bar .metric { min-height:42px; padding:9px 8px; gap:5px }
+    .overlay.bar .metric:nth-child(3n){border-right:1px solid var(--ov-line)}
+    .overlay.bar .metric:nth-child(6n){border-right:0}
+    .overlay.bar .metric:nth-child(n+4){border-bottom:0}
+
+    .metric.split { justify-content:space-between }
+    .metric.tight { justify-content:flex-start }
+
+    .name { min-width:0; flex:0 1 auto; display:inline-flex; align-items:center; gap:6px;
+      color:var(--ov-muted); font-size:11px; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .name .tone { flex:0 0 6px; width:6px;height:6px;border-radius:50%;background:var(--tone);box-shadow:0 0 9px var(--tone) }
+    .name.icon { color:var(--tone); flex:0 0 auto }
+    .name.icon svg { width:17px;height:17px;display:block }
+    .overlay.bar .name { font-size:9.5px; gap:3px }
+    .overlay.bar .name .tone { flex-basis:5px;width:5px;height:5px }
+    .overlay.bar .name.icon svg { width:14px;height:14px }
+
+    .reading { flex:0 0 auto; display:inline-flex; align-items:baseline; gap:3px; white-space:nowrap; margin-left:auto }
+    .metric.tight .reading { margin-left:0 }
+    .value { font-weight:650; font-variant-numeric:tabular-nums; line-height:1; font-size:19px; letter-spacing:-.01em }
+    .unit { font-style:normal; font-size:11px; color:var(--ov-muted); font-weight:500 }
+    .overlay.bar .value { font-size:12px }.overlay.bar .unit { font-size:8px }
+
+    .metric.tight .name { flex-shrink:1 }
+    .metric.tight.stressed .name { color:var(--rose) }
+
+    /* ---- legend under stage ---- */
+    .legend { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px }
+    .legend-card { padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(12,19,29,.52); backdrop-filter:blur(10px) }
+    .legend-card h3 { margin:0 0 9px; font-size:12px; color:#cfe0f2; font-weight:600 }
+    .rule-line { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); flex-wrap:wrap }
+    .rule-box { padding:5px 9px; border-radius:7px; background:rgba(138,199,255,.12); border:1px solid rgba(138,199,255,.26); color:#dcecff; font-variant-numeric:tabular-nums }
+    .rule-box.val { background:rgba(102,224,195,.12); border-color:rgba(102,224,195,.28); color:#c7f6e9 }
+    .rule-gap { flex:1; min-width:26px; border-top:1px dashed rgba(160,190,225,.4); position:relative }
+    .rule-gap::after { content:"空白吸收长度变化"; position:absolute; left:50%; top:-9px; translate:-50% -50%; font-size:10px; color:#7f92a8; background:#101a27; padding:0 6px; white-space:nowrap }
+    .tight-demo .rule-gap { display:none }
+    .scale { display:flex; flex-wrap:wrap; gap:7px }
+    .scale span { padding:5px 9px; border-radius:7px; background:rgba(255,255,255,.045); border:1px solid var(--line); color:#dbe8f7; font-size:12px; font-variant-numeric:tabular-nums }
+    .scale span b { color:var(--blue); font-weight:600 }
+
+    /* ---- control panel ---- */
+    .panel { border-left:1px solid var(--line); background:linear-gradient(180deg,#171f2c,#101620); padding:26px 22px; overflow:auto }
+    .panel h1{font-size:21px;line-height:1.15;margin:0}.panel>p{margin:9px 0 22px;color:var(--muted);font-size:13px;line-height:1.6}
+    .section{padding:16px 0;border-top:1px solid var(--line)}.section:first-of-type{border-top:0;padding-top:0}
+    .section h2{margin:0 0 10px;font-size:12px;color:#cfe0f2;font-weight:600;letter-spacing:.02em}
+    .seg{display:grid;gap:5px}.seg.two{grid-template-columns:repeat(2,1fr)}.seg.three{grid-template-columns:repeat(3,1fr)}
+    .seg button{border:1px solid var(--line);border-radius:8px;padding:9px 5px;background:rgba(255,255,255,.025);font-size:12px;color:var(--muted);text-align:center;line-height:1.2}
+    .seg button:hover{background:rgba(255,255,255,.06);color:#dbe8f7}
+    .seg button[aria-pressed="true"]{border-color:#69b4ff;background:rgba(71,143,224,.22);color:#ddf0ff;box-shadow:0 0 0 1px rgba(105,180,255,.14) inset}
+    .seg button small{display:block;font-size:10px;opacity:.7;margin-top:2px}
+    .hint{font-size:11px;color:var(--muted);line-height:1.55;margin:9px 0 0}
+    .hint.warn{color:#ffcf9e}
+    .swatch{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:11px;color:var(--muted)}
+    .swatch i{width:9px;height:9px;border-radius:50%;display:inline-block}
+    .action{width:100%;border:1px solid rgba(140,204,255,.35);border-radius:10px;padding:10px;background:linear-gradient(180deg,rgba(77,148,224,.3),rgba(50,103,172,.18));font-size:12px;margin-top:4px}
+    .action:hover{background:rgba(74,150,229,.35)}
+
+    @media (max-width:920px){
+      .shell{grid-template-columns:1fr}
+      .panel{border-left:0;border-top:1px solid var(--line)}
+      .stage-wrap{min-height:auto}
+      .legend{grid-template-columns:1fr}
+    }
+    @media (max-width:560px){
+      .stage-wrap{padding:18px 14px}
+      .desktop{height:400px}
+      .overlay,.overlay.bar{width:calc(100% - 16px)}
+      .overlay.bar .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .overlay.bar .metric:nth-child(3n){border-right:0}
+      .overlay.bar .metric:nth-child(6n){border-right:1px solid var(--ov-line)}
+    }
+    @media (prefers-reduced-motion: reduce){.overlay{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main class="stage-wrap">
+      <div class="scene-bar">
+        <span class="dot"></span><strong>系统监视窗 · 读数对齐</strong>
+        <span class="scene-note" id="modeNote" aria-live="polite">左右分离 · 标准网格 · 暗色</span>
+        <span class="grow"></span><span class="scene-note">交互稿</span>
+      </div>
+
+      <section class="desktop" id="desktop" aria-label="桌面 Overlay 预览">
+        <div class="fake-window">
+          <div class="fake-top"><i></i><i></i><i></i><span>正在编辑的窗口</span></div>
+          <div class="fake-lines"><b></b><b></b><b></b><b></b><b></b></div>
+        </div>
+        <div class="overlay" id="overlay" aria-label="系统监控 Overlay">
+          <div class="overlay-head"><b>系统监控</b><span>每秒更新</span></div>
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="desktop-taskbar"><span></span><span></span><span></span><span></span></div>
+      </section>
+
+      <div class="legend">
+        <section class="legend-card" id="ruleCard">
+          <h3>对齐规则</h3>
+          <div class="rule-line" id="ruleLine">
+            <span class="rule-box">CPU</span>
+            <span class="rule-gap"></span>
+            <span class="rule-box val" id="ruleVal">41.4 KBps</span>
+          </div>
+          <p class="hint" id="ruleHint">标签固定在单元格左缘，数值与单位作为一组贴在右缘。中间的空白吸收数值长度变化，长读数不会把标签挤成省略号。</p>
+        </section>
+        <section class="legend-card">
+          <h3>网速单位刻度 · <span id="unitTitle">G / M / KBps</span></h3>
+          <div class="scale" id="scale"></div>
+          <p class="hint">按 1024 进位；小于 100 保留一位小数，达到 100 取整，末尾的 .0 省略。</p>
+        </section>
+      </div>
+    </main>
+
+    <aside class="panel">
+      <h1>标签与读数对齐交互稿</h1>
+      <p>切换左侧选项，对照标签与读数争宽的情况。重点看网络两项在长数值、紧凑横条和不同单位样式下是否还挤在一起。</p>
+
+      <section class="section">
+        <h2>对齐方式</h2>
+        <div class="seg two" data-key="align">
+          <button type="button" data-val="split" aria-pressed="true">左右分离<small>标签左 · 读数右</small></button>
+          <button type="button" data-val="tight" aria-pressed="false">紧邻排列<small>原方案 · 对照</small></button>
+        </div>
+        <p class="hint" id="alignHint">左右分离是待确认方案；切到「紧邻排列」可复现当前拥挤问题。</p>
+      </section>
+
+      <section class="section">
+        <h2>布局</h2>
+        <div class="seg two" data-key="layout">
+          <button type="button" data-val="grid" aria-pressed="true">标准网格<small>3 列 × 2 行</small></button>
+          <button type="button" data-val="bar" aria-pressed="false">紧凑横条<small>6 列横条</small></button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>主题</h2>
+        <div class="seg two" data-key="theme">
+          <button type="button" data-val="dark" aria-pressed="true">暗色</button>
+          <button type="button" data-val="light" aria-pressed="false">亮色</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>指标标签</h2>
+        <div class="seg two" data-key="label">
+          <button type="button" data-val="text" aria-pressed="true">文字</button>
+          <button type="button" data-val="icon" aria-pressed="false">Phosphor 图标</button>
+        </div>
+        <div class="seg two" data-key="lang" style="margin-top:5px">
+          <button type="button" data-val="en" aria-pressed="true">英文短名</button>
+          <button type="button" data-val="zh" aria-pressed="false">中文短名</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>读数压力</h2>
+        <div class="seg two" data-key="values">
+          <button type="button" data-val="normal" aria-pressed="true">常规</button>
+          <button type="button" data-val="stress" aria-pressed="false">长数值<small>1011 / 99.9 / 9.9</small></button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>网速单位</h2>
+        <div class="seg two" data-key="units">
+          <button type="button" data-val="new" aria-pressed="true">G / M / KBps<small>本次改法</small></button>
+          <button type="button" data-val="legacy" aria-pressed="false">KB/s 风格<small>现网对照</small></button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>指标配色</h2>
+        <div class="swatch">
+          <i style="background:#36BFFA"></i>CPU
+          <i style="background:#A78BFA"></i>内存
+          <i style="background:#34D399"></i>GPU
+          <i style="background:#FBBF24"></i>磁盘
+          <i style="background:#FB7185"></i>UP
+          <i style="background:#60A5FA"></i>DN
+        </div>
+      </section>
+
+      <section class="section"><button class="action" id="reset" type="button">恢复默认视图</button></section>
+    </aside>
+  </div>
+
+  <script>
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    const ICONS = {
+      cpu: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="10" height="10" rx="1.5"/><rect x="8" y="8" width="4" height="4" rx=".5"/><path d="M8 2v3M12 2v3M8 15v3M12 15v3M2 8h3M2 12h3M15 8h3M15 12h3"/></svg>',
+      memory: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="15" height="9" rx="1.5"/><path d="M6 9v2.5M9 9v2.5M12 9v2.5M15 9v2.5M5 14.5v2M10 14.5v2M15 14.5v2"/></svg>',
+      gpu: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="11" rx="1.5"/><circle cx="10" cy="9.5" r="3"/><path d="M10 6.5v6M7 9.5h6M5 17h4M11 17h4"/></svg>',
+      disk: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="5" rx="1"/><rect x="2.5" y="11.5" width="15" height="5" rx="1"/><circle cx="14.5" cy="6" r=".7" fill="currentColor" stroke="none"/><circle cx="14.5" cy="14" r=".7" fill="currentColor" stroke="none"/></svg>',
+      up: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16V4M5 9l5-5 5 5"/></svg>',
+      down: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v12M5 11l5 5 5-5"/></svg>'
+    };
+
+    const METRICS = [
+      { id:'cpu',     name:'CPU',  zh:'处理器', icon:'cpu',    tone:'#36BFFA', pct:41, stressPct:100 },
+      { id:'memory',  name:'MEM',  zh:'内存',   icon:'memory', tone:'#A78BFA', pct:72, stressPct:99.9 },
+      { id:'gpu',     name:'GPU',  zh:'显卡',   icon:'gpu',    tone:'#34D399', pct:31, stressPct:100 },
+      { id:'disk',    name:'DISK', zh:'磁盘',   icon:'disk',   tone:'#FBBF24', pct:8,  stressPct:100 },
+      { id:'netUp',   name:'UP',   zh:'上行',   icon:'up',     tone:'#FB7185', bytes:42400,      stressBytes:1035264 },
+      { id:'netDown', name:'DN',   zh:'下行',   icon:'down',   tone:'#60A5FA', bytes:134217728,  stressBytes:10616428544 }
+    ];
+
+    const defaults = { align:'split', layout:'grid', theme:'dark', label:'text', lang:'en', values:'normal', units:'new' };
+    const state = { ...defaults };
+
+    function trim(n) {
+      let s = n < 100 ? n.toFixed(1) : String(Math.round(n));
+      if (s.endsWith('.0')) s = s.slice(0, -2);
+      return s;
+    }
+    function rateNew(bytes) {
+      if (bytes >= 1073741824) return [trim(bytes / 1073741824), 'G'];
+      if (bytes >= 1048576) return [trim(bytes / 1048576), 'M'];
+      if (bytes >= 1024) return [trim(bytes / 1024), 'KBps'];
+      return [trim(bytes), 'B'];
+    }
+    function rateLegacy(bytes) {
+      if (bytes >= 1073741824) return [(bytes / 1073741824).toFixed(1), 'GB/s'];
+      if (bytes >= 1048576) return [(bytes / 1048576).toFixed(1), 'MB/s'];
+      if (bytes >= 1024) return [(bytes / 1024).toFixed(1), 'KB/s'];
+      return [String(Math.round(bytes)), 'B/s'];
+    }
+
+    function render() {
+      const overlay = $('#overlay');
+      overlay.classList.toggle('bar', state.layout === 'bar');
+      overlay.classList.toggle('light', state.theme === 'light');
+
+      const grid = $('#grid');
+      grid.innerHTML = '';
+      METRICS.forEach(m => {
+        const card = document.createElement('article');
+        card.className = 'metric ' + state.align;
+        card.style.setProperty('--tone', m.tone);
+
+        const name = state.label === 'icon'
+          ? '<span class="name icon" aria-label="' + (state.lang === 'zh' ? m.zh : m.name) + '">' + ICONS[m.icon] + '</span>'
+          : '<span class="name"><i class="tone"></i>' + (state.lang === 'zh' ? m.zh : m.name) + '</span>';
+
+        let value, unit;
+        if (m.pct !== undefined) {
+          value = String(state.values === 'stress' ? m.stressPct : m.pct);
+          unit = '%';
+        } else {
+          const bytes = state.values === 'stress' ? m.stressBytes : m.bytes;
+          [value, unit] = state.units === 'new' ? rateNew(bytes) : rateLegacy(bytes);
+        }
+        card.innerHTML = name + '<span class="reading"><strong class="value">' + value + '</strong><em class="unit">' + unit + '</em></span>';
+        grid.append(card);
+      });
+
+      // scene note
+      const parts = [];
+      parts.push(state.align === 'split' ? '左右分离' : '紧邻排列');
+      parts.push(state.layout === 'bar' ? '紧凑横条' : '标准网格');
+      parts.push(state.theme === 'light' ? '亮色' : '暗色');
+      if (state.values === 'stress') parts.push('长数值');
+      $('#modeNote').textContent = parts.join(' · ');
+
+      // alignment legend
+      const sample = METRICS[4];
+      const [sv, su] = state.units === 'new' ? rateNew(state.values === 'stress' ? sample.stressBytes : sample.bytes)
+                                             : rateLegacy(state.values === 'stress' ? sample.stressBytes : sample.bytes);
+      $('#ruleCard').classList.toggle('tight-demo', state.align === 'tight');
+      $('#ruleVal').textContent = sv + ' ' + su;
+      $('#ruleHint').textContent = state.align === 'split'
+        ? '标签固定在单元格左缘，数值与单位作为一组贴在右缘。中间的空白吸收数值长度变化，长读数不会把标签挤成省略号。'
+        : '标签、数值、单位依次紧挨，全部从左起排。数值一长就顶到标签，标签只能截断或换行——这正是要替换的排法。';
+      $('#alignHint').textContent = state.align === 'split'
+        ? '左右分离是待确认方案；切到「紧邻排列」可复现当前拥挤问题。'
+        : '当前是旧排法：把「长数值」和「紧凑横条」打开，拥挤最明显。';
+
+      // unit scale legend
+      $('#unitTitle').textContent = state.units === 'new' ? 'G / M / KBps' : 'B/s · KB/s · MB/s';
+      const examples = state.units === 'new'
+        ? [['41','B'], ['41.4','KBps'], ['128','M'], ['1.2','G']]
+        : [['41','B/s'], ['41.4','KB/s'], ['128','MB/s'], ['1.2','GB/s']];
+      $('#scale').innerHTML = examples.map(([v,u]) => '<span><b>' + v + '</b> ' + u + '</span>').join('');
+    }
+
+    $$('.seg').forEach(seg => {
+      seg.addEventListener('click', e => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        state[seg.dataset.key] = b.dataset.val;
+        $$('button', seg).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        render();
+      });
+      seg.addEventListener('keydown', e => {
+        if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+        const btns = $$('button', seg);
+        const i = btns.indexOf(document.activeElement);
+        if (i < 0) return;
+        e.preventDefault();
+        const delta = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+        const next = (i + delta + btns.length) % btns.length;
+        btns[next].focus();
+        btns[next].click();
+      });
+    });
+
+    $('#reset').addEventListener('click', () => {
+      Object.assign(state, defaults);
+      $$('.seg').forEach(seg => $$('button', seg).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.val === state[seg.dataset.key]))));
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

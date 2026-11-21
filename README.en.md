@@ -74,9 +74,11 @@ Interaction & capture.
   clicking a preset previews the whole layout — size, metric arrangement,
   preview frame and selected state — while size and padding edits stay drafts;
   only Apply layout saves, and closing discards the draft.
-- Network rates use a compact form (`UP 5.2K`, `DN 11.4K`) that carries at 1024
-  and keeps only K/M/G. The Text page can swap metric names for Phosphor icons
-  while values and units stay shown.
+- Each cell pins the metric name to the left edge and the value with its unit to
+  the right, with the whitespace between them absorbing changes in value length.
+  Network rates read `UP 5.2 KBps`, `DN 11.4 KBps`, carrying at 1024 with B/KBps/M/G
+  units. The Text page can swap metric names for Phosphor icons while values and
+  units stay shown.
 - Search rows offer show/hide, lock, click-through, edge auto-hide and open
   settings. `shadow` keeps its stored value, but the native renderer draws no
   outer shadow and the settings window has no control for it.

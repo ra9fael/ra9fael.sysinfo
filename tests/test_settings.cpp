@@ -32,17 +32,23 @@ static void testCore()
     assert(formatPercent(11.4).number == "11");
     assert(formatPercent(9.84).number == "9.8");
     assert(formatPercent(9.84).unit == "%");
-    // 紧凑网速：单位并进数字，K/M/G 进位，<100 一位小数，>=100 取整。
-    assert(formatRate(299110.0).number == "292K");
-    assert(formatRate(99.9 * 1024).number == "99.9K");
-    assert(formatRate(100 * 1024).number == "100K");
-    assert(formatRate(1023 * 1024).number == "1023K");
-    assert(formatRate(1024.1 * 1024).number == "1M");
-    assert(formatRate(2.0 * 1024 * 1024).number == "2M");
-    assert(formatRate(1.5 * 1024 * 1024 * 1024).number == "1.5G");
-    assert(formatRate(512.0).number == "512B");
+    // 网速单位 B / KBps / M / G，按 1024 进位，<100 一位小数，>=100 取整。
+    assert(formatRate(299110.0).number == "292");
+    assert(formatRate(299110.0).unit == "KBps");
+    assert(formatRate(99.9 * 1024).number == "99.9");
+    assert(formatRate(99.9 * 1024).unit == "KBps");
+    assert(formatRate(100 * 1024).number == "100");
+    assert(formatRate(1023 * 1024).number == "1023");
+    assert(formatRate(1024.1 * 1024).number == "1");
+    assert(formatRate(1024.1 * 1024).unit == "M");
+    assert(formatRate(2.0 * 1024 * 1024).number == "2");
+    assert(formatRate(2.0 * 1024 * 1024).unit == "M");
+    assert(formatRate(1.5 * 1024 * 1024 * 1024).number == "1.5");
+    assert(formatRate(1.5 * 1024 * 1024 * 1024).unit == "G");
+    assert(formatRate(512.0).number == "512");
+    assert(formatRate(512.0).unit == "B");
     assert(formatRate(-1).number == "—");
-    assert(metricText(formatRate(299110.0)) == "292K");
+    assert(metricText(formatRate(299110.0)) == "292 KBps");
     assert(metricText(formatPercent(11)) == "11 %");
 
     std::cout << "sysinfo_core: all checks passed\n";

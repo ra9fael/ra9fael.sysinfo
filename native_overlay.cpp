@@ -105,6 +105,32 @@ struct NativeOverlay::Impl {
                 release(layout);
             }
         };
+        auto textWidth = [&](const QString& value, IDWriteTextFormat* fmt, float w, float h) {
+            if (value.isEmpty()) return 0.f;
+            IDWriteTextLayout* layout=nullptr;
+            if (FAILED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(value.utf16()),static_cast<UINT32>(value.size()),fmt,w,h,&layout))) return 0.f;
+            DWRITE_TEXT_METRICS measured{}; layout->GetMetrics(&measured);
+            const float width=measured.widthIncludingTrailingWhitespace;
+            release(layout);
+            return width;
+        };
+        const float unitFontSize=(model.tiny?10.f:11.f)*model.fontPercent/100.f;
+        // 数值与单位作为一组贴右缘；单位用更小的字号，长读数整体缩到格宽内。
+        auto drawReading = [&](const QString& val, const QString& unit, float right, float y, float w, float h) {
+            if (val.isEmpty() && unit.isEmpty()) return;
+            QString full=val;
+            if (!unit.isEmpty()) full+=(val.isEmpty()?QString():QStringLiteral(" "))+unit;
+            const UINT32 unitStart=static_cast<UINT32>(val.size());
+            IDWriteTextLayout* layout=nullptr;
+            if (FAILED(factory->CreateTextLayout(reinterpret_cast<const wchar_t*>(full.utf16()),static_cast<UINT32>(full.size()),format,w,h,&layout))) return;
+            layout->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            if (!unit.isEmpty()) layout->SetFontSize(unitFontSize,{unitStart,static_cast<UINT32>(unit.size())});
+            DWRITE_TEXT_METRICS measured{}; layout->GetMetrics(&measured);
+            const float fit=std::min({1.f,w/std::max(1.f,measured.widthIncludingTrailingWhitespace),h/std::max(1.f,measured.height)});
+            if (fit<1) layout->SetFontSize(format->GetFontSize()*fit,{0,static_cast<UINT32>(full.size())});
+            dc->DrawTextLayout(D2D1::Point2F(right-std::min(measured.widthIncludingTrailingWhitespace,w),y),layout,text,D2D1_DRAW_TEXT_OPTIONS_CLIP);
+            release(layout);
+        };
         IDWriteTextFormat* iconFormat = nullptr;
         if (model.iconMode && iconFont) {
             factory->CreateTextFormat(L"Phosphor", iconFont, DWRITE_FONT_WEIGHT_REGULAR,
@@ -124,8 +150,9 @@ struct NativeOverlay::Impl {
             QColor waveColor(metric.color);
             if(!waveColor.isValid()) waveColor=QColor("#36BFFA");
             wave->SetColor(D2D1::ColorF(waveColor.redF(),waveColor.greenF(),waveColor.blueF(),1));
-            QString value = model.showValues ? metric.value : QString();
-            if (model.showUnits && !metric.unit.isEmpty() && (model.showValues || model.tiny)) value += QStringLiteral(" ") + metric.unit;
+            const QString value = model.showValues ? metric.value : QString();
+            const QString unit = (model.showUnits && !metric.unit.isEmpty() && (model.showValues || model.tiny)) ? metric.unit : QString();
+            const QString reading = value.isEmpty() ? unit : (unit.isEmpty() ? value : value + QStringLiteral(" ") + unit);
             const float x=pad+metric.column*cellW,y=pad+metric.row*cellH;
             const float chartInset = 4.f;
             const float chartX = x+chartInset;
@@ -196,23 +223,26 @@ struct NativeOverlay::Impl {
             const float textHeight=below?labelHeight:cellH;
             const bool stacked=!model.sparklines && !model.tiny && textHeight>=lineHeight*2;
             const bool useIcon=model.iconMode && model.showLabels && iconFormat && !metric.icon.isEmpty();
-            if (useIcon) {
-                if (stacked) {
+            if (stacked) {
+                if (useIcon)
                     drawText(metric.icon,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight,iconFormat);
-                    drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
-                } else {
-                    const float iconW=std::min(cellW*.45f,lineHeight*1.45f);
-                    const float textY=y+(below?2.f:0.f);
-                    drawText(metric.icon,x+2,textY,iconW,textHeight,iconFormat);
-                    drawText(value,x+2+iconW,textY,cellW-4-iconW,textHeight);
-                }
-            } else {
-                QString line=(model.showLabels?metric.label:QString());
-                if(!value.isEmpty()) line+=(line.isEmpty()?QString():QStringLiteral("  "))+value;
-                if(stacked && model.showLabels && model.showValues) {
+                else
                     drawText(metric.label,x+4,y+(textHeight-lineHeight*2)*.5f,cellW-8,lineHeight);
-                    drawText(value,x+4,y+textHeight*.5f,cellW-8,lineHeight);
-                } else drawText(line,x+4,y+(below?2.f:0.f),cellW-8,textHeight);
+                drawText(reading,x+4,y+textHeight*.5f,cellW-8,lineHeight);
+            } else {
+                const float textY=y+(below?2.f:0.f);
+                const float right=x+cellW-4;
+                float left=x+4;
+                if (useIcon) {
+                    const float iconW=std::min(cellW*.45f,lineHeight*1.45f);
+                    drawText(metric.icon,left,textY,iconW,textHeight,iconFormat);
+                    left+=iconW+2.f;
+                } else if (model.showLabels) {
+                    const float avail=std::max(4.f,right-left-6.f-textWidth(reading,format,right-left,textHeight));
+                    const float labelW=textWidth(metric.label,format,avail,textHeight);
+                    drawText(metric.label,left,textY,std::min(labelW,avail),textHeight);
+                }
+                drawReading(value,unit,right,textY,std::max(4.f,right-left),textHeight);
             }
         }
         if(model.dividers) {

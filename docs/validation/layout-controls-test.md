@@ -2,16 +2,16 @@
 
 ## Package
 
-`dist/manual-test-20261121-icons/ra9fael.sysinfo-1.6.0.wsplugin`, 1085550 bytes,
-containing `plugin.json`, the two READMEs, `sysinfo.exe` and
+`dist/manual-test-20261121-alignment/ra9fael.sysinfo-1.6.0.wsplugin`, 1009647
+bytes, containing `plugin.json`, the two READMEs, `sysinfo.exe` and
 `licenses/phosphor.txt` (Phosphor's MIT license, required by the embedded font).
 
 Installed over the running copy by replacing `plugin.json`, the two READMEs,
-`sysinfo.exe` and the new `licenses/phosphor.txt` in
+`sysinfo.exe` and `licenses/phosphor.txt` in
 `%LOCALAPPDATA%\WinShun\plugins\ra9fael.sysinfo`. The previous executable was
-renamed to `sysinfo.exe.old-20261121-092518` instead of deleted, so the running
+renamed to `sysinfo.exe.old-20261121-171140` instead of deleted, so the running
 process kept its image. `WinShun.exe` was not restarted; the host relaunched the
-plugin at 09:25:20. `plugins/ra9fael.sysinfo.data/advanced-settings.json` and
+plugin at 17:11:42. `plugins/ra9fael.sysinfo.data/advanced-settings.json` and
 `window.json` were untouched by the install, so saved layout, font and metric
 choices survived. Every installed file hash-matches the staged package.
 
@@ -30,16 +30,18 @@ directories, so live plugin data was untouched:
 sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --probe-app-dir <host app> --dump-native <tmp>\overlay.png
 ```
 
-With text labels and `"labelLanguage": "en"`, the overlay reads `CPU 15 %` /
-`MEM 24 %`, `DISK 24 %` / `GPU 31 %`, and `UP 41.4B` / `DN 45B`: the download
-label is `DN` and network rates no longer carry `/s`. With `"labelMode": "icon"`
+With text labels and `"labelLanguage": "en"`, names sit on the left edge and
+readings on the right: `CPU 15 %` / `MEM 24 %`, `DISK 24 %` / `GPU 31 %`, and
+`UP 41.4 B` / `DN 45 B`: the download label is `DN` and network rates use
+B/KBps/M/G units, with the unit in a smaller face. With `"labelMode": "icon"`
 the same six cells show the Phosphor glyphs for CPU, hard drives, memory,
-graphics card, arrow up and arrow down, with values and units unchanged. The
+graphics card, arrow up and arrow down, with values and units on the right. The
 six-column compact-bar variant renders the same glyphs at 76 x 28 px without
-clipping.
+clipping; stacked cells with `"sparklines": "off"` and Chinese names keep the
+name above the reading.
 
-Snapshots: `%TEMP%\opencode\probe-icons\text-grid-4x.png`,
-`icon-grid-4x.png` and `icon-compact-4x.png`.
+Snapshots: `%TEMP%\opencode\probe-alignment\overlay100-4x.png`,
+`overlay-bar-4x.png` and `overlay-stacked-3x.png`.
 
 ## Host font
 
@@ -120,8 +122,10 @@ The floor is enforced in the manifest (`min: 100`), in `fromJson` (clamp to
   rejects other values and round-trips through JSON.
 - `labelMode` accepts `text` and `icon`, defaults to `text`, rejects other
   values and round-trips through JSON.
-- Network rates carry at 1024, keep one decimal below 100, switch to integers
-  at 100 and drop a trailing `.0`, so `1024.1K` becomes `1M`.
+- Network rates use B/KBps/M/G units, carry at 1024, keep one decimal below 100,
+  switch to integers at 100 and drop a trailing `.0`, so `1024.1 KBps` becomes
+  `1 M`. Names are left-aligned and value+unit groups are right-aligned in each
+  cell, with the gap absorbing length changes.
 - `tiny` no longer overrides the cell height, so the height slider works in
   every layout; the plugin window's layout page applies scale to text, cells,
   padding and the glass frame together.
