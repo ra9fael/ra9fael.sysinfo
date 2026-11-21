@@ -2,7 +2,7 @@
 
 [中文](TEST-PLAN.md) · [Requirements](plugin-design.en.md) · [UI](UI-SPEC.en.md)
 
-2026-11-16, version 1.4.0-dev. Full build, plugin logic, independent rendering and dual-monitor integration pass. Installation reports enabled/running. Sampling cadence, four-edge click-through hover, font/material/chart visuals and short CPU/GPU probes have been measured. Complete product acceptance remains tracked below.
+2026-11-21, version 1.6.0. Full build, plugin logic, independent rendering and dual-monitor integration pass. Installation reports enabled/running. Sampling cadence, four-edge click-through hover, font/material/chart visuals and short CPU/GPU probes have been measured. Complete product acceptance remains tracked below.
 
 ## Environment and evidence
 
@@ -17,10 +17,13 @@ From the plugin directory with Qt bin on PATH and an interactive Windows session
 ```powershell
 ctest --test-dir build --output-on-failure
 ./sysinfo.exe --verify-sampling
+qmltestrunner -platform offscreen -input tests -o qml-junit.xml,junitxml
 python tests/desktop_integration.py
 python tests/desktop_integration.py --require-mixed-dpi
 python tests/measure_overlay.py
 ```
+
+`tests/tst_SettingsWindow.qml` loads the settings window from the source tree against a stub bridge, so it needs neither a build nor the host; the case list is in [layout control validation](docs/validation/layout-controls-test.md).
 
 Python scripts retain development-workspace executable/Qt paths; adjust them on another machine. Performance measurement requires psutil. Strict mixed-DPI fails unless two native DPI values are observed. Partial coverage: TSYS-04 four-edge click-through wake/collapse; TSYS-05 dual-monitor movement/restart; TSYS-09 native font/theme/material snapshots; TSYS-13 short performance probes. None implies complete acceptance of that row.
 
@@ -44,6 +47,7 @@ Python scripts retain development-workspace executable/Qt paths; adjust them on 
 | TSYS-13 | SYS-F02/03/06 | L5 | Reproducible idle/load | Compare disabled/enabled/three consumers/hidden | Measure CPU/memory/wakeup peaks; derive budget from peak plus margin | budget-report | Short native CPU/GPU/frame probes recorded; complete host budget pending |
 | TSYS-14 | SYS-F09 | L4 | Monitor hidden or click-through | Open settings from the card and search, reopen, switch tabs and single settings | Reuse and focus the existing window; do not enable the monitor; changes apply immediately | settings-window | Standalone probe confirmed creation, visibility and foreground activation; real host card button pending |
 | TSYS-15 | SYS-F07/09 | L1 | Older settings and plugin data directory | First-run migration, edit advanced values, restart, edit host values | Legacy values migrate once; advanced values persist; host values stay with the host | migration-tests | `sysinfo_tests` covers migration, persistence, host-key isolation and preview commit/cancel |
+| TSYS-16 | SYS-F09 | L1 | Settings window from the source tree; stub bridge | Drag the interval slider and spin box, click each layout, switch metric language, then Apply and close directly | Only the release commits and the interval floors at 100 ms; layouts preview before Apply and closing drops the draft; short labels match the manifest in both languages | qml-tests | All 16 cases in `tests/tst_SettingsWindow.qml` pass |
 
 ## Layers and regression gates
 

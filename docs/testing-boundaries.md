@@ -24,10 +24,14 @@ ctest --test-dir build/liquid-glass-cpp --output-on-failure
 cmake -S ra9fael.sysinfo -B build/sysinfo-logic -G Ninja -DCMAKE_BUILD_TYPE=Release -DSYSINFO_BUILD_PLUGIN=OFF -DCMAKE_PREFIX_PATH=D:/tools/Qt/6.12.0/msvc2022_64
 cmake --build build/sysinfo-logic
 ctest --test-dir build/sysinfo-logic -L logic --output-on-failure
+
+qmltestrunner -platform offscreen -input ra9fael.sysinfo/tests -o qml-junit.xml,junitxml
 ```
 
 The plugin-only configuration does not configure hwinfo or liquid-glass-cpp.
 Assertions remain enabled for the logic test executable in Release builds.
+The QML suite needs no build step: it loads `SettingsWindow.qml` from the source
+tree against a stub bridge, so it runs without the plugin host.
 
 ## Test cases
 
@@ -41,8 +45,11 @@ Assertions remain enabled for the logic test executable in Release builds.
 | LOGIC-01 | Plugin | Counter first sample/reset returns Sampling, normal delta yields rate | test_settings |
 | LOGIC-02 | Plugin | Stale transition occurs at the configured age boundary | test_settings |
 | LOGIC-03 | Plugin | Percent and byte-rate values preserve number/unit formatting | test_settings |
-| LOGIC-04 | Plugin | Manifest's 30 setting keys match the settings model | test_settings |
+| LOGIC-04 | Plugin | Manifest's 9 setting keys and the model's 42 advanced keys define the settings surface | test_settings |
 | LOGIC-05 | Plugin | Settings clamp invalid ranges and emit only changed fields | test_settings |
+| QML-01 | Plugin UI | Slider drags commit on release only; interval floors at 100 ms | tst_SettingsWindow.qml |
+| QML-02 | Plugin UI | Layout presets/scale/cell/padding/divider edits preview without saving; Apply sends the draft, closing discards it | tst_SettingsWindow.qml |
+| QML-03 | Plugin UI | Metric labels read CPU/GPU/UP/DOWN/MEM/DISK in English and 处理器/显卡/上行/下行/内存/磁盘 in Chinese | tst_SettingsWindow.qml |
 | INT-01 | Adapter | Labels/values/units/tiny/wash remain readable at 100/125/150/200% | Desktop visual verification |
 | INT-02 | Window | Two-monitor drag persists the destination screen and position | Desktop integration |
 | INT-03 | Window | Edge collapse/reveal works on each monitor and after resizing | Desktop integration |

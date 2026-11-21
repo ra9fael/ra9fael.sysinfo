@@ -2,7 +2,7 @@
 
 [English](TEST-PLAN.en.md) · [需求](plugin-design.md) · [UI](UI-SPEC.md)
 
-2026-11-16，1.4.0-dev。完整构建、插件逻辑、独立渲染和双屏桌面集成通过，安装回读为启用且运行中。已测采样周期、四边穿透 hover、字体/材质/波形与短时 CPU/GPU 成本。完整产品验收仍按下表逐项跟踪。
+2026-11-21，1.6.0。完整构建、插件逻辑、独立渲染和双屏桌面集成通过，安装回读为启用且运行中。已测采样周期、四边穿透 hover、字体/材质/波形与短时 CPU/GPU 成本。完整产品验收仍按下表逐项跟踪。
 
 ## 环境与证据
 
@@ -17,10 +17,13 @@ Windows 10/11 标记版本、宿主/插件提交、普通用户；至少一台�
 ```powershell
 ctest --test-dir build --output-on-failure
 ./sysinfo.exe --verify-sampling
+qmltestrunner -platform offscreen -input tests -o qml-junit.xml,junitxml
 python tests/desktop_integration.py
 python tests/desktop_integration.py --require-mixed-dpi
 python tests/measure_overlay.py
 ```
+
+`tests/tst_SettingsWindow.qml` 直接加载源码中的设置窗，用桩 bridge 记录调用，不需要构建或宿主；用例清单见[布局控件验证](docs/validation/layout-controls-test.md)。
 
 Python 脚本沿用开发工作区的可执行文件/Qt 路径，换机器需调整。性能脚本依赖 psutil。严格 mixed-DPI 用例在未观测到两种原生 DPI 时失败。TSYS-04 已覆盖四边穿透展开/收回；TSYS-05 已覆盖双屏拖动与重启恢复；TSYS-09 已覆盖原生字体、主题、材质截图；TSYS-13 已有短时探针数据。这些部分覆盖不代表对应整项验收完成。
 
@@ -44,6 +47,7 @@ Python 脚本沿用开发工作区的可执行文件/Qt 路径，换机器需调
 | TSYS-13 | SYS-F02/03/06 | L5 | 可复现空载与负载场景 | 对比禁用/启用/三消费者/隐藏配置 | 记录CPU/内存/唤醒峰值，依据峰值+余量定预算 | budget-report | 已记录短时原生 CPU/GPU/帧测量；完整宿主预算待测 |
 | TSYS-14 | SYS-F09 | L4 | 监视窗隐藏或穿透 | 从卡片与搜索打开设置，重复打开，切换标签与单项开关 | 只聚焦已有窗口，不启用监视窗；改动即时生效 | settings-window | 独立探针确认窗口创建、可见、位于前台；真实宿主卡片按钮待测 |
 | TSYS-15 | SYS-F07/09 | L1 | 旧版设置与插件数据目录 | 首次启动迁移、修改高级项、重启、修改宿主项 | 旧值迁移一次，高级项落盘，宿主项仍由宿主保存 | migration-tests | `sysinfo_tests` 覆盖迁移、持久化、宿主键隔离、预览提交与取消 |
+| TSYS-16 | SYS-F09 | L1 | 源码中的设置窗与桩 bridge | 拖动间隔滑块与步进框、点击三种布局、切换指标语言、应用与直接关闭 | 释放滑块才提交，间隔下限 100 ms；布局先预览后应用，关闭丢弃草稿；短标签中英与清单一致 | qml-tests | `tests/tst_SettingsWindow.qml` 16 项用例全部通过 |
 
 ## 分层与回归门槛
 

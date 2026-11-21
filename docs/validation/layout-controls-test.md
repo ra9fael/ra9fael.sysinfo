@@ -20,6 +20,20 @@ choices survived.
 - `qmllint SettingsWindow.qml` reports no errors and no warnings beyond the
   file's pre-existing unqualified-access ones.
 
+## Probe run
+
+The installed executable was also launched standalone against a scratch data
+directory, so the live plugin data was untouched:
+
+```
+sysinfo.exe --probe --probe-data <tmp>\data --light --settings-json <overrides.json> --dump-native <tmp>\overlay.png
+```
+
+It exited 0 and wrote the overlay snapshot. With `"labelLanguage": "zh"` and
+three columns the rows read 处理器 磁盘 上行 and 内存 显卡 下行; with `"en"` they
+read CPU DISK UP and MEM GPU DOWN, each followed by its value and unit.
+Snapshots: `%TEMP%\opencode\probe-20261121\overlay.png` and `overlay-en.png`.
+
 ## Settings window suite
 
 `tests/tst_SettingsWindow.qml` drives the real `SettingsWindow.qml` against a
